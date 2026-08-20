@@ -781,42 +781,57 @@ function doLogout() {
 }
 
 function loadProgressFromDB() {
+  // Leer localStorage como respaldo inmediato
+  var key = currentUser ? 'progress_' + currentUser.id : null;
+  var localSaved = key ? JSON.parse(localStorage.getItem(key) || '[]') : [];
+  var localMax = localSaved.length > 0 ? Math.max.apply(null, localSaved) : -1;
+
   supa.from('progress').select('module_index').then(function(r){
-    if (r.data && r.data.length > 0) {
-      var indices = r.data.map(function(x){ return x.module_index; });
-      var maxIdx = Math.max.apply(null, indices);
-      progress = maxIdx + 1;
-    } else {
-      progress = 0;
+    var dbIndices = (r.data && r.data.length > 0) ? r.data.map(function(x){ return x.module_index; }) : [];
+    var dbMax = dbIndices.length > 0 ? Math.max.apply(null, dbIndices) : -1;
+
+    // Tomar el mayor entre Supabase y localStorage
+    var maxIdx = Math.max(localMax, dbMax);
+    progress = maxIdx >= 0 ? maxIdx + 1 : 0;
+
+    // Sincronizar: si localStorage tiene más, guardar la diferencia en Supabase
+    if (localMax > dbMax && currentUser) {
+      localSaved.forEach(function(idx){
+        if (dbIndices.indexOf(idx) === -1) {
+          supa.from('progress').upsert(
+            {user_id: currentUser.id, module_index: idx, score: 100, completed_at: new Date().toISOString()},
+            {onConflict: 'user_id,module_index'}
+          );
+        }
+      });
     }
+
     updateNodes();
     updateProgressBar();
 
     var w = document.getElementById('welcome');
-    var vi = document.getElementById('video-intro');
-    // Siempre ocultar video-intro al re-ingresar
-    vi.style.display = 'none'; vi.classList.add('hidden');
-
     if (progress > 0) {
-      // Tiene progreso: ir directo al mapa con carro posicionado
       w.style.display = 'none'; w.classList.add('hidden');
       document.getElementById('roadmap').classList.add('visible');
-      var idx = Math.min(progress, PATH_PCTS.length - 1);
+      var carIdx = Math.min(progress, PATH_PCTS.length - 1);
       setTimeout(function(){
-        var pt = getPointAt(PATH_PCTS[idx]);
+        var pt = getPointAt(PATH_PCTS[carIdx]);
         var car = document.getElementById('car-group');
         if (car) car.setAttribute('transform', 'translate(' + pt.x + ',' + pt.y + ')');
       }, 300);
-    } else {
-      // Sin progreso: mostrar bienvenida (no el video que no existe en GitHub)
-      w.style.display = 'flex';
-      w.classList.remove('hidden');
     }
+    // Si progress=0, welcome ya está visible (puesto en hidePantallaLogin)
   });
 }
 
 function saveProgressToDB(moduleIdx) {
   if (!currentUser) return;
+  // Guardar en localStorage como respaldo inmediato
+  var key = 'progress_' + currentUser.id;
+  var saved = JSON.parse(localStorage.getItem(key) || '[]');
+  if (saved.indexOf(moduleIdx) === -1) saved.push(moduleIdx);
+  localStorage.setItem(key, JSON.stringify(saved));
+  // Guardar en Supabase
   supa.from('progress').upsert(
     {user_id: currentUser.id, module_index: moduleIdx, score: 100, completed_at: new Date().toISOString()},
     {onConflict: 'user_id,module_index'}
