@@ -745,6 +745,9 @@ document.getElementById('login-email').addEventListener('keydown', function(e){ 
 
 function hidePantallaLogin() {
   document.getElementById('login-overlay').style.display = 'none';
+  // Ocultar siempre el video intro al autenticar (no existe en GitHub)
+  var vi = document.getElementById('video-intro');
+  vi.style.display = 'none'; vi.classList.add('hidden');
   if (currentUser) document.getElementById('hud-user').textContent = currentUser.email;
   document.getElementById('role-selector').style.display = 'flex';
   document.getElementById('form-box').style.display = 'none';
@@ -786,20 +789,25 @@ function loadProgressFromDB() {
     updateNodes();
     updateProgressBar();
 
-    // Si ya tiene progreso, saltar bienvenida e ir directo al mapa con carro posicionado
+    var w = document.getElementById('welcome');
+    var vi = document.getElementById('video-intro');
+    // Siempre ocultar video-intro al re-ingresar
+    vi.style.display = 'none'; vi.classList.add('hidden');
+
     if (progress > 0) {
-      var w = document.getElementById('welcome');
+      // Tiene progreso: ir directo al mapa con carro posicionado
       w.style.display = 'none'; w.classList.add('hidden');
-      var vi = document.getElementById('video-intro');
-      vi.style.display = 'none'; vi.classList.add('hidden');
       document.getElementById('roadmap').classList.add('visible');
-      // Posicionar carro en el punto correcto
       var idx = Math.min(progress, PATH_PCTS.length - 1);
       setTimeout(function(){
         var pt = getPointAt(PATH_PCTS[idx]);
         var car = document.getElementById('car-group');
         if (car) car.setAttribute('transform', 'translate(' + pt.x + ',' + pt.y + ')');
-      }, 200);
+      }, 300);
+    } else {
+      // Sin progreso: mostrar bienvenida (no el video que no existe en GitHub)
+      w.style.display = 'flex';
+      w.classList.remove('hidden');
     }
   });
 }
