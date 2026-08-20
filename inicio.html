@@ -754,15 +754,22 @@ function doLogout() {
   supa.auth.signOut().then(function(){
     currentUser = null; progress = 0;
     document.getElementById('hud-user').textContent = '';
+    // Resetear formularios
     document.getElementById('login-email').value = '';
     document.getElementById('login-pass').value = '';
-    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('user-email') && (document.getElementById('user-email').value = '');
+    document.getElementById('user-pass')  && (document.getElementById('user-pass').value  = '');
+    document.getElementById('auth-error').style.display = 'none';
+    document.getElementById('auth-ok').style.display = 'none';
+    // Volver al selector de roles
+    document.getElementById('role-selector').style.display = 'flex';
+    document.getElementById('form-box').style.display = 'none';
+    // Mostrar login overlay
     document.getElementById('login-overlay').style.display = 'flex';
+    // Ocultar roadmap y welcome
     document.getElementById('roadmap').classList.remove('visible');
     var w = document.getElementById('welcome');
-    w.style.display = ''; w.classList.remove('hidden');
-    document.getElementById('video-intro').classList.remove('hidden');
-    document.getElementById('video-intro').style.display = '';
+    w.style.display = 'none'; w.classList.add('hidden');
     updateProgressBar();
   });
 }
