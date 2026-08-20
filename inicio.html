@@ -719,16 +719,12 @@ function doLogin() {
     if (r.error) { authErr('Correo o contraseña incorrectos.'); }
     else {
       currentUser = r.data.user;
-      // Auto-crear perfil si no existe (usuarios creados directamente en Supabase)
-      supa.from('profiles').select('id').eq('id', currentUser.id).then(function(rp){
-        if (!rp.data || rp.data.length === 0) {
-          supa.from('profiles').insert({
-            id: currentUser.id,
-            email: currentUser.email,
-            nombre: currentUser.email.split('@')[0],
-            area: 'Sin definir'
-          });
-        }
+      // Auto-crear perfil si no existe (usa SECURITY DEFINER para evitar RLS)
+      supa.rpc('create_profile', {
+        p_id: currentUser.id,
+        p_email: currentUser.email,
+        p_nombre: currentUser.email.split('@')[0],
+        p_area: 'Sin definir'
       });
       hidePantallaLogin(); loadProgressFromDB();
     }
@@ -746,7 +742,7 @@ function doRegister() {
   supa.auth.signUp({email:email, password:pass}).then(function(r){
     if (r.error) { authErr(r.error.message); return; }
     var uid = r.data.user.id;
-    supa.from('profiles').insert({id:uid, email:email, nombre:nombre, area:area}).then(function(){
+    supa.rpc('create_profile', {p_id:uid, p_email:email, p_nombre:nombre, p_area:area}).then(function(){
       authOk('✓ Cuenta creada. Ya puedes ingresar con tu correo y contraseña.');
       showTab('login');
       document.getElementById('user-email').value = email;
