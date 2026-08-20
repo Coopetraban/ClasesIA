@@ -785,6 +785,22 @@ function loadProgressFromDB() {
     }
     updateNodes();
     updateProgressBar();
+
+    // Si ya tiene progreso, saltar bienvenida e ir directo al mapa con carro posicionado
+    if (progress > 0) {
+      var w = document.getElementById('welcome');
+      w.style.display = 'none'; w.classList.add('hidden');
+      var vi = document.getElementById('video-intro');
+      vi.style.display = 'none'; vi.classList.add('hidden');
+      document.getElementById('roadmap').classList.add('visible');
+      // Posicionar carro en el punto correcto
+      var idx = Math.min(progress, PATH_PCTS.length - 1);
+      setTimeout(function(){
+        var pt = getPointAt(PATH_PCTS[idx]);
+        var car = document.getElementById('car-group');
+        if (car) car.setAttribute('transform', 'translate(' + pt.x + ',' + pt.y + ')');
+      }, 200);
+    }
   });
 }
 
