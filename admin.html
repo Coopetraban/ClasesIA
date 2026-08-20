@@ -164,8 +164,8 @@ function adminLogout() {
 function loadData() {
   document.getElementById('tabla-body').innerHTML = '<tr><td colspan="7" class="empty">Cargando...</td></tr>';
   Promise.all([
-    supa.from('profiles').select('*'),
-    supa.from('progress').select('*')
+    supa.rpc('get_all_profiles'),
+    supa.rpc('get_all_progress')
   ]).then(function(results){
     var profiles = results[0].data || [];
     var progress = results[1].data || [];
