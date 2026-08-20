@@ -745,9 +745,12 @@ document.getElementById('login-email').addEventListener('keydown', function(e){ 
 
 function hidePantallaLogin() {
   document.getElementById('login-overlay').style.display = 'none';
-  // Ocultar siempre el video intro al autenticar (no existe en GitHub)
+  // Ocultar video intro (no existe en GitHub)
   var vi = document.getElementById('video-intro');
   vi.style.display = 'none'; vi.classList.add('hidden');
+  // Mostrar bienvenida de inmediato; loadProgressFromDB la reemplazará si hay progreso
+  var w = document.getElementById('welcome');
+  w.style.display = 'flex'; w.classList.remove('hidden');
   if (currentUser) document.getElementById('hud-user').textContent = currentUser.email;
   document.getElementById('role-selector').style.display = 'flex';
   document.getElementById('form-box').style.display = 'none';
