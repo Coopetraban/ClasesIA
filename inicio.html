@@ -717,7 +717,21 @@ function doLogin() {
   authErr(''); document.getElementById('auth-error').style.display='none';
   supa.auth.signInWithPassword({email:email, password:pass}).then(function(r){
     if (r.error) { authErr('Correo o contraseña incorrectos.'); }
-    else { currentUser = r.data.user; hidePantallaLogin(); loadProgressFromDB(); }
+    else {
+      currentUser = r.data.user;
+      // Auto-crear perfil si no existe (usuarios creados directamente en Supabase)
+      supa.from('profiles').select('id').eq('id', currentUser.id).then(function(rp){
+        if (!rp.data || rp.data.length === 0) {
+          supa.from('profiles').insert({
+            id: currentUser.id,
+            email: currentUser.email,
+            nombre: currentUser.email.split('@')[0],
+            area: 'Sin definir'
+          });
+        }
+      });
+      hidePantallaLogin(); loadProgressFromDB();
+    }
   });
 }
 
