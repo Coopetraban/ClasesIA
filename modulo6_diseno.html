@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Estudio Creativo · Módulo 6</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;min-height:100vh;padding:24px}
+  .logo{font-size:.9rem;color:#2D9E5F;font-weight:600;text-align:center;margin-bottom:10px}
+  h1{font-size:2rem;font-weight:900;color:#76B82A;text-align:center;margin-bottom:4px}
+  .subtitle{color:#888;font-size:.85rem;text-align:center;margin-bottom:28px}
+  .tabs{display:flex;gap:8px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+  .tab{background:rgba(13,92,58,.3);border:1px solid #2D9E5F44;border-radius:30px;padding:10px 20px;cursor:pointer;font-size:.85rem;font-weight:600;color:#888;transition:all .2s}
+  .tab.active{background:linear-gradient(135deg,#76B82A,#2D9E5F);color:#fff;border-color:transparent}
+  .tab-content{display:none;max-width:820px;margin:0 auto}
+  .tab-content.active{display:block}
+
+  /* TAB 1: RETOS */
+  .challenge-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+  .ch-title{font-size:1rem;font-weight:700;color:#76B82A}
+  .ch-score{background:rgba(13,92,58,.3);border:1px solid #2D9E5F33;border-radius:20px;padding:8px 18px;font-size:.85rem}
+  .ch-score span{color:#76B82A;font-weight:700}
+  .challenge-card{background:linear-gradient(145deg,#0B1C12,#0D3020);border:1px solid #2D9E5F44;border-radius:20px;padding:26px;margin-bottom:16px}
+  .ch-badge{display:inline-block;background:rgba(118,184,42,.12);border:1px solid #76B82A44;border-radius:20px;padding:4px 14px;font-size:.75rem;color:#76B82A;margin-bottom:12px}
+  .ch-brief{background:rgba(0,0,0,.3);border-left:3px solid #76B82A;border-radius:8px;padding:14px 18px;margin-bottom:18px;font-size:.9rem;color:#ccc;line-height:1.6}
+  .ch-brief strong{color:#76B82A}
+  .prompt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .pf{background:rgba(0,0,0,.2);border:1px solid #2D9E5F33;border-radius:10px;padding:12px}
+  .pf-label{font-size:.72rem;color:#76B82A;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+  .pf input, .pf select{width:100%;background:rgba(13,92,58,.15);border:1px solid #2D9E5F44;border-radius:8px;padding:8px 12px;color:#fff;font-family:inherit;font-size:.85rem}
+  .pf input:focus, .pf select:focus{outline:none;border-color:#76B82A}
+  .pf input::placeholder{color:#555}
+  .pf select option{background:#0D3020}
+  .pf.full{grid-column:span 2}
+  .preview-box{background:rgba(0,0,0,.4);border:1px solid #76B82A44;border-radius:12px;padding:16px;margin-bottom:14px;display:none}
+  .preview-box h4{color:#76B82A;font-size:.85rem;margin-bottom:10px}
+  .preview-prompt{color:#ddd;font-size:.88rem;line-height:1.7;white-space:pre-wrap}
+  .eval-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip-e{padding:6px 12px;border-radius:20px;font-size:.75rem;font-weight:600}
+  .chip-e.found{background:rgba(76,175,80,.15);border:1px solid rgba(76,175,80,.3);color:#a5d6a7}
+  .chip-e.missing{background:rgba(100,100,100,.1);border:1px solid #333;color:#666}
+  .btn-row{display:flex;gap:10px}
+  .btn-gen{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:11px 24px;border-radius:22px;font-weight:700;cursor:pointer;font-size:.9rem;flex:1}
+  .btn-gen:hover{opacity:.9}
+  .btn-copy-prompt{background:rgba(13,92,58,.5);border:1px solid #2D9E5F;color:#76B82A;padding:11px 18px;border-radius:22px;font-size:.85rem;font-weight:600;cursor:pointer}
+  .challenge-nav{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+  .btn-nav{background:rgba(13,92,58,.4);border:1px solid #2D9E5F;color:#fff;padding:9px 20px;border-radius:20px;cursor:pointer;font-size:.85rem}
+  .btn-nav:disabled{opacity:.3;cursor:not-allowed}
+
+  /* TAB 2: BIBLIOTECA */
+  .lib-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .lib-card{background:rgba(0,0,0,.3);border:1px solid #2D9E5F44;border-radius:16px;padding:20px;cursor:pointer;transition:border-color .2s}
+  .lib-card:hover{border-color:#76B82A}
+  .lib-card.active-card{border-color:#76B82A;background:rgba(13,92,58,.15)}
+  .lc-icon{font-size:2rem;margin-bottom:8px}
+  .lc-name{font-size:.95rem;font-weight:700;margin-bottom:4px}
+  .lc-desc{font-size:.75rem;color:#888;line-height:1.4}
+  .lib-detail{background:rgba(0,0,0,.3);border:1px solid #2D9E5F33;border-radius:16px;padding:24px;margin-top:16px;display:none}
+  .lib-detail.show{display:block}
+  .lib-detail h3{color:#76B82A;margin-bottom:14px;font-size:.95rem}
+  .lib-item{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #ffffff11}
+  .lib-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .lib-item-name{font-size:.88rem;font-weight:700;color:#fff;margin-bottom:4px}
+  .lib-item-prompt{background:rgba(13,92,58,.2);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#ccc;line-height:1.6;font-style:italic}
+  .lib-item-tips{font-size:.78rem;color:#888;margin-top:6px;line-height:1.5}
+
+  /* TAB 3: MI BRIEF */
+  .brief-builder{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .bb-section{background:rgba(0,0,0,.3);border:1px solid #2D9E5F33;border-radius:14px;padding:20px}
+  .bb-section h3{color:#76B82A;font-size:.9rem;margin-bottom:14px}
+  .bb-field{margin-bottom:14px}
+  .bb-label{font-size:.75rem;color:#888;margin-bottom:6px;display:block}
+  .bb-input{width:100%;background:rgba(13,92,58,.15);border:1px solid #2D9E5F44;border-radius:8px;padding:10px 12px;color:#fff;font-family:inherit;font-size:.85rem}
+  .bb-input:focus{outline:none;border-color:#76B82A}
+  .bb-input::placeholder{color:#444}
+  textarea.bb-input{resize:none;height:70px}
+  .bb-select{width:100%;background:rgba(13,92,58,.15);border:1px solid #2D9E5F44;border-radius:8px;padding:10px 12px;color:#fff;font-family:inherit;font-size:.85rem}
+  .bb-select option{background:#0D3020}
+  .brief-preview{background:rgba(0,0,0,.4);border:1px solid #76B82A33;border-radius:14px;padding:20px;margin-top:16px;display:none}
+  .brief-preview.show{display:block}
+  .brief-preview h3{color:#76B82A;font-size:.9rem;margin-bottom:16px}
+  .brief-section{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #ffffff11}
+  .brief-section:last-child{border-bottom:none}
+  .brief-key{font-size:.72rem;color:#76B82A;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+  .brief-val{font-size:.88rem;color:#ddd;line-height:1.5}
+  .btn-brief-gen{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:13px;border-radius:12px;font-weight:700;cursor:pointer;width:100%;font-size:.9rem;margin-top:4px}
+  .btn-brief-copy{background:rgba(13,92,58,.5);border:1px solid #2D9E5F;color:#76B82A;padding:10px;border-radius:12px;font-size:.82rem;font-weight:600;cursor:pointer;width:100%;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="logo">Coopetraban · ahorro y crédito</div>
+<h1>🎨 El Estudio Creativo</h1>
+<p class="subtitle">Módulo 6 · Diseño visual con IA — construye prompts para crear materiales visuales profesionales</p>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab(0)">🎯 Retos creativos</div>
+  <div class="tab" onclick="switchTab(1)">📚 Biblioteca visual</div>
+  <div class="tab" onclick="switchTab(2)">📋 Mi brief de diseño</div>
+</div>
+
+<!-- TAB 1: RETOS -->
+<div class="tab-content active" id="tab-0">
+  <div class="challenge-header">
+    <span class="ch-title" id="ch-title">Reto 1 / 6</span>
+    <span class="ch-score">Puntaje: <span id="ch-score">0</span> pts</span>
+  </div>
+  <div class="challenge-card">
+    <div class="ch-badge" id="ch-badge">Tipo de diseño</div>
+    <div class="ch-brief" id="ch-brief"></div>
+    <div class="prompt-grid">
+      <div class="pf"><div class="pf-label">¿Qué mostrar?</div><input id="pf-que" type="text" placeholder="El elemento principal de la imagen..."></div>
+      <div class="pf"><div class="pf-label">Estilo visual</div>
+        <select id="pf-estilo">
+          <option value="">Selecciona un estilo...</option>
+          <option>Ilustración minimalista</option>
+          <option>Fotografía profesional</option>
+          <option>Diseño plano (flat design)</option>
+          <option>Estilo corporativo moderno</option>
+          <option>Ilustración caricaturesca</option>
+          <option>Arte vectorial</option>
+          <option>Realista 3D</option>
+        </select>
+      </div>
+      <div class="pf"><div class="pf-label">Colores</div><input id="pf-color" type="text" placeholder="Ej: verde y blanco, tonos azules..."></div>
+      <div class="pf"><div class="pf-label">Formato</div>
+        <select id="pf-formato">
+          <option value="">Selecciona formato...</option>
+          <option>Horizontal (16:9 presentación)</option>
+          <option>Cuadrado (redes sociales)</option>
+          <option>Vertical (flyer / póster)</option>
+          <option>Banner horizontal ancho</option>
+          <option>Portada de documento</option>
+          <option>Icono / logo simple</option>
+        </select>
+      </div>
+      <div class="pf full"><div class="pf-label">Propósito / contexto adicional</div><input id="pf-prop" type="text" placeholder="Para qué se va a usar, qué emoción debe transmitir..."></div>
+    </div>
+    <div class="preview-box" id="preview-box">
+      <h4>🖼️ Tu prompt visual generado:</h4>
+      <div class="preview-prompt" id="preview-prompt"></div>
+      <div class="eval-chips" id="eval-chips"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-gen" onclick="generatePrompt()">✨ Generar prompt visual</button>
+      <button class="btn-copy-prompt" id="btn-copy-ch" onclick="copyChallenge()" style="display:none">📋 Copiar</button>
+    </div>
+    <div class="challenge-nav">
+      <button class="btn-nav" id="btn-ch-prev" onclick="changeChallenge(-1)">← Anterior</button>
+      <button class="btn-nav" id="btn-ch-next" onclick="changeChallenge(1)">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: BIBLIOTECA -->
+<div class="tab-content" id="tab-1">
+  <div class="lib-grid" id="lib-grid"></div>
+  <div class="lib-detail" id="lib-detail"></div>
+</div>
+
+<!-- TAB 3: BRIEF -->
+<div class="tab-content" id="tab-2">
+  <div class="brief-builder">
+    <div class="bb-section">
+      <h3>📋 Construye tu brief de diseño</h3>
+      <div class="bb-field"><label class="bb-label">¿Qué tipo de material necesitas?</label>
+        <select class="bb-select" id="bb-tipo">
+          <option value="">Selecciona...</option>
+          <option>Flyer / Afiche</option>
+          <option>Portada de presentación</option>
+          <option>Banner para correo</option>
+          <option>Imagen para redes sociales</option>
+          <option>Infografía</option>
+          <option>Logo o ícono</option>
+          <option>Fondo de diapositiva</option>
+          <option>Ilustración decorativa</option>
+        </select>
+      </div>
+      <div class="bb-field"><label class="bb-label">¿Para qué evento o campaña?</label><input class="bb-input" id="bb-evento" type="text" placeholder="Ej: Campaña de ahorro navideño, inducción de personal..."></div>
+      <div class="bb-field"><label class="bb-label">¿A quién va dirigido?</label><input class="bb-input" id="bb-audiencia" type="text" placeholder="Ej: Alumnos mayores de 40 años, Alumnos nuevos..."></div>
+      <div class="bb-field"><label class="bb-label">¿Qué emoción o mensaje quieres transmitir?</label><textarea class="bb-input" id="bb-mensaje" placeholder="Ej: Confianza y seguridad financiera, motivación, celebración..."></textarea></div>
+      <div class="bb-field"><label class="bb-label">Colores y estilo de marca</label><input class="bb-input" id="bb-colores" type="text" placeholder="Ej: verde Coopetraban, minimalista, profesional..."></div>
+      <div class="bb-field"><label class="bb-label">¿Dónde se va a usar?</label>
+        <select class="bb-select" id="bb-uso">
+          <option value="">Selecciona...</option>
+          <option>Pantalla / proyector</option>
+          <option>Impresión</option>
+          <option>Correo electrónico</option>
+          <option>Redes sociales</option>
+          <option>WhatsApp interno</option>
+          <option>Página web o intranet</option>
+        </select>
+      </div>
+      <button class="btn-brief-gen" onclick="generateBrief()">📋 Generar brief completo</button>
+    </div>
+    <div class="bb-section">
+      <h3>💡 ¿Para qué sirve el brief?</h3>
+      <p style="color:#aaa;font-size:.85rem;line-height:1.7;margin-bottom:14px">Un brief de diseño es el documento que le das a una herramienta de IA (o a un diseñador) para que entienda exactamente qué necesitas crear. Cuanto más completo, mejor el resultado.</p>
+      <div style="background:rgba(13,92,58,.15);border:1px solid #2D9E5F33;border-radius:10px;padding:14px;font-size:.82rem;color:#bbb;line-height:1.7">
+        <strong style="color:#76B82A;display:block;margin-bottom:6px">Sin brief:</strong>
+        "Hazme un flyer para el ahorro"<br>
+        → Resultado genérico, hay que iterar mucho
+        <strong style="color:#76B82A;display:block;margin:10px 0 6px">Con brief:</strong>
+        "Crea un flyer vertical para una campaña de ahorro navideño de Coopetraban, dirigido a Alumnos adultos. Estilo cálido y festivo, colores verde oscuro y dorado, imagen de familia. Para imprimir en tamaño carta."<br>
+        → Resultado listo para usar o ajustar mínimamente
+      </div>
+      <div id="brief-preview" class="brief-preview" style="margin-top:16px"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CHALLENGES = [
+  {
+    badge:"🖼️ Imagen para campaña",
+    brief:`<strong>Reto:</strong> Necesitan una imagen para promocionar la campaña de ahorro navideño de Coopetraban.<br><br><strong>Requisitos:</strong> Debe transmitir calidez familiar, confianza financiera y espíritu navideño. Se usará en el correo masivo a todos los Alumnos.`,
+    hints:["familia o personas","navideño o festivo","verde y dorado","horizontal para correo","campaña de ahorro"],
+    model:"Ilustración cálida y festiva de una familia ahorrando en época navideña. Estilo ilustración digital moderna, colores verde oscuro, dorado y crema. Formato horizontal para banner de correo electrónico. Atmósfera acogedora y de seguridad financiera. Sin texto en la imagen."
+  },
+  {
+    badge:"📊 Portada de presentación",
+    brief:`<strong>Reto:</strong> Deben preparar la portada de la presentación de resultados anuales para la Asamblea de Alumnos.<br><br><strong>Requisitos:</strong> Debe verse ejecutiva, profesional y reflejar solidez institucional. Será proyectada en sala grande ante más de 100 personas.`,
+    hints:["edificio o institución financiera","estilo corporativo profesional","verde y blanco","horizontal 16:9","solidez y confianza"],
+    model:"Diseño corporativo profesional con formas geométricas abstractas que transmitan solidez financiera. Paleta verde oscuro y blanco. Espacio en blanco para título. Estilo minimalista ejecutivo. Formato 16:9 para proyección. Sin texto decorativo."
+  },
+  {
+    badge:"📢 Post para redes sociales",
+    brief:`<strong>Reto:</strong> Necesitan contenido visual para anunciar la apertura de un nuevo módulo de atención en una sucursal.<br><br><strong>Requisitos:</strong> Debe verse moderno, accesible y generar emoción positiva. Se publicará en las redes oficiales de la cooperativa.`,
+    hints:["sucursal o apertura","moderno y vibrante","verde Coopetraban","cuadrado para redes","celebración y accesibilidad"],
+    model:"Ilustración flat design vibrante de una sucursal moderna con personas entrando felices. Colores verde brillante, blanco y detalles dorados. Formato cuadrado (1:1). Estilo moderno y accesible, líneas limpias. Energía positiva y de bienvenida."
+  },
+  {
+    badge:"🎓 Material de capacitación",
+    brief:`<strong>Reto:</strong> Quieren una ilustración para el material de la capacitación interna sobre el programa de IA.<br><br><strong>Requisitos:</strong> Debe ser atractiva para Alumnos adultos, no debe verse tecnológica ni intimidante. Irá en la portada del material impreso.`,
+    hints:["personas aprendiendo o colaborando","ilustración amigable","verde y azul claro","vertical para impresión","aprendizaje y crecimiento"],
+    model:"Ilustración amigable y accesible de un grupo diverso de personas adultas aprendiendo juntas alrededor de una mesa. Estilo ilustración plana suave, colores verde, azul claro y blanco. Formato vertical A4. Atmósfera de colaboración y crecimiento. Sin elementos tecnológicos intimidantes."
+  },
+  {
+    badge:"📱 Banner de comunicación interna",
+    brief:`<strong>Reto:</strong> Necesitan un banner para el boletín interno mensual de Gestión Humana.<br><br><strong>Requisitos:</strong> Debe verse fresco, institucional y motivador. Se enviará por correo interno a todos los Alumnos de Coopetraban.`,
+    hints:["equipo de trabajo o personas","fresco e institucional","verde y blanco","banner horizontal","motivación y equipo"],
+    model:"Banner horizontal con diseño limpio y moderno. Ilustración vectorial minimalista de personas en equipo de trabajo con gestos positivos. Paleta verde Coopetraban, blanco y gris claro. Espacio para texto en lado derecho. Estilo corporativo pero cálido y humano."
+  },
+  {
+    badge:"🏆 Reconocimiento especial",
+    brief:`<strong>Reto:</strong> Diseñar el diploma o certificado digital para los Alumnos que completen el programa de IA.<br><br><strong>Requisitos:</strong> Debe verse oficial, especial y valioso. Los Alumnos lo recibirán por correo y podrán guardarlo.`,
+    hints:["diploma o certificado","estilo elegante y oficial","verde, dorado y crema","vertical A4","logro y reconocimiento"],
+    model:"Diseño elegante de diploma o certificado con ornamentos clásicos modernizados. Marco decorativo en verde oscuro y detalles dorados. Fondo crema o marfil. Estilo formal pero contemporáneo. Espacio central para nombre del participante. Formato vertical A4. Sello circular decorativo en esquina inferior."
+  }
+];
+
+const LIBRARY = [
+  {icon:"🖼️",name:"Imágenes para campañas",desc:"Banners, posts y material para comunicaciones a Alumnos",items:[
+    {name:"Banner de campaña de ahorro",prompt:"Fotografía de estilo editorial de personas de diversas edades guardando dinero con expresiones positivas. Iluminación cálida. Colores [paleta deseada]. Formato horizontal para banner web.",tips:"Tip: Especifica el rango de edad de las personas y si quieres interior o exterior."},
+    {name:"Imagen para convocatoria a asamblea",prompt:"Diseño plano (flat design) de personas reunidas en gran sala de conferencias. Vista desde arriba. Paleta corporativa [colores]. Formato cuadrado. Estilo moderno y profesional.",tips:"Tip: Puedes pedir 'vista desde arriba' para darle un look más artístico."},
+    {name:"Ilustración de beneficios financieros",prompt:"Ilustración minimalista que muestre el concepto de 'hacer crecer el dinero'. Árbol que crece de una moneda. Estilo vectorial. Colores verdes y dorados. Fondo blanco o crema.",tips:"Tip: Las metáforas visuales (árbol=crecimiento) funcionan muy bien para conceptos abstractos."}
+  ]},
+  {icon:"📊",name:"Presentaciones ejecutivas",desc:"Portadas, diapositivas y fondos para presentaciones",items:[
+    {name:"Portada ejecutiva institucional",prompt:"Diseño de portada para presentación ejecutiva. Fondo [color oscuro] con formas geométricas abstractas sutiles. Espacio amplio en centro para título. Estilo minimalista profesional. Formato 16:9.",tips:"Tip: Pide 'espacio en blanco para texto' si necesitas superponer un título."},
+    {name:"Diapositiva de fondo neutral",prompt:"Fondo sutil para diapositivas de presentación. Textura geométrica muy suave. Color base [blanco o azul muy claro]. Sin elementos llamativos. Estilo corporativo moderno. Formato 16:9.",tips:"Tip: Los fondos neutrales son los más versátiles — úsalos para diapositivas de contenido."},
+    {name:"Gráfico infográfico de proceso",prompt:"Infografía de 4 pasos en secuencia horizontal. Iconos simples y flechas. Estilo flat design. Colores [paleta]. Formato horizontal. Sin texto — solo iconos representando los pasos.",tips:"Tip: Describe cada paso con una palabra clave para que la IA lo ilustre correctamente."}
+  ]},
+  {icon:"📱",name:"Contenido para redes y correo",desc:"Posts cuadrados, banners de email y contenido digital",items:[
+    {name:"Post cuadrado para redes sociales",prompt:"Diseño cuadrado para publicación en redes sociales. [Tema o concepto principal]. Estilo [moderno/cálido/minimalista]. Colores [paleta]. Espacio para texto en [zona de la imagen]. Formato 1:1.",tips:"Tip: Siempre pide 'espacio para texto en zona X' si vas a agregar texto después."},
+    {name:"Banner para correo electrónico",prompt:"Banner de encabezado para correo electrónico corporativo. Ilustración de [tema]. Estilo profesional y limpio. Colores [paleta institucional]. Formato horizontal 600px de ancho. Sin texto en la imagen.",tips:"Tip: El formato para email debe ser horizontal y no muy alto — máximo 200px de alto."},
+    {name:"Imagen de historia (vertical)",prompt:"Diseño vertical tipo historia de redes sociales. [Concepto o mensaje visual]. Estilo [atractivo, moderno]. Colores vibrantes pero institucionales. Formato 9:16 vertical. Zona superior e inferior con espacio para texto.",tips:"Tip: Especifica '9:16' para formatos de historia de redes sociales."}
+  ]},
+  {icon:"🎓",name:"Material didáctico",desc:"Ilustraciones y diseños para capacitaciones y talleres",items:[
+    {name:"Portada de manual o guía",prompt:"Portada de manual interno de [tema]. Estilo ilustración profesional moderna. Colores institucionales [paleta]. Formato A4 vertical. Una imagen central representativa del tema, espacio para título en zona superior.",tips:"Tip: Describe el tema con una imagen concreta: 'persona usando computadora' es mejor que 'productividad'."},
+    {name:"Ilustración explicativa de proceso",prompt:"Diagrama visual ilustrado explicando el proceso de [nombre del proceso]. Máximo 5 pasos. Estilo flat design. Iconos simples, flechas de conexión. Colores [paleta]. Fondo blanco.",tips:"Tip: Pide que sea 'sin texto' si quieres agregar los textos tú mismo después."},
+    {name:"Imagen de portada para certificado",prompt:"Arte de fondo para certificado o diploma de reconocimiento. Marco decorativo elegante. Estilo clásico modernizado. Colores [dorado, verde oscuro, crema]. Formato A4 vertical. Centro en blanco para contenido.",tips:"Tip: Para certificados, los estilos 'clásico modernizado' y 'art deco suave' dan muy buenos resultados."}
+  ]}
+];
+
+let currentChallenge = 0, totalScore = 0;
+
+function switchTab(idx){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.tab-content').forEach((t,i)=>t.classList.toggle('active',i===idx));
+}
+
+// ═══ RETOS ═══
+function loadChallenge(){
+  const c = CHALLENGES[currentChallenge];
+  document.getElementById('ch-title').textContent = `Reto ${currentChallenge+1} / ${CHALLENGES.length}`;
+  document.getElementById('ch-badge').textContent = c.badge;
+  document.getElementById('ch-brief').innerHTML = c.brief;
+  document.getElementById('pf-que').value='';
+  document.getElementById('pf-estilo').value='';
+  document.getElementById('pf-color').value='';
+  document.getElementById('pf-formato').value='';
+  document.getElementById('pf-prop').value='';
+  document.getElementById('preview-box').style.display='none';
+  document.getElementById('btn-copy-ch').style.display='none';
+  document.getElementById('btn-ch-prev').disabled = currentChallenge===0;
+  document.getElementById('btn-ch-next').disabled = currentChallenge===CHALLENGES.length-1;
+}
+
+function generatePrompt(){
+  const que = document.getElementById('pf-que').value.trim();
+  const estilo = document.getElementById('pf-estilo').value;
+  const color = document.getElementById('pf-color').value.trim();
+  const formato = document.getElementById('pf-formato').value;
+  const prop = document.getElementById('pf-prop').value.trim();
+  if(!que&&!estilo&&!color&&!formato){alert('Completa al menos 2 campos para generar tu prompt.');return;}
+
+  let parts=[];
+  if(estilo) parts.push(estilo);
+  if(que) parts.push('de '+que);
+  if(color) parts.push('Colores: '+color);
+  if(formato) parts.push('Formato: '+formato);
+  if(prop) parts.push(prop);
+  const generated = parts.join('. ')+'. Sin texto superpuesto en la imagen.';
+
+  const c = CHALLENGES[currentChallenge];
+  const userLower = (que+estilo+color+formato+prop).toLowerCase();
+  const filled = [que,estilo,color,formato,prop].filter(Boolean).length;
+
+  let pts = 0;
+  if(filled>=5) pts=3; else if(filled>=3) pts=2; else if(filled>=2) pts=1;
+  totalScore += pts;
+  document.getElementById('ch-score').textContent = totalScore;
+
+  const found = c.hints.filter(h=>userLower.includes(h.split(' ')[0])||userLower.includes(h.split(' ')[1]||h));
+  const missing = c.hints.filter(h=>!found.includes(h));
+
+  const pb = document.getElementById('preview-box');
+  document.getElementById('preview-prompt').textContent = generated;
+  let chipsHTML = '';
+  found.forEach(h=>{ chipsHTML+=`<span class="chip-e found">✅ ${h}</span>`; });
+  missing.forEach(h=>{ chipsHTML+=`<span class="chip-e missing">○ ${h}</span>`; });
+  document.getElementById('eval-chips').innerHTML = chipsHTML;
+  pb.style.display='block';
+
+  const modelBox = document.createElement('div');
+  modelBox.style.cssText='margin-top:14px;background:rgba(13,92,58,.2);border:1px solid #2D9E5F33;border-radius:10px;padding:12px;font-size:.82rem;color:#aaa;line-height:1.6';
+  modelBox.innerHTML = `<strong style="color:#76B82A;display:block;margin-bottom:6px">💡 Ejemplo de prompt experto:</strong>${c.model}`;
+  pb.appendChild(modelBox);
+  document.getElementById('btn-copy-ch').style.display='block';
+}
+
+function copyChallenge(){
+  const text = document.getElementById('preview-prompt').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    document.getElementById('btn-copy-ch').textContent='✅ ¡Copiado!';
+    setTimeout(()=>document.getElementById('btn-copy-ch').textContent='📋 Copiar',2000);
+  });
+}
+
+function changeChallenge(dir){
+  currentChallenge = Math.max(0, Math.min(CHALLENGES.length-1, currentChallenge+dir));
+  loadChallenge();
+}
+
+// ═══ BIBLIOTECA ═══
+function buildLibrary(){
+  const grid = document.getElementById('lib-grid');
+  LIBRARY.forEach((cat,i)=>{
+    const card = document.createElement('div');
+    card.className = 'lib-card';
+    card.innerHTML = `<div class="lc-icon">${cat.icon}</div><div class="lc-name">${cat.name}</div><div class="lc-desc">${cat.desc}</div>`;
+    card.onclick = ()=>showLibDetail(i, card);
+    grid.appendChild(card);
+  });
+}
+
+function showLibDetail(idx, card){
+  document.querySelectorAll('.lib-card').forEach(c=>c.classList.remove('active-card'));
+  card.classList.add('active-card');
+  const cat = LIBRARY[idx];
+  const det = document.getElementById('lib-detail');
+  let html = `<h3>${cat.icon} ${cat.name}</h3>`;
+  cat.items.forEach(item=>{
+    html+=`<div class="lib-item"><div class="lib-item-name">${item.name}</div><div class="lib-item-prompt">${item.prompt}</div><div class="lib-item-tips">${item.tips}</div></div>`;
+  });
+  det.innerHTML = html;
+  det.classList.add('show');
+}
+
+// ═══ BRIEF ═══
+function generateBrief(){
+  const tipo = document.getElementById('bb-tipo').value;
+  const evento = document.getElementById('bb-evento').value.trim();
+  const audiencia = document.getElementById('bb-audiencia').value.trim();
+  const mensaje = document.getElementById('bb-mensaje').value.trim();
+  const colores = document.getElementById('bb-colores').value.trim();
+  const uso = document.getElementById('bb-uso').value;
+  if(!tipo&&!evento){alert('Completa al menos el tipo de material y el evento/campaña.');return;}
+
+  const prompt = `Crea ${tipo||'un diseño visual'}${evento?' para '+evento:''}. ${audiencia?'Dirigido a: '+audiencia+'. ':''} ${mensaje?'Debe transmitir: '+mensaje+'. ':''} ${colores?'Estilo y colores: '+colores+'. ':''} ${uso?'Para usar en: '+uso+'.':''}`.replace(/\s+/g,' ').trim();
+
+  const preview = document.getElementById('brief-preview');
+  preview.innerHTML = `
+    <h3>📋 Tu brief de diseño</h3>
+    ${tipo?`<div class="brief-section"><div class="brief-key">Tipo de material</div><div class="brief-val">${tipo}</div></div>`:''}
+    ${evento?`<div class="brief-section"><div class="brief-key">Campaña / evento</div><div class="brief-val">${evento}</div></div>`:''}
+    ${audiencia?`<div class="brief-section"><div class="brief-key">Audiencia</div><div class="brief-val">${audiencia}</div></div>`:''}
+    ${mensaje?`<div class="brief-section"><div class="brief-key">Mensaje a transmitir</div><div class="brief-val">${mensaje}</div></div>`:''}
+    ${colores?`<div class="brief-section"><div class="brief-key">Estilo y colores</div><div class="brief-val">${colores}</div></div>`:''}
+    ${uso?`<div class="brief-section"><div class="brief-key">Canal de uso</div><div class="brief-val">${uso}</div></div>`:''}
+    <div class="brief-section"><div class="brief-key">Prompt listo para usar</div><div class="brief-val" style="background:rgba(13,92,58,.2);padding:10px;border-radius:8px;font-style:italic" id="brief-prompt-text">${prompt}</div></div>
+    <button class="btn-brief-copy" onclick="copyBrief()">📋 Copiar prompt</button>
+  `;
+  preview.classList.add('show');
+}
+
+function copyBrief(){
+  const text = document.getElementById('brief-prompt-text').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    document.querySelector('.btn-brief-copy').textContent='✅ ¡Copiado!';
+    setTimeout(()=>document.querySelector('.btn-brief-copy').textContent='📋 Copiar prompt',2000);
+  });
+}
+
+loadChallenge();
+buildLibrary();
+</script>
+</body>
+</html>

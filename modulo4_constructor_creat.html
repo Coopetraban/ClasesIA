@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constructor C-R-E-A-T · Módulo 4</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;min-height:100vh;padding:24px}
+  .logo{font-size:.9rem;color:#2D9E5F;font-weight:600;text-align:center;margin-bottom:10px}
+  h1{font-size:2rem;font-weight:900;color:#76B82A;text-align:center;margin-bottom:4px}
+  .subtitle{color:#888;font-size:.85rem;text-align:center;margin-bottom:28px}
+  .tabs{display:flex;gap:8px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+  .tab{background:rgba(13,92,58,.3);border:1px solid #2D9E5F44;border-radius:30px;padding:10px 22px;cursor:pointer;font-size:.85rem;font-weight:600;color:#888;transition:all .2s}
+  .tab.active{background:linear-gradient(135deg,#76B82A,#2D9E5F);color:#fff;border-color:transparent}
+  .tab-content{display:none;max-width:780px;margin:0 auto}
+  .tab-content.active{display:block}
+
+  /* TAB 1: Builder */
+  .creat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+  .creat-field{background:rgba(0,0,0,.3);border:1px solid #2D9E5F44;border-radius:14px;padding:18px}
+  .cf-label{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .cf-letter{font-size:1.4rem;font-weight:900;color:#76B82A;width:32px;height:32px;background:rgba(118,184,42,.15);border-radius:8px;display:flex;align-items:center;justify-content:center}
+  .cf-name{font-weight:700;font-size:.95rem}
+  .cf-desc{font-size:.75rem;color:#888;margin-top:2px}
+  textarea{width:100%;background:rgba(13,92,58,.1);border:1px solid #2D9E5F55;border-radius:10px;padding:12px;color:#fff;font-size:.85rem;font-family:inherit;resize:none;height:80px}
+  textarea:focus{outline:none;border-color:#76B82A}
+  .scenarios{margin-bottom:16px}
+  .scenarios p{font-size:.8rem;color:#888;margin-bottom:8px}
+  .scenario-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .sc-btn{background:rgba(13,92,58,.3);border:1px solid #2D9E5F44;border-radius:20px;padding:6px 14px;font-size:.75rem;color:#aaa;cursor:pointer;transition:all .2s}
+  .sc-btn:hover{border-color:#76B82A;color:#76B82A}
+  #btn-build{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px;border-radius:14px;font-weight:700;font-size:.95rem;cursor:pointer;width:100%;margin-bottom:16px}
+  #prompt-output{background:rgba(0,0,0,.4);border:1px solid #76B82A44;border-radius:14px;padding:18px;display:none}
+  #prompt-output h3{color:#76B82A;font-size:.9rem;margin-bottom:10px}
+  #prompt-text{color:#ddd;font-size:.9rem;line-height:1.7;white-space:pre-wrap}
+  #btn-copy{background:rgba(13,92,58,.5);border:1px solid #2D9E5F;color:#76B82A;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:.8rem;margin-top:12px}
+
+  /* TAB 2: Analyze */
+  .analyze-input{background:rgba(0,0,0,.3);border:1px solid #2D9E5F44;border-radius:14px;padding:18px;margin-bottom:16px}
+  #analyze-text{width:100%;background:rgba(13,92,58,.1);border:1px solid #2D9E5F55;border-radius:10px;padding:12px;color:#fff;font-size:.85rem;font-family:inherit;resize:none;height:130px}
+  #btn-analyze{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:12px;border-radius:12px;font-weight:700;cursor:pointer;width:100%;font-size:.9rem}
+  #analysis-result{display:none;margin-top:16px}
+  .creat-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+  .chip{padding:8px 16px;border-radius:20px;font-size:.8rem;font-weight:700;display:flex;align-items:center;gap:6px}
+  .chip.found{background:rgba(76,175,80,.15);border:1px solid rgba(76,175,80,.3);color:#a5d6a7}
+  .chip.missing{background:rgba(100,100,100,.1);border:1px solid #333;color:#666}
+  .score-circle{width:80px;height:80px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 16px;border:4px solid #76B82A}
+  .score-circle .sc{font-size:1.8rem;font-weight:900;color:#76B82A}
+  .score-circle .sc-label{font-size:.65rem;color:#888}
+  .suggestion-box{background:rgba(13,92,58,.15);border:1px solid #2D9E5F33;border-radius:12px;padding:14px;font-size:.85rem;color:#bbb;line-height:1.6}
+
+  /* TAB 3: Guide */
+  .guide-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px}
+  .guide-card{background:rgba(0,0,0,.3);border:1px solid #2D9E5F44;border-radius:14px;padding:18px}
+  .guide-card .gc-letter{font-size:2.5rem;font-weight:900;color:#76B82A;margin-bottom:6px}
+  .guide-card h3{font-size:.9rem;font-weight:700;margin-bottom:8px;color:#fff}
+  .guide-card p{font-size:.8rem;color:#aaa;line-height:1.5}
+  .guide-card .example{background:rgba(13,92,58,.2);border-radius:8px;padding:10px;margin-top:10px;font-size:.78rem;color:#ccc;font-style:italic;line-height:1.5}
+  .complete-example{background:rgba(13,92,58,.15);border:1px solid #2D9E5F33;border-radius:14px;padding:20px;margin-top:8px}
+  .complete-example h3{color:#76B82A;margin-bottom:14px;font-size:.95rem}
+  .creat-line{margin-bottom:10px;font-size:.85rem;line-height:1.5}
+  .creat-line strong{color:#76B82A;font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="logo">Coopetraban · ahorro y crédito</div>
+<h1>⚡ Constructor C-R-E-A-T</h1>
+<p class="subtitle">Módulo 4 · El método profesional para prompts de alta calidad</p>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab(0)">🔨 Construir</div>
+  <div class="tab" onclick="switchTab(1)">🔍 Analizar</div>
+  <div class="tab" onclick="switchTab(2)">📖 Guía C-R-E-A-T</div>
+</div>
+
+<!-- TAB 1: BUILDER -->
+<div class="tab-content active" id="tab-0">
+  <div class="scenarios">
+    <p>Cargar un escenario de ejemplo:</p>
+    <div class="scenario-btns">
+      <div class="sc-btn" onclick="loadScenario(0)">📧 Correo a Alumno</div>
+      <div class="sc-btn" onclick="loadScenario(1)">📋 Plan de capacitación</div>
+      <div class="sc-btn" onclick="loadScenario(2)">📊 Resumen ejecutivo</div>
+      <div class="sc-btn" onclick="loadScenario(3)">🤝 Atención de queja</div>
+    </div>
+  </div>
+  <div class="creat-grid">
+    <div class="creat-field">
+      <div class="cf-label"><div class="cf-letter">C</div><div><div class="cf-name">Contexto</div><div class="cf-desc">¿Quién eres? ¿Cuál es la situación?</div></div></div>
+      <textarea id="f-c" placeholder="Ej: Soy Alumno de crédito en Coopetraban. Un Alumno me pide información sobre créditos de consumo..."></textarea>
+    </div>
+    <div class="creat-field">
+      <div class="cf-label"><div class="cf-letter">R</div><div><div class="cf-name">Rol</div><div class="cf-desc">¿Qué papel debe asumir la IA?</div></div></div>
+      <textarea id="f-r" placeholder="Ej: Actúa como asesor de crédito experto con trato amable y profesional..."></textarea>
+    </div>
+    <div class="creat-field">
+      <div class="cf-label"><div class="cf-letter">E</div><div><div class="cf-name">Ejemplo</div><div class="cf-desc">¿Cómo debe verse el resultado?</div></div></div>
+      <textarea id="f-e" placeholder="Ej: El tono que busco es similar al de este texto: 'Estimado Alumno, con mucho gusto le informo...'"></textarea>
+    </div>
+    <div class="creat-field">
+      <div class="cf-label"><div class="cf-letter">A</div><div><div class="cf-name">Acción</div><div class="cf-desc">¿Qué quieres que haga exactamente?</div></div></div>
+      <textarea id="f-a" placeholder="Ej: Redacta un correo de respuesta explicando los requisitos y el proceso de solicitud de crédito..."></textarea>
+    </div>
+    <div class="creat-field" style="grid-column:span 2">
+      <div class="cf-label"><div class="cf-letter">T</div><div><div class="cf-name">Tono</div><div class="cf-desc">¿Cuál es el estilo? ¿Extensión máxima?</div></div></div>
+      <textarea id="f-t" placeholder="Ej: Tono formal pero cercano. Máximo 150 palabras. Sin tecnicismos." style="height:60px"></textarea>
+    </div>
+  </div>
+  <button id="btn-build" onclick="buildPrompt()">⚡ Generar Prompt C-R-E-A-T</button>
+  <div id="prompt-output">
+    <h3>📋 Tu prompt generado:</h3>
+    <div id="prompt-text"></div>
+    <button id="btn-copy" onclick="copyPrompt()">📋 Copiar prompt</button>
+  </div>
+</div>
+
+<!-- TAB 2: ANALYZE -->
+<div class="tab-content" id="tab-1">
+  <div class="analyze-input">
+    <p style="color:#76B82A;font-size:.85rem;font-weight:600;margin-bottom:10px">📝 Pega aquí un prompt para analizarlo:</p>
+    <textarea id="analyze-text" placeholder="Pega cualquier prompt aquí y te diremos si tiene todos los elementos C-R-E-A-T..."></textarea>
+    <button id="btn-analyze" onclick="analyzePrompt()" style="margin-top:12px">🔍 Analizar prompt</button>
+  </div>
+  <div id="analysis-result"></div>
+</div>
+
+<!-- TAB 3: GUIDE -->
+<div class="tab-content" id="tab-2">
+  <div class="guide-cards">
+    <div class="guide-card">
+      <div class="gc-letter">C</div>
+      <h3>Contexto</h3>
+      <p>Explica quién eres, en qué organización trabajas y cuál es la situación específica que motiva el pedido.</p>
+      <div class="example">"Soy coordinadora de Gestión Humana en Coopetraban, cooperativa de ahorro y crédito con 200 Alumnos..."</div>
+    </div>
+    <div class="guide-card">
+      <div class="gc-letter">R</div>
+      <h3>Rol</h3>
+      <p>Asigna un papel a la IA. Esto orienta su perspectiva y el tipo de lenguaje que usará en la respuesta.</p>
+      <div class="example">"Actúa como consultor experto en comunicación organizacional para instituciones financieras..."</div>
+    </div>
+    <div class="guide-card">
+      <div class="gc-letter">E</div>
+      <h3>Ejemplo</h3>
+      <p>Muestra un modelo del resultado que esperas. Puede ser un texto, un formato o una descripción del estilo.</p>
+      <div class="example">"El resultado debe tener un tono similar a esta frase: 'Estimado Alumno, nos complace...' "</div>
+    </div>
+    <div class="guide-card">
+      <div class="gc-letter">A</div>
+      <h3>Acción</h3>
+      <p>Define la tarea de forma concreta y específica. Usa verbos de acción: redacta, resume, crea, analiza, lista.</p>
+      <div class="example">"Redacta una convocatoria para una capacitación obligatoria de 2 horas sobre prevención de fraudes..."</div>
+    </div>
+    <div class="guide-card">
+      <div class="gc-letter">T</div>
+      <h3>Tono</h3>
+      <p>Especifica el estilo de comunicación, nivel de formalidad y restricciones de extensión o formato.</p>
+      <div class="example">"Tono formal y motivador. Máximo 120 palabras. Termina con una invitación cálida a participar."</div>
+    </div>
+    <div class="guide-card" style="background:rgba(118,184,42,.08);border-color:#76B82A33">
+      <div class="gc-letter" style="font-size:1.8rem">💡</div>
+      <h3>Pro tips</h3>
+      <p>No necesitas incluir todos siempre. Empieza con C+A (mínimo). Añade R, T, E para resultados más precisos.</p>
+      <div class="example">C+A = básico · C+R+A+T = profesional · C+R+E+A+T = experto</div>
+    </div>
+  </div>
+  <div class="complete-example">
+    <h3>📝 Ejemplo completo C-R-E-A-T para Coopetraban</h3>
+    <div class="creat-line"><strong>C —</strong> Soy funcionaria de Gestión Humana en Coopetraban, una cooperativa de ahorro y crédito. Necesito convocar a todos los Alumnos a una capacitación obligatoria.</div>
+    <div class="creat-line"><strong>R —</strong> Actúa como especialista en comunicación interna corporativa para instituciones financieras cooperativas.</div>
+    <div class="creat-line"><strong>E —</strong> El tono que busco es cálido pero formal, similar a: "Con gusto les compartimos esta importante oportunidad de formación..."</div>
+    <div class="creat-line"><strong>A —</strong> Redacta una convocatoria interna para una capacitación obligatoria de 2 horas sobre herramientas de productividad con IA. La capacitación es el próximo martes a las 2pm en la sala de reuniones.</div>
+    <div class="creat-line"><strong>T —</strong> Tono formal y motivador. Máximo 150 palabras. Incluye: objetivo, fecha, hora, lugar y cómo confirmar asistencia.</div>
+  </div>
+</div>
+
+<script>
+const SCENARIOS = [
+  {c:"Soy Alumno de crédito en Coopetraban. Un Alumno aprobado necesita información de su crédito.",r:"Actúa como asesor de crédito con trato empático y profesional.",e:"El tono que busco: 'Estimado Alumno, con mucho gusto le comunicamos...'",a:"Redacta un correo notificando la aprobación del crédito, monto, cuota y próximos pasos.",t:"Formal y cálido. Máximo 150 palabras. Sin tecnicismos."},
+  {c:"Soy coordinadora de Gestión Humana en Coopetraban. Necesito un plan de capacitación semestral.",r:"Actúa como experto en diseño instruccional y desarrollo organizacional.",e:"El resultado debe tener formato de tabla con columnas: Mes, Tema, Duración, Objetivo.",a:"Crea un plan de capacitación para 6 meses con 1 taller mensual relacionado con cooperativismo y servicio al Alumno.",t:"Tono profesional. Formato tabla. Incluye indicador de éxito por taller."},
+  {c:"Soy gerente de área. Debo presentar resultados del primer semestre a la Junta Directiva.",r:"Actúa como analista financiero especializado en presentaciones ejecutivas.",e:"Quiero algo conciso, al estilo de un one-pager ejecutivo.",a:"Resume los resultados de captación, crédito y morosidad en un formato de resumen ejecutivo de máximo 2 páginas.",t:"Muy formal. Máximo 400 palabras. Estructura: resumen, logros, retos, próximos pasos."},
+  {c:"Soy Alumno de caja. Un Alumno está molesto por un cobro inesperado de comisión.",r:"Actúa como experto en atención al cliente para instituciones financieras.",e:"El guión debe ser empático, como lo haría un asesor senior con experiencia en resolución de conflictos.",a:"Crea un guión de 5 pasos para atender la queja: escucha activa, explicación, solución, compensación si aplica, y cierre positivo.",t:"Empático y profesional. Pasos numerados. Incluye frases de ejemplo para cada paso."}
+];
+
+function switchTab(idx){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.tab-content').forEach((t,i)=>t.classList.toggle('active',i===idx));
+}
+
+function loadScenario(idx){
+  const s=SCENARIOS[idx];
+  document.getElementById('f-c').value=s.c;
+  document.getElementById('f-r').value=s.r;
+  document.getElementById('f-e').value=s.e;
+  document.getElementById('f-a').value=s.a;
+  document.getElementById('f-t').value=s.t;
+}
+
+function buildPrompt(){
+  const c=document.getElementById('f-c').value.trim();
+  const r=document.getElementById('f-r').value.trim();
+  const e=document.getElementById('f-e').value.trim();
+  const a=document.getElementById('f-a').value.trim();
+  const t=document.getElementById('f-t').value.trim();
+  if(!c&&!a){alert('Completa al menos el Contexto y la Acción.');return;}
+  let parts=[];
+  if(c)parts.push('[CONTEXTO]\n'+c);
+  if(r)parts.push('[ROL]\n'+r);
+  if(e)parts.push('[EJEMPLO]\n'+e);
+  if(a)parts.push('[ACCIÓN]\n'+a);
+  if(t)parts.push('[TONO]\n'+t);
+  const filled=[c,r,e,a,t].filter(Boolean).length;
+  document.getElementById('prompt-text').textContent=parts.join('\n\n');
+  document.getElementById('prompt-output').style.display='block';
+  const quality=filled>=4?'⭐⭐⭐ Prompt experto':filled>=3?'⭐⭐ Prompt profesional':'⭐ Prompt básico (agrega más campos)';
+  document.getElementById('prompt-output').querySelector('h3').textContent='📋 '+quality;
+}
+
+function copyPrompt(){
+  navigator.clipboard.writeText(document.getElementById('prompt-text').textContent).then(()=>{ document.getElementById('btn-copy').textContent='✅ ¡Copiado!'; setTimeout(()=>document.getElementById('btn-copy').textContent='📋 Copiar prompt',2000); });
+}
+
+const CREAT_KEYWORDS = {
+  C:["soy","trabajo","contexto","situación","cooperativa","Alumno","área","alumno"],
+  R:["actúa","actua","eres","como experto","como especialista","como asesor","como consultor"],
+  E:["ejemplo","como este","similar a","estilo","tono que busco","como el texto"],
+  A:["redacta","crea","escribe","resume","genera","analiza","elabora","diseña","lista"],
+  T:["tono","formal","informal","empático","máximo","palabras","formato","tabla","lista","viñetas","breve","conciso"]
+};
+
+function analyzePrompt(){
+  const text=document.getElementById('analyze-text').value.toLowerCase().trim();
+  if(!text){alert('Pega un prompt primero.');return;}
+  const results={};let found=0;
+  for(const [letter,kws] of Object.entries(CREAT_KEYWORDS)){
+    results[letter]=kws.some(k=>text.includes(k));
+    if(results[letter])found++;
+  }
+  const pct=found/5;
+  let html=`<div class="score-circle" style="border-color:${pct>=.8?'#76B82A':pct>=.6?'#FFD700':'#e55'}"><div class="sc" style="color:${pct>=.8?'#76B82A':pct>=.6?'#FFD700':'#e55'}">${found}/5</div><div class="sc-label">elementos</div></div>`;
+  html+='<div class="creat-chips">';
+  const names={C:'Contexto',R:'Rol',E:'Ejemplo',A:'Acción',T:'Tono'};
+  for(const [letter,ok] of Object.entries(results)){
+    html+=`<div class="chip ${ok?'found':'missing'}">${ok?'✅':'○'} <strong>${letter}</strong> ${names[letter]}</div>`;
+  }
+  html+='</div>';
+  const missing=Object.entries(results).filter(([,v])=>!v).map(([k])=>names[k]);
+  if(missing.length>0){
+    html+=`<div class="suggestion-box">💡 <strong>Sugerencia:</strong> Este prompt le falta: ${missing.join(', ')}. Agrega esos elementos para obtener resultados más precisos y consistentes.</div>`;
+  }else{
+    html+='<div class="suggestion-box" style="background:rgba(76,175,80,.1);border-color:rgba(76,175,80,.3);color:#a5d6a7">🏆 <strong>¡Prompt completo!</strong> Tiene todos los elementos del método C-R-E-A-T. Este prompt debería producir resultados de alta calidad.</div>';
+  }
+  const ar=document.getElementById('analysis-result');
+  ar.innerHTML=html;
+  ar.style.display='block';
+}
+</script>
+</body>
+</html>

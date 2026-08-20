@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Evaluación Final · IA para la Productividad · Coopetraban</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#eee;min-height:100vh}
+header{background:linear-gradient(135deg,#0D5C3A,#0B3020);padding:28px 40px;border-bottom:3px solid #76B82A;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.logo-t .lt1{font-size:1.1rem;font-weight:800;color:#76B82A;letter-spacing:.04em;display:block}
+.logo-t .lt2{font-size:.65rem;color:#2D9E5F;letter-spacing:.12em;display:block;margin-top:2px}
+header h1{font-size:1.4rem;color:#fff;font-weight:800;text-align:right}
+header p{font-size:.85rem;color:#aaa;text-align:right}
+.container{max-width:860px;margin:32px auto;padding:0 20px 60px}
+
+.student-card{background:linear-gradient(135deg,#0B1C12,#0D3020);border:1px solid #2D9E5F44;border-radius:16px;padding:28px 36px;margin-bottom:28px}
+.student-card h2{color:#76B82A;font-size:1.2rem;margin-bottom:18px;font-weight:800}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fields label{display:flex;flex-direction:column;gap:6px;font-size:.9rem;color:#bbb}
+.fields input,.fields select{background:#0D2818;border:1px solid #2D9E5F55;border-radius:8px;padding:10px 14px;color:#fff;font-size:1rem;outline:none;transition:border .2s}
+.fields input:focus,.fields select:focus{border-color:#76B82A}
+
+.instrucciones{background:rgba(118,184,42,.1);border:1px solid #76B82A44;border-radius:12px;padding:18px 24px;margin-bottom:28px;font-size:.92rem;color:#ccc;line-height:1.7}
+.instrucciones strong{color:#76B82A}
+
+.seccion{margin-bottom:10px}
+.sec-label{font-size:.78rem;font-weight:700;letter-spacing:.1em;color:#76B82A;text-transform:uppercase;margin-bottom:14px;padding:5px 12px;background:rgba(118,184,42,.1);border-radius:20px;display:inline-block}
+.pregunta{background:linear-gradient(135deg,#0B1C12,#0D2818);border:1px solid #2D9E5F33;border-radius:14px;padding:22px 28px;margin-bottom:14px;transition:border .3s}
+.pregunta.correcta{border-color:#76B82A!important;background:rgba(118,184,42,.07)!important}
+.pregunta.incorrecta{border-color:#e05555!important;background:rgba(220,60,60,.06)!important}
+.pregunta.pendiente{border-color:#f0a030;background:rgba(240,160,48,.06)}
+.pnum{font-size:.82rem;color:#2D9E5F;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.result-badge{display:none;font-size:.88rem;font-weight:800;padding:2px 10px;border-radius:20px}
+.result-badge.ok{color:#76B82A;background:rgba(118,184,42,.15)}
+.result-badge.err{color:#e05555;background:rgba(220,60,60,.12)}
+.ptexto{font-size:1.02rem;color:#eee;margin-bottom:16px;line-height:1.65}
+.opciones{display:flex;flex-direction:column;gap:9px}
+.opcion{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:9px;border:1px solid transparent;cursor:pointer;transition:background .2s;font-size:.97rem;color:#ccc}
+.opcion:hover{background:rgba(45,158,95,.15)}
+.opcion input[type=radio]{accent-color:#76B82A;margin-top:3px;flex-shrink:0}
+/* Solo resaltamos la seleccionada del usuario — correcto o incorrecto */
+.opcion.seleccionada-ok{background:rgba(118,184,42,.18);border-color:#76B82A;color:#fff}
+.opcion.seleccionada-err{background:rgba(220,60,60,.18);border-color:#e05555;color:#fff}
+textarea.resp-abierta{width:100%;background:#0D2818;border:1px solid #2D9E5F44;border-radius:10px;padding:14px;color:#eee;font-size:.97rem;line-height:1.6;resize:vertical;min-height:110px;outline:none;font-family:inherit;margin-top:4px}
+textarea.resp-abierta:focus{border-color:#76B82A}
+.feedback{margin-top:12px;font-size:.88rem;padding:8px 12px;border-radius:8px;display:none}
+.feedback.pend{background:rgba(240,160,48,.15);color:#f0c060;display:block}
+
+.btn-submit{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:18px 48px;font-size:1.1rem;font-weight:800;border-radius:40px;cursor:pointer;display:block;margin:32px auto 0;box-shadow:0 4px 20px rgba(118,184,42,.35);transition:transform .2s}
+.btn-submit:hover{transform:scale(1.04)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+#resultado{display:none;background:linear-gradient(135deg,#0B1C12,#0D3020);border:2px solid #76B82A;border-radius:20px;padding:36px 44px;margin-top:32px;text-align:center}
+#resultado h2{color:#76B82A;font-size:2rem;margin-bottom:8px;font-weight:900}
+#resultado .nota-num{font-size:3.5rem;font-weight:900;color:#fff;margin:12px 0}
+#resultado .nota-num span{color:#76B82A;font-size:2rem}
+#resultado .desc{color:#aaa;font-size:1rem;margin-bottom:20px;line-height:1.6}
+#resultado .aprobado{color:#76B82A;font-size:1.1rem;font-weight:700}
+#resultado .reprobado{color:#e05555;font-size:1.1rem;font-weight:700}
+.btn-pdf{background:linear-gradient(135deg,#0D5C3A,#2D9E5F);border:2px solid #76B82A;color:#fff;padding:14px 36px;font-size:1rem;font-weight:700;border-radius:30px;cursor:pointer;margin-top:16px;transition:transform .2s}
+.btn-pdf:hover{transform:scale(1.04)}
+
+/* ═══ PRINT ═══ */
+@media print{
+  body{background:#fff!important;color:#000!important}
+  header{background:#0D5C3A!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:16px 28px}
+  .logo-t .lt1{color:#76B82A!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  header h1,header p{color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .btn-submit,.btn-pdf,.instrucciones{display:none!important}
+  .container{margin:0;padding:8px 18px}
+  .student-card{border:1px solid #0D5C3A!important;border-radius:8px;padding:12px 18px;background:#f9fff9!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .student-card h2{color:#0D5C3A!important}
+  .fields input,.fields select{background:#f5f5f5!important;color:#000!important;border:1px solid #bbb!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* Badge de resultado visible en print */
+  .result-badge{display:inline-block!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .result-badge.ok{color:#0D5C3A!important;background:#d4edda!important}
+  .result-badge.err{color:#c0392b!important;background:#f8d7da!important}
+  .pregunta{background:#fff!important;border:1.5px solid #ccc!important;border-radius:8px;padding:12px 16px;page-break-inside:avoid;margin-bottom:8px}
+  .pregunta.correcta{border-color:#0D5C3A!important;background:#f0fff4!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pregunta.incorrecta{border-color:#c0392b!important;background:#fff5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pregunta.pendiente{border-color:#cc8800!important;background:#fffbe6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* Opciones: solo mostrar texto, SIN revelar cuál era la correcta */
+  .opcion{color:#333!important;background:transparent!important;border-color:transparent!important;padding:5px 10px}
+  .opcion.seleccionada-ok{background:#d4edda!important;border-color:#0D5C3A!important;color:#000!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .opcion.seleccionada-err{background:#f8d7da!important;border-color:#c0392b!important;color:#000!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* Feedback oculto en print (no revela respuesta correcta) */
+  .feedback{display:none!important}
+  .feedback.pend{display:block!important;color:#7a5800!important;background:#fffbe6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .ptexto{color:#111!important}
+  .pnum{color:#0D5C3A!important}
+  .sec-label{color:#0D5C3A!important;background:#e8f5e9!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #resultado{display:block!important;background:#f0fff4!important;border:2px solid #0D5C3A!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-before:always;border-radius:10px;padding:24px}
+  #resultado h2{color:#0D5C3A!important}
+  #resultado .nota-num{color:#0D5C3A!important;font-size:2.5rem}
+  #resultado .nota-num span{color:#555!important;font-size:1.6rem}
+  #resultado .desc{color:#444!important}
+  #resultado .aprobado{color:#0D5C3A!important}
+  #resultado .reprobado{color:#c0392b!important}
+  #print-footer{display:block!important}
+}
+#print-footer{display:none;font-size:.75rem;color:#555;margin-top:18px;border-top:1px solid #ccc;padding-top:10px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-t">
+    <span class="lt1">Coopetraban</span>
+    <span class="lt2">ahorro y crédito</span>
+  </div>
+  <div>
+    <h1>Evaluación Final</h1>
+    <p>IA para la Productividad · Gestión Humana</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="student-card">
+    <h2>📋 Datos del participante</h2>
+    <div class="fields">
+      <label>Nombre completo *
+        <input type="text" id="nombre" placeholder="Ej: María González" required>
+      </label>
+      <label>Área de trabajo *
+        <select id="area">
+          <option value="">Seleccionar...</option>
+          <option>Crédito</option>
+          <option>Caja</option>
+          <option>Gestión Humana</option>
+          <option>Tecnología e Informática</option>
+          <option>Gerencia</option>
+          <option>Contabilidad</option>
+          <option>Otro</option>
+        </select>
+      </label>
+      <label>Fecha
+        <input type="date" id="fecha">
+      </label>
+      <label>Facilitador
+        <input type="text" id="facilitador" value="Anderson Ocampo">
+      </label>
+    </div>
+  </div>
+
+  <div class="instrucciones">
+    <strong>Instrucciones:</strong> Lee cada pregunta con atención y selecciona tu respuesta. Al finalizar, presiona <strong>Enviar evaluación</strong> para ver tu resultado. Luego podrás exportar a PDF y enviarlo al correo del facilitador. El PDF mostrará si cada pregunta es correcta o incorrecta, <strong>sin revelar la respuesta correcta</strong>.
+  </div>
+
+  <form id="examen" onsubmit="return false">
+
+  <!-- SECCIÓN 1: OPCIÓN MÚLTIPLE -->
+  <div class="seccion">
+    <div class="sec-label">Opción múltiple</div>
+
+    <div class="pregunta" id="q1">
+      <div class="pnum">Pregunta 1 · Módulo 1 <span class="result-badge" id="rb1"></span></div>
+      <div class="ptexto">¿Cuáles son los <strong>3 ingredientes básicos</strong> de un prompt efectivo?</div>
+      <div class="opciones">
+        <label class="opcion"><input type="radio" name="q1" value="A"> <span>A) Velocidad, creatividad y extensión del mensaje.</span></label>
+        <label class="opcion"><input type="radio" name="q1" value="B"> <span>B) Contexto, Tarea clara y Formato deseado.</span></label>
+        <label class="opcion"><input type="radio" name="q1" value="C"> <span>C) Título, cuerpo del mensaje y firma profesional.</span></label>
+        <label class="opcion"><input type="radio" name="q1" value="D"> <span>D) Pregunta, respuesta esperada y corrección automática.</span></label>
+      </div>
+      <div class="feedback" id="fb1"></div>
+    </div>
+
+    <div class="pregunta" id="q2">
+      <div class="pnum">Pregunta 2 · Módulo 4 <span class="result-badge" id="rb2"></span></div>
+      <div class="ptexto">¿Qué significan las siglas del método <strong>C-R-E-A-T</strong>?</div>
+      <div class="opciones">
+        <label class="opcion"><input type="radio" name="q2" value="A"> <span>A) Crear, Redactar, Evaluar, Ajustar, Terminar.</span></label>
+        <label class="opcion"><input type="radio" name="q2" value="B"> <span>B) Contenido, Resultado, Estructura, Análisis, Texto.</span></label>
+        <label class="opcion"><input type="radio" name="q2" value="C"> <span>C) Contexto, Rol, Ejemplo, Acción, Tono.</span></label>
+        <label class="opcion"><input type="radio" name="q2" value="D"> <span>D) Comunicar, Revisar, Editar, Aprobar, Transmitir.</span></label>
+      </div>
+      <div class="feedback" id="fb2"></div>
+    </div>
+
+    <div class="pregunta" id="q3">
+      <div class="pnum">Pregunta 3 · Módulo 3 <span class="result-badge" id="rb3"></span></div>
+      <div class="ptexto">¿Cuál de los siguientes es un uso <strong>apropiado</strong> de IA en Coopetraban?</div>
+      <div class="opciones">
+        <label class="opcion"><input type="radio" name="q3" value="A"> <span>A) Ingresar la cédula y saldo de un Alumno en una herramienta de IA para generar un informe.</span></label>
+        <label class="opcion"><input type="radio" name="q3" value="B"> <span>B) Redactar una convocatoria interna de capacitación usando IA, con información genérica.</span></label>
+        <label class="opcion"><input type="radio" name="q3" value="C"> <span>C) Delegar a la IA la aprobación de solicitudes de crédito.</span></label>
+        <label class="opcion"><input type="radio" name="q3" value="D"> <span>D) Compartir información financiera confidencial con la IA para que la analice.</span></label>
+      </div>
+      <div class="feedback" id="fb3"></div>
+    </div>
+
+  </div>
+
+  <!-- SECCIÓN 2: VERDADERO O FALSO -->
+  <div class="seccion" style="margin-top:20px">
+    <div class="sec-label">Verdadero o Falso</div>
+
+    <div class="pregunta" id="q4">
+      <div class="pnum">Pregunta 4 · Módulo 0 <span class="result-badge" id="rb4"></span></div>
+      <div class="ptexto">La IA puede tomar decisiones por el Alumno sin necesidad de revisión humana.</div>
+      <div class="opciones">
+        <label class="opcion"><input type="radio" name="q4" value="V"> <span>Verdadero</span></label>
+        <label class="opcion"><input type="radio" name="q4" value="F"> <span>Falso</span></label>
+      </div>
+      <div class="feedback" id="fb4"></div>
+    </div>
+
+    <div class="pregunta" id="q5">
+      <div class="pnum">Pregunta 5 · Módulo 0 <span class="result-badge" id="rb5"></span></div>
+      <div class="ptexto">Es seguro ingresar el nombre, número de cédula o saldo de un Alumno en una herramienta externa de IA.</div>
+      <div class="opciones">
+        <label class="opcion"><input type="radio" name="q5" value="V"> <span>Verdadero</span></label>
+        <label class="opcion"><input type="radio" name="q5" value="F"> <span>Falso</span></label>
+      </div>
+      <div class="feedback" id="fb5"></div>
+    </div>
+
+    <div class="pregunta" id="q6">
+      <div class="pnum">Pregunta 6 · Módulo 1 y 2 <span class="result-badge" id="rb6"></span></div>
+      <div class="ptexto">Si la IA no da el resultado esperado, lo correcto es continuar la misma conversación e indicarle cómo mejorar (iterar).</div>
+      <div class="opciones">
+        <label class="opcion"><input type="radio" name="q6" value="V"> <span>Verdadero</span></label>
+        <label class="opcion"><input type="radio" name="q6" value="F"> <span>Falso</span></label>
+      </div>
+      <div class="feedback" id="fb6"></div>
+    </div>
+
+    <div class="pregunta" id="q7">
+      <div class="pnum">Pregunta 7 · Módulo 2 <span class="result-badge" id="rb7"></span></div>
+      <div class="ptexto">Asignarle un rol a la IA (ej: "actúa como experto en comunicación") mejora significativamente la calidad del resultado.</div>
+      <div class="opciones">
+        <label class="opcion"><input type="radio" name="q7" value="V"> <span>Verdadero</span></label>
+        <label class="opcion"><input type="radio" name="q7" value="F"> <span>Falso</span></label>
+      </div>
+      <div class="feedback" id="fb7"></div>
+    </div>
+
+    <div class="pregunta" id="q8">
+      <div class="pnum">Pregunta 8 · Módulo 4 <span class="result-badge" id="rb8"></span></div>
+      <div class="ptexto">El método C-R-E-A-T exige que los 5 componentes estén siempre presentes para que funcione.</div>
+      <div class="opciones">
+        <label class="opcion"><input type="radio" name="q8" value="V"> <span>Verdadero</span></label>
+        <label class="opcion"><input type="radio" name="q8" value="F"> <span>Falso</span></label>
+      </div>
+      <div class="feedback" id="fb8"></div>
+    </div>
+
+    <div class="pregunta" id="q9">
+      <div class="pnum">Pregunta 9 · Módulo 6 <span class="result-badge" id="rb9"></span></div>
+      <div class="ptexto">El texto generado dentro de imágenes por IA suele salir bien y puede usarse directamente sin revisión.</div>
+      <div class="opciones">
+        <label class="opcion"><input type="radio" name="q9" value="V"> <span>Verdadero</span></label>
+        <label class="opcion"><input type="radio" name="q9" value="F"> <span>Falso</span></label>
+      </div>
+      <div class="feedback" id="fb9"></div>
+    </div>
+
+  </div>
+
+  <!-- SECCIÓN 3: ABIERTA -->
+  <div class="seccion" style="margin-top:20px">
+    <div class="sec-label">Pregunta abierta</div>
+    <div class="pregunta pendiente" id="q10">
+      <div class="pnum">Pregunta 10 · Aplicación práctica <span class="result-badge" id="rb10"></span></div>
+      <div class="ptexto">Describe brevemente <strong>una tarea de tu área</strong> que podrías mejorar con IA y cómo lo harías usando el método <strong>C-R-E-A-T</strong>:</div>
+      <textarea class="resp-abierta" id="q10r" placeholder="C (Contexto): &#10;R (Rol): &#10;E (Ejemplo): &#10;A (Acción): &#10;T (Tono): " rows="7"></textarea>
+      <div class="feedback pend" id="fb10">⏳ Esta respuesta será calificada por el facilitador (1 punto adicional).</div>
+    </div>
+  </div>
+
+  <button class="btn-submit" type="button" onclick="enviarExamen()">✅ Enviar evaluación</button>
+  </form>
+
+  <!-- RESULTADO -->
+  <div id="resultado">
+    <h2>🏁 Resultado de la evaluación</h2>
+    <div id="info-participante" style="color:#aaa;font-size:.95rem;margin-bottom:12px"></div>
+    <div class="nota-num" id="nota-display">—</div>
+    <div class="desc" id="desc-display"></div>
+    <div id="estado-display" style="margin-top:8px"></div>
+    <div id="print-footer">
+      Documento generado · IA para la Productividad · Coopetraban · Gestión Humana<br>
+      La pregunta 10 (abierta) será revisada y calificada por el facilitador.
+    </div>
+    <button class="btn-pdf" id="btn-exportar" onclick="exportarPDF()">📄 Exportar a PDF</button>
+  </div>
+
+</div>
+
+<script>
+var RESPUESTAS = {q1:'B', q2:'C', q3:'B', q4:'F', q5:'F', q6:'V', q7:'V', q8:'F', q9:'F'};
+
+function enviarExamen() {
+  var nombre = document.getElementById('nombre').value.trim();
+  var area   = document.getElementById('area').value;
+  if (!nombre || !area) {
+    alert('Por favor completa tu nombre y área antes de enviar.');
+    return;
+  }
+  var correctas = 0;
+  for (var q in RESPUESTAS) {
+    var n   = q.replace('q','');
+    var sel = document.querySelector('input[name="'+q+'"]:checked');
+    var div = document.getElementById(q);
+    var rb  = document.getElementById('rb'+n);
+    // Bloquear opciones
+    div.querySelectorAll('.opcion').forEach(function(op){
+      op.style.pointerEvents = 'none';
+      var inp = op.querySelector('input');
+      if (sel && inp.value === sel.value) {
+        op.classList.add(sel.value === RESPUESTAS[q] ? 'seleccionada-ok' : 'seleccionada-err');
+      }
+    });
+    // Resultado
+    var esCorrecta = sel && sel.value === RESPUESTAS[q];
+    if (esCorrecta) {
+      correctas++;
+      div.classList.add('correcta');
+      rb.textContent = '✓ Correcta';
+      rb.className = 'result-badge ok';
+    } else {
+      div.classList.add('incorrecta');
+      rb.textContent = '✗ Incorrecta';
+      rb.className = 'result-badge err';
+    }
+  }
+
+  // P10 abierta
+  var q10r = document.getElementById('q10r');
+  var rb10 = document.getElementById('rb10');
+  q10r.readOnly = true;
+  rb10.textContent = q10r.value.trim() ? '⏳ Pendiente' : '— Sin respuesta';
+  rb10.className = 'result-badge';
+  rb10.style.color = '#cc8800';
+  rb10.style.background = 'rgba(240,160,48,.15)';
+
+  document.querySelector('.btn-submit').disabled = true;
+
+  var pct  = correctas / 9;
+  var desc = correctas + ' de 9 preguntas automáticas correctas · Pregunta 10 pendiente de revisión (1 punto adicional)';
+  var estado = pct >= 0.8
+    ? '<div class="aprobado">🏆 ¡Aprobado! Excelente desempeño.</div>'
+    : pct >= 0.6
+    ? '<div class="aprobado">✅ Aprobado. Buen manejo de los conceptos.</div>'
+    : '<div class="reprobado">📚 Puntaje por debajo del mínimo. Se recomienda refuerzo.</div>';
+
+  document.getElementById('info-participante').innerHTML =
+    '<strong style="color:#76B82A">' + nombre + '</strong> · ' + area +
+    ' · ' + (document.getElementById('fecha').value || '—');
+  document.getElementById('nota-display').innerHTML = correctas + '<span>/9 auto</span>';
+  document.getElementById('desc-display').textContent = desc;
+  document.getElementById('estado-display').innerHTML = estado;
+  document.getElementById('resultado').style.display = 'block';
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function exportarPDF() {
+  if (!document.getElementById('fecha').value)
+    document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+  window.print();
+}
+
+document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Semáforo IA · Módulo 0</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
+  header{text-align:center;margin-bottom:30px;padding-top:10px}
+  .logo{font-size:.9rem;color:#2D9E5F;font-weight:600;margin-bottom:8px}
+  h1{font-size:2rem;font-weight:900;color:#76B82A;margin-bottom:6px}
+  .subtitle{color:#888;font-size:.9rem}
+  .score-bar{background:rgba(13,92,58,.3);border:1px solid #2D9E5F33;border-radius:12px;padding:12px 24px;display:flex;gap:30px;margin-bottom:28px;align-items:center}
+  .score-item{text-align:center}
+  .score-num{font-size:1.8rem;font-weight:900}
+  .score-label{font-size:.7rem;color:#888;margin-top:2px}
+  .green-score{color:#76B82A}
+  .red-score{color:#e55}
+  #card-area{width:100%;max-width:650px}
+  .card{background:linear-gradient(145deg,#0B1C12,#0D3020);border:1px solid #2D9E5F44;border-radius:20px;padding:32px;text-align:center;position:relative;overflow:hidden}
+  .card-num{position:absolute;top:16px;left:20px;font-size:.75rem;color:#666}
+  .card-icon{font-size:3.5rem;margin-bottom:16px;display:block}
+  .card-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:12px}
+  .card-desc{color:#bbb;font-size:.9rem;line-height:1.6;margin-bottom:28px}
+  .vote-btns{display:flex;gap:16px;justify-content:center}
+  .btn-vote{border:none;padding:14px 32px;font-size:1rem;font-weight:700;border-radius:30px;cursor:pointer;transition:transform .2s,box-shadow .2s;display:flex;align-items:center;gap:8px;min-width:130px;justify-content:center}
+  .btn-green{background:linear-gradient(135deg,#4caf50,#2D9E5F);color:#fff;box-shadow:0 4px 15px rgba(76,175,80,.3)}
+  .btn-red{background:linear-gradient(135deg,#e53935,#b71c1c);color:#fff;box-shadow:0 4px 15px rgba(229,57,53,.3)}
+  .btn-vote:hover{transform:scale(1.08);box-shadow:0 6px 25px rgba(255,255,255,.2)}
+  .feedback{display:none;margin-top:20px;padding:16px;border-radius:12px;font-size:.9rem;line-height:1.6;text-align:left}
+  .feedback.green{background:rgba(76,175,80,.15);border:1px solid rgba(76,175,80,.3);color:#a5d6a7}
+  .feedback.red{background:rgba(229,57,53,.15);border:1px solid rgba(229,57,53,.3);color:#ef9a9a}
+  #btn-next{display:none;margin:16px auto 0;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:12px 30px;border-radius:25px;font-size:.95rem;font-weight:700;cursor:pointer}
+  #result-screen{display:none;text-align:center;padding:40px 20px;max-width:600px;margin:0 auto}
+  #result-screen h2{font-size:2.5rem;color:#76B82A;margin-bottom:16px}
+  .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+  .result-box{border-radius:16px;padding:24px}
+  .result-box.g{background:rgba(76,175,80,.15);border:1px solid rgba(76,175,80,.3)}
+  .result-box.r{background:rgba(229,57,53,.15);border:1px solid rgba(229,57,53,.3)}
+  .result-box .num{font-size:3rem;font-weight:900}
+  .result-box.g .num{color:#76B82A}
+  .result-box.r .num{color:#e55}
+  .result-box p{font-size:.8rem;color:#aaa;margin-top:4px}
+  #btn-restart{margin-top:24px;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px 36px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Coopetraban · ahorro y crédito</div>
+  <h1>🚦 El Semáforo IA</h1>
+  <p class="subtitle">Módulo 0 · ¿Cuándo usar IA y cuándo no?</p>
+</header>
+
+<div class="score-bar">
+  <div class="score-item"><div class="score-num green-score" id="s-green">0</div><div class="score-label">🟢 Correctas</div></div>
+  <div class="score-item"><div class="score-num red-score" id="s-wrong">0</div><div class="score-label">❌ Incorrectas</div></div>
+  <div class="score-item"><div class="score-num" id="s-num" style="color:#888">1/10</div><div class="score-label">Tarjeta</div></div>
+</div>
+
+<div id="card-area">
+  <div class="card" id="main-card">
+    <span class="card-num" id="c-num">1 / 10</span>
+    <span class="card-icon" id="c-icon"></span>
+    <div class="card-title" id="c-title"></div>
+    <div class="card-desc" id="c-desc"></div>
+    <div class="vote-btns">
+      <button class="btn-vote btn-green" onclick="vote('green')">🟢 OK usar IA</button>
+      <button class="btn-vote btn-red" onclick="vote('red')">🔴 No usar IA</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button id="btn-next" onclick="nextCard()">Siguiente →</button>
+  </div>
+</div>
+
+<div id="result-screen">
+  <div style="font-size:3rem;margin-bottom:12px" id="r-emoji">🎉</div>
+  <h2 id="r-title">¡Bien hecho!</h2>
+  <p id="r-msg" style="color:#aaa;font-size:.95rem;line-height:1.6"></p>
+  <div class="result-grid">
+    <div class="result-box g"><div class="num" id="r-correct">0</div><p>Respuestas correctas</p></div>
+    <div class="result-box r"><div class="num" id="r-wrong">0</div><p>Respuestas incorrectas</p></div>
+  </div>
+  <button id="btn-restart" onclick="location.reload()">🔄 Jugar de nuevo</button>
+</div>
+
+<script>
+const CARDS = [
+  {icon:"📝",title:"Redactar un correo de bienvenida para un nuevo Alumno",desc:"El coordinador de Gestión Humana quiere crear una plantilla de correo cálido para nuevos Alumnos que se unan a la cooperativa.",answer:"green",explain:"✅ Perfecto para IA. Crear borradores de comunicaciones formales es una de las mejores aplicaciones. El equipo revisa y personaliza antes de enviar."},
+  {icon:"🔢",title:"Calcular el monto exacto de un crédito con intereses",desc:"Un analista necesita calcular la cuota mensual exacta de un préstamo de ₡2.5M a 36 meses con tasa del 14% anual.",answer:"red",explain:"🔴 La IA puede equivocarse en cálculos financieros exactos. Para esto usa el sistema de gestión oficial o una hoja de cálculo verificada. Nunca confíes un número financiero crítico solo a la IA."},
+  {icon:"📋",title:"Crear un plan de capacitación interna sobre servicio al cliente",desc:"El área de RRHH quiere estructurar un programa de 4 talleres para mejorar la atención a los Alumnos.",answer:"green",explain:"✅ Excelente uso. La IA puede generar estructuras de planes, temarios, cronogramas y materiales de apoyo. El equipo los adapta al contexto real de Coopetraban."},
+  {icon:"🔐",title:"Analizar el estado de cuenta de un Alumno específico",desc:"Un Alumno quiere copiar el historial crediticio de un Alumno en una herramienta de IA para obtener un análisis.",answer:"red",explain:"🔴 Nunca. Los datos personales y financieros de los Alumnos son confidenciales y no deben ingresarse en herramientas externas. Esto viola la privacidad y puede tener implicaciones legales."},
+  {icon:"💡",title:"Generar ideas para la campaña de ahorro navideña",desc:"El equipo de mercadeo quiere lluvia de ideas para promocionar el ahorro navideño entre los Alumnos.",answer:"green",explain:"✅ La IA es excelente para generar ideas creativas. Puede proporcionar decenas de conceptos en segundos que el equipo luego filtra y refina."},
+  {icon:"⚖️",title:"Determinar si un Alumno califica para un crédito",desc:"Un analista quiere que la IA decida si aprueba o rechaza una solicitud de crédito basándose en la información del Alumno.",answer:"red",explain:"🔴 Las decisiones crediticias tienen criterios regulados y requieren juicio humano. La IA puede ayudar a organizar información pero NUNCA puede tomar la decisión final."},
+  {icon:"📄",title:"Resumir un reglamento interno extenso",desc:"El departamento legal necesita un resumen del reglamento de crédito (60 páginas) para una presentación a la junta.",answer:"green",explain:"✅ Resumir documentos extensos es ideal para la IA. Ahorra horas de trabajo. Recuerda verificar que el resumen capture los puntos clave correctamente."},
+  {icon:"🤝",title:"Reemplazar la atención personalizada en caja",desc:"La gerencia propone instalar un chatbot de IA para que los Alumnos resuelvan todas sus dudas sin hablar con Alumnos.",answer:"red",explain:"🔴 La atención personalizada es un valor diferencial de la cooperativa. La IA puede apoyar pero no reemplazar la relación humana. Los Alumnos esperan trato cálido y personalizado."},
+  {icon:"📊",title:"Crear una presentación de resultados trimestrales",desc:"La gerencia necesita preparar una presentación de resultados para la asamblea de Alumnos con datos ya disponibles.",answer:"green",explain:"✅ La IA puede ayudar a estructurar la presentación, sugerir el orden de los temas, redactar el guión y crear el borrador de las diapositivas. Los datos finales los agrega el equipo."},
+  {icon:"🔑",title:"Compartir la contraseña del sistema en un prompt de IA",desc:"Un Alumno quiere pedirle ayuda a la IA con un problema del sistema y por facilidad incluye las credenciales de acceso en el mensaje.",answer:"red",explain:"🔴 Jamás. Las contraseñas y credenciales de sistemas nunca deben compartirse con herramientas externas. El mensaje quedará en los servidores del proveedor."}
+];
+
+let idx=0, correct=0, wrong=0;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
+const cards = shuffle([...CARDS]);
+
+function loadCard(){
+  const c=cards[idx];
+  document.getElementById('c-num').textContent=`${idx+1} / ${cards.length}`;
+  document.getElementById('s-num').textContent=`${idx+1}/10`;
+  document.getElementById('c-icon').textContent=c.icon;
+  document.getElementById('c-title').textContent=c.title;
+  document.getElementById('c-desc').textContent=c.desc;
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('btn-next').style.display='none';
+  document.querySelectorAll('.btn-vote').forEach(b=>b.disabled=false);
+}
+
+function vote(choice){
+  const c=cards[idx];
+  document.querySelectorAll('.btn-vote').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('feedback');
+  const isCorrect = choice===c.answer;
+  if(isCorrect){ correct++; document.getElementById('s-green').textContent=correct; fb.className='feedback green'; }
+  else { wrong++; document.getElementById('s-wrong').textContent=wrong; fb.className='feedback red'; }
+  fb.textContent=c.explain;
+  fb.style.display='block';
+  document.getElementById('btn-next').style.display='block';
+}
+
+function nextCard(){
+  idx++;
+  if(idx>=cards.length){ showResult(); return; }
+  loadCard();
+}
+
+function showResult(){
+  document.getElementById('card-area').style.display='none';
+  document.querySelector('.score-bar').style.display='none';
+  const rs=document.getElementById('result-screen');
+  rs.style.display='block';
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-wrong').textContent=wrong;
+  const pct=correct/cards.length;
+  if(pct===1){document.getElementById('r-emoji').textContent='🏆';document.getElementById('r-title').textContent='¡Perfecto!';document.getElementById('r-msg').textContent='Dominan el criterio de cuándo usar IA y cuándo no. ¡Excelente trabajo en equipo!';}
+  else if(pct>=.7){document.getElementById('r-emoji').textContent='🎉';document.getElementById('r-title').textContent='¡Muy bien!';document.getElementById('r-msg').textContent='Buen criterio general. Revisen las tarjetas que marcaron rojo para reforzar los conceptos clave.';}
+  else{document.getElementById('r-emoji').textContent='📚';document.getElementById('r-title').textContent='A seguir aprendiendo';document.getElementById('r-msg').textContent='Hay aspectos importantes sobre el uso responsable de la IA que vale la pena reforzar. ¡El debate fue lo valioso!';}
+}
+
+loadCard();
+</script>
+</body>
+</html>

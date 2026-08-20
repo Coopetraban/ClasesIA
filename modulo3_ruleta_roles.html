@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruleta de Roles · Módulo 3</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px}
+  .logo{font-size:.9rem;color:#2D9E5F;font-weight:600;margin-bottom:10px}
+  h1{font-size:2rem;font-weight:900;color:#76B82A;text-align:center;margin-bottom:4px}
+  .subtitle{color:#888;font-size:.85rem;text-align:center;margin-bottom:28px}
+  .main-layout{display:flex;gap:32px;align-items:flex-start;width:100%;max-width:900px;flex-wrap:wrap;justify-content:center}
+  .wheel-col{display:flex;flex-direction:column;align-items:center;gap:16px}
+  canvas{border-radius:50%;box-shadow:0 0 40px rgba(118,184,42,.3);cursor:pointer}
+  .pointer{font-size:2.5rem;line-height:1;margin-bottom:-8px}
+  #btn-spin{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px 36px;border-radius:30px;font-size:1.1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(118,184,42,.4);transition:transform .2s}
+  #btn-spin:hover{transform:scale(1.06)}
+  #btn-spin:disabled{opacity:.5;cursor:not-allowed}
+  .info-col{flex:1;min-width:280px;max-width:360px}
+  #role-display{background:linear-gradient(145deg,#0B1C12,#0D3020);border:1px solid #2D9E5F44;border-radius:18px;padding:24px;margin-bottom:20px;min-height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+  #role-display .r-icon{font-size:3rem;margin-bottom:8px}
+  #role-display .r-name{font-size:1.4rem;font-weight:800;color:#76B82A;margin-bottom:6px}
+  #role-display .r-task{color:#bbb;font-size:.85rem;line-height:1.5}
+  #timer-box{background:rgba(13,92,58,.3);border:1px solid #2D9E5F44;border-radius:18px;padding:24px;text-align:center;display:none}
+  #timer-box .t-label{font-size:.8rem;color:#888;margin-bottom:8px}
+  #timer-num{font-size:4rem;font-weight:900;color:#76B82A;line-height:1}
+  #timer-sub{font-size:.75rem;color:#888;margin-top:4px}
+  .progress-ring{margin-top:16px}
+  #btn-timer{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:12px 28px;border-radius:25px;font-weight:700;cursor:pointer;margin-top:16px;font-size:.9rem;width:100%}
+  .history{background:rgba(0,0,0,.2);border:1px solid #2D9E5F22;border-radius:12px;padding:14px;margin-top:16px;max-height:160px;overflow-y:auto}
+  .history h3{font-size:.75rem;color:#888;margin-bottom:8px}
+  .h-item{font-size:.8rem;color:#ccc;padding:4px 0;border-bottom:1px solid #ffffff11;display:flex;align-items:center;gap:6px}
+  #result-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:100;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  #result-overlay.show{display:flex}
+  #result-overlay .icon{font-size:4rem;margin-bottom:12px}
+  #result-overlay h2{font-size:2rem;color:#76B82A;margin-bottom:12px}
+  #result-overlay p{color:#aaa;max-width:480px;line-height:1.6;font-size:.9rem;margin-bottom:24px}
+  #btn-close-result{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px 36px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="logo">Coopetraban · ahorro y crédito</div>
+<h1>🎡 Ruleta de Roles</h1>
+<p class="subtitle">Módulo 3 · IA en mi área · Gira la ruleta y pon en práctica la IA en un rol real</p>
+
+<div class="main-layout">
+  <div class="wheel-col">
+    <div class="pointer">▼</div>
+    <canvas id="wheel" width="320" height="320"></canvas>
+    <button id="btn-spin" onclick="spin()">🎯 ¡Girar!</button>
+  </div>
+
+  <div class="info-col">
+    <div id="role-display">
+      <div class="r-icon">🎡</div>
+      <div class="r-name">¡Gira la ruleta!</div>
+      <div class="r-task">Haz clic en "¡Girar!" para descubrir tu rol</div>
+    </div>
+
+    <div id="timer-box">
+      <div class="t-label">⏱ Tiempo para crear tu prompt</div>
+      <div id="timer-num">3:00</div>
+      <div id="timer-sub">minutos restantes</div>
+      <svg class="progress-ring" width="80" height="80" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="35" fill="none" stroke="#1a3a2a" stroke-width="6"/>
+        <circle id="ring-circle" cx="40" cy="40" r="35" fill="none" stroke="#76B82A" stroke-width="6"
+          stroke-dasharray="220" stroke-dashoffset="0" stroke-linecap="round"
+          transform="rotate(-90 40 40)"/>
+      </svg>
+      <button id="btn-timer" onclick="startTimer()">▶ Iniciar temporizador</button>
+    </div>
+
+    <div class="history" id="history-box" style="display:none">
+      <h3>📋 Roles visitados</h3>
+      <div id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<div id="result-overlay">
+  <div class="icon" id="ro-icon"></div>
+  <h2 id="ro-title"></h2>
+  <p id="ro-text"></p>
+  <button id="btn-close-result" onclick="closeResult()">✅ ¡Entendido!</button>
+</div>
+
+<script>
+const ROLES = [
+  {name:"Crédito",icon:"💳",color:"#0D5C3A",light:"#76B82A",
+   task:"¿Cómo usaría IA para comunicar mejor a un Alumno la aprobación o rechazo de su crédito?",
+   challenge:"Construye un prompt que genere un correo empático y formal para notificar la resolución de una solicitud.",
+   tip:"Piensa en: tipo de resolución, tono empático, instrucciones de seguimiento."},
+  {name:"Caja",icon:"💰",color:"#1a3a10",light:"#5a9a1f",
+   task:"¿Cómo usaría IA para crear guías rápidas de procesos frecuentes en caja?",
+   challenge:"Crea un prompt para generar una guía paso a paso de cómo atender un depósito de ahorro.",
+   tip:"Incluye: rol del Alumno, tipo de operación, formato de pasos numerados."},
+  {name:"Gestión Humana",icon:"👥",color:"#0D3020",light:"#2D9E5F",
+   task:"¿Cómo usaría IA para mejorar las comunicaciones internas o el proceso de inducción?",
+   challenge:"Diseña un prompt para crear el temario de un taller interno de 2 horas sobre trabajo en equipo.",
+   tip:"Define: audiencia, duración, objetivos y formato del temario."},
+  {name:"Tecnología",icon:"💻",color:"#1a2a40",light:"#4a8ab8",
+   task:"¿Cómo usaría IA para documentar procesos técnicos de forma más clara?",
+   challenge:"Construye un prompt para generar un manual de usuario sencillo de un sistema interno.",
+   tip:"Especifica: tipo de sistema, audiencia (Alumnos sin conocimiento técnico), formato paso a paso."},
+  {name:"Gerencia",icon:"🏢",color:"#3a2a0D",light:"#c8a020",
+   task:"¿Cómo usaría IA para preparar resúmenes ejecutivos o presentaciones de resultados?",
+   challenge:"Crea un prompt para generar un resumen ejecutivo de dos páginas de un informe de gestión.",
+   tip:"Incluye: audiencia (junta directiva), secciones obligatorias, tono formal ejecutivo."},
+  {name:"Atención al Alumno",icon:"🤝",color:"#2a1040",light:"#8a4ab8",
+   task:"¿Cómo usaría IA para mejorar los guiones de atención y resolución de quejas?",
+   challenge:"Diseña un prompt para crear un guión de atención para un Alumno insatisfecho con un cobro.",
+   tip:"Define: situación, tono empático, pasos de resolución, cómo cerrar la conversación positivamente."}
+];
+
+let spinning=false, timerInterval=null, timerSeconds=180, historyItems=[];
+const canvas=document.getElementById('wheel');
+const ctx=canvas.getContext('2d');
+
+function drawWheel(rotation=0){
+  ctx.clearRect(0,0,320,320);
+  const cx=160,cy=160,r=155;
+  ROLES.forEach((role,i)=>{
+    const start=rotation+i*(Math.PI*2/ROLES.length)-Math.PI/2;
+    const end=start+Math.PI*2/ROLES.length;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();
+    ctx.fillStyle=role.color;ctx.fill();
+    ctx.strokeStyle='#06100A';ctx.lineWidth=3;ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(start+(end-start)/2);
+    ctx.textAlign='right';ctx.fillStyle='#fff';ctx.font='bold 13px Segoe UI';
+    ctx.fillText(role.icon+' '+role.name,r-12,5);
+    ctx.restore();
+  });
+  ctx.beginPath();ctx.arc(cx,cy,20,0,Math.PI*2);ctx.fillStyle='#0B1C12';ctx.fill();
+  ctx.strokeStyle='#76B82A';ctx.lineWidth=3;ctx.stroke();
+}
+
+function spin(){
+  if(spinning)return;
+  spinning=true;
+  document.getElementById('btn-spin').disabled=true;
+  stopTimer();
+  const extra=Math.random()*2*Math.PI;
+  const fullSpins=(5+Math.floor(Math.random()*4))*Math.PI*2;
+  const total=fullSpins+extra;
+  const dur=3000+Math.random()*1000;
+  const start=performance.now();
+  let curRot=0;
+  function frame(now){
+    const t=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-t,4);
+    curRot=total*ease;
+    drawWheel(curRot);
+    if(t<1){requestAnimationFrame(frame);}
+    else{
+      spinning=false;
+      document.getElementById('btn-spin').disabled=false;
+      // Determine winner
+      const normalAngle=((-curRot%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+      const sector=Math.floor(normalAngle/(Math.PI*2/ROLES.length));
+      const role=ROLES[sector%ROLES.length];
+      showRole(role);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function showRole(role){
+  document.getElementById('role-display').innerHTML=`
+    <div class="r-icon">${role.icon}</div>
+    <div class="r-name">${role.name}</div>
+    <div class="r-task">${role.task}</div>`;
+  document.getElementById('timer-box').style.display='block';
+  document.getElementById('btn-timer').textContent='▶ Iniciar temporizador';
+  timerSeconds=180;
+  document.getElementById('timer-num').textContent='3:00';
+  document.getElementById('ring-circle').style.strokeDashoffset='0';
+  document.getElementById('result-overlay').style.background='rgba(0,0,0,.93)';
+  document.getElementById('ro-icon').textContent=role.icon;
+  document.getElementById('ro-title').textContent='¡Área: '+role.name+'!';
+  document.getElementById('ro-text').textContent=role.challenge+'\n\n💡 Pista: '+role.tip;
+  document.getElementById('result-overlay').classList.add('show');
+  historyItems.push(role);
+  const hl=document.getElementById('history-list');
+  const item=document.createElement('div');
+  item.className='h-item';
+  item.textContent=role.icon+' '+role.name;
+  hl.prepend(item);
+  document.getElementById('history-box').style.display='block';
+}
+
+function closeResult(){document.getElementById('result-overlay').classList.remove('show');}
+
+function startTimer(){
+  stopTimer();
+  document.getElementById('btn-timer').textContent='⏸ Pausar';
+  document.getElementById('btn-timer').onclick=pauseTimer;
+  timerInterval=setInterval(()=>{
+    timerSeconds--;
+    const m=Math.floor(timerSeconds/60);
+    const s=timerSeconds%60;
+    document.getElementById('timer-num').textContent=m+':'+(s<10?'0':'')+s;
+    const pct=1-(timerSeconds/180);
+    document.getElementById('ring-circle').style.strokeDashoffset=(pct*220)+'';
+    if(timerSeconds<=0){stopTimer();document.getElementById('timer-num').textContent='⏰ ¡Tiempo!';document.getElementById('timer-num').style.color='#e55';}
+    else if(timerSeconds<=30){document.getElementById('timer-num').style.color='#FFD700';}
+  },1000);
+}
+
+function pauseTimer(){
+  clearInterval(timerInterval);timerInterval=null;
+  document.getElementById('btn-timer').textContent='▶ Reanudar';
+  document.getElementById('btn-timer').onclick=startTimer;
+}
+
+function stopTimer(){
+  clearInterval(timerInterval);timerInterval=null;
+  document.getElementById('timer-num').style.color='#76B82A';
+  document.getElementById('btn-timer').textContent='▶ Iniciar temporizador';
+  document.getElementById('btn-timer').onclick=startTimer;
+}
+
+drawWheel(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Humano o IA? · Módulo 1</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px}
+  .logo{font-size:.9rem;color:#2D9E5F;font-weight:600;margin-bottom:12px;text-align:center}
+  h1{font-size:2rem;font-weight:900;color:#76B82A;text-align:center;margin-bottom:4px}
+  .subtitle{color:#888;font-size:.85rem;text-align:center;margin-bottom:28px}
+  .score-bar{display:flex;gap:24px;background:rgba(13,92,58,.3);border:1px solid #2D9E5F33;border-radius:14px;padding:14px 28px;margin-bottom:28px}
+  .sb{text-align:center}
+  .sb-num{font-size:1.8rem;font-weight:900;color:#76B82A}
+  .sb-label{font-size:.7rem;color:#888}
+  #game-area{width:100%;max-width:680px}
+  .round-card{background:linear-gradient(145deg,#0B1C12,#0D3020);border:1px solid #2D9E5F44;border-radius:20px;padding:28px;position:relative}
+  .round-num{position:absolute;top:14px;left:18px;font-size:.75rem;color:#666}
+  .content-type{display:inline-block;background:rgba(13,92,58,.5);border:1px solid #2D9E5F;border-radius:20px;padding:4px 14px;font-size:.75rem;color:#76B82A;margin-bottom:16px}
+  .text-content{background:rgba(0,0,0,.3);border-left:3px solid #2D9E5F;border-radius:8px;padding:16px 20px;font-size:.9rem;color:#ddd;line-height:1.7;margin-bottom:24px;font-style:italic}
+  .vote-btns{display:flex;gap:16px;justify-content:center}
+  .btn-vote{border:none;padding:14px 30px;font-size:1rem;font-weight:700;border-radius:30px;cursor:pointer;transition:transform .2s;min-width:140px}
+  .btn-human{background:linear-gradient(135deg,#5c6bc0,#3949ab);color:#fff;box-shadow:0 4px 15px rgba(92,107,192,.3)}
+  .btn-ai{background:linear-gradient(135deg,#76B82A,#2D9E5F);color:#fff;box-shadow:0 4px 15px rgba(118,184,42,.3)}
+  .btn-vote:hover{transform:scale(1.06)}
+  .reveal{display:none;margin-top:20px;border-radius:12px;padding:16px;font-size:.9rem;line-height:1.6}
+  .reveal.correct{background:rgba(76,175,80,.15);border:1px solid rgba(76,175,80,.3);color:#a5d6a7}
+  .reveal.wrong{background:rgba(229,57,53,.15);border:1px solid rgba(229,57,53,.3);color:#ef9a9a}
+  #btn-next{display:none;margin:16px auto 0;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:12px 28px;border-radius:25px;font-weight:700;cursor:pointer;font-size:.9rem}
+  #result-screen{display:none;text-align:center;padding:40px 20px;max-width:600px;margin:0 auto}
+  #result-screen h2{font-size:2.2rem;color:#76B82A;margin-bottom:16px}
+  .stat-row{display:flex;gap:20px;justify-content:center;margin:20px 0}
+  .stat{background:rgba(13,92,58,.3);border:1px solid #2D9E5F33;border-radius:14px;padding:20px 30px;text-align:center}
+  .stat .n{font-size:2.5rem;font-weight:900;color:#76B82A}
+  .stat p{font-size:.75rem;color:#888;margin-top:4px}
+  #btn-restart{margin-top:24px;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px 36px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="logo">Coopetraban · ahorro y crédito</div>
+<h1>🤖 ¿Humano o IA?</h1>
+<p class="subtitle">Módulo 1 · Desarrolla el ojo crítico para identificar textos generados por IA</p>
+
+<div class="score-bar">
+  <div class="sb"><div class="sb-num" id="s-correct">0</div><div class="sb-label">✅ Correctas</div></div>
+  <div class="sb"><div class="sb-num" id="s-wrong" style="color:#e55">0</div><div class="sb-label">❌ Incorrectas</div></div>
+  <div class="sb"><div class="sb-num" id="s-round" style="color:#888">1/9</div><div class="sb-label">Ronda</div></div>
+</div>
+
+<div id="game-area">
+  <div class="round-card" id="main-card">
+    <span class="round-num" id="r-num">Ronda 1 / 9</span>
+    <div class="content-type" id="c-type"></div>
+    <div class="text-content" id="c-text"></div>
+    <div class="vote-btns">
+      <button class="btn-vote btn-human" onclick="vote('human')">👤 Humano</button>
+      <button class="btn-vote btn-ai" onclick="vote('ai')">🤖 IA</button>
+    </div>
+    <div class="reveal" id="reveal"></div>
+    <button id="btn-next" onclick="nextRound()">Siguiente ronda →</button>
+  </div>
+</div>
+
+<div id="result-screen">
+  <div style="font-size:3rem;margin-bottom:12px" id="r-icon">🎉</div>
+  <h2 id="r-title"></h2>
+  <p id="r-msg" style="color:#aaa;font-size:.9rem;line-height:1.6;max-width:500px;margin:0 auto"></p>
+  <div class="stat-row">
+    <div class="stat"><div class="n" id="r-c">0</div><p>Correctas</p></div>
+    <div class="stat"><div class="n" id="r-w" style="color:#e55">0</div><p>Incorrectas</p></div>
+    <div class="stat"><div class="n" id="r-pct" style="color:#FFD700">0%</div><p>Precisión</p></div>
+  </div>
+  <button id="btn-restart" onclick="location.reload()">🔄 Jugar de nuevo</button>
+</div>
+
+<script>
+const ROUNDS = [
+  {type:"Correo institucional",text:"Estimado Alumno, me complace comunicarle que su solicitud de crédito ha sido procesada satisfactoriamente. Su cuota mensual será de ₡47,850. Quedo a su disposición para cualquier consulta adicional. Atentamente, Departamento de Crédito.",answer:"human",clue:"Escrito por humano. Tono formal directo, sin estructura perfecta, lenguaje natural de Alumno."},
+  {type:"Descripción de servicio",text:"Nuestros servicios de ahorro están diseñados para maximizar su bienestar financiero a largo plazo. Con tasas competitivas y flexibilidad de retiro, le ofrecemos la tranquilidad de saber que su dinero trabaja para usted de manera eficiente y segura, respaldado por décadas de experiencia en el sector cooperativo.",answer:"ai",clue:"Generado por IA. Lenguaje muy pulido, frases largas y perfectamente balanceadas, sin información específica real, uso de expresiones como 'maximizar su bienestar financiero'."},
+  {type:"Nota interna",text:"Oye Andrea, ya confirmé la sala para el martes pero resulta que el proyector no funciona. Le avisé a Carlos y dice que va a llevar el suyo. Ah, y que si podemos empezar a las 2 mejor porque tiene consulta médica en la mañana.",answer:"human",clue:"Escrito por humano. Tono informal, información específica personal, imperfecciones naturales del lenguaje cotidiano."},
+  {type:"Plan de capacitación",text:"Módulo 1: Introducción al servicio al cliente (2 horas). Objetivos: Comprender los principios fundamentales de la atención al alumno. Metodología: Exposición teórica, role playing y análisis de casos reales. Recursos: Presentación digital, fichas de trabajo, manual del participante. Evaluación: Prueba práctica al finalizar.",answer:"ai",clue:"Generado por IA. Estructura perfectamente organizada, todos los campos completos, lenguaje técnico uniforme, sin vacíos ni notas adicionales."},
+  {type:"Queja de un Alumno",text:"Fui el jueves a hacer un retiro y me hicieron esperar casi 40 minutos porque dice que el sistema estaba lento. Eso no puede ser, yo tengo que trabajar. Ya la tercera vez que me pasa en el mes. Por favor arreglen eso.",answer:"human",clue:"Escrito por humano. Frustración auténtica, detalles específicos (jueves, 40 minutos, tercera vez), lenguaje directo sin pulir."},
+  {type:"Análisis de mercado",text:"El sector cooperativo costarricense experimenta un crecimiento sostenido del 8.3% anual, impulsado por el aumento en la demanda de servicios financieros inclusivos. Las cooperativas de ahorro y crédito representan el 15% del sistema financiero nacional, con una base de más de 1.2 millones de alumnos activos.",answer:"ai",clue:"Generado por IA. Datos muy precisos y bien presentados, estructura narrativa perfecta. Importante: siempre verificar estos datos ya que la IA puede inventarlos."},
+  {type:"Correo de coordinación",text:"Buenos días! Les recuerdo que mañana a las 3pm es la reunión del comité. Favor confirmar asistencia antes de mediodía. Los que no puedan ir, me avisan para ver si la movemos o si seguimos con los que estén. Gracias 🙏",answer:"human",clue:"Escrito por humano. Emoji, tono casual, condicional natural, solicitud de confirmación directa."},
+  {type:"Política de privacidad",text:"La presente política establece los lineamientos para el tratamiento de datos personales de los alumnos, en cumplimiento con la Ley 8968 de Protección de la Persona frente al tratamiento de sus datos personales. Los datos recopilados serán utilizados exclusivamente para los fines establecidos en el contrato de adhesión y no serán compartidos con terceros sin consentimiento expreso del titular.",answer:"ai",clue:"Generado por IA. Lenguaje legal perfecto, referencia precisa a ley, estructura formal sin errores, puede ser base útil pero debe revisarlo un abogado."},
+  {type:"Mensaje de WhatsApp interno",text:"Jenni ya llegó el auditor, estamos en sala de juntas. Vení cuando puedas. Y si tenés los estados de cuenta de enero, traélos por si acaso.",answer:"human",clue:"Escrito por humano. Lenguaje costarricense informal ('Venís', 'traélos', 'por si acaso'), urgencia real, información contextual específica."}
+];
+
+let idx=0, correct=0, wrong=0;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
+const rounds = shuffle([...ROUNDS]);
+
+function loadRound(){
+  const r=rounds[idx];
+  document.getElementById('r-num').textContent=`Ronda ${idx+1} / ${rounds.length}`;
+  document.getElementById('s-round').textContent=`${idx+1}/9`;
+  document.getElementById('c-type').textContent=r.type;
+  document.getElementById('c-text').textContent=r.text;
+  document.getElementById('reveal').style.display='none';
+  document.getElementById('btn-next').style.display='none';
+  document.querySelectorAll('.btn-vote').forEach(b=>b.disabled=false);
+}
+
+function vote(choice){
+  const r=rounds[idx];
+  document.querySelectorAll('.btn-vote').forEach(b=>b.disabled=true);
+  const rv=document.getElementById('reveal');
+  const isCorrect=choice===r.answer;
+  const answerLabel=r.answer==='human'?'👤 Humano':'🤖 IA';
+  if(isCorrect){correct++;document.getElementById('s-correct').textContent=correct;rv.className='reveal correct';}
+  else{wrong++;document.getElementById('s-wrong').textContent=wrong;rv.className='reveal wrong';}
+  rv.innerHTML=`<strong>${isCorrect?'✅ ¡Correcto!':'❌ Era '+answerLabel}</strong><br>${r.clue}`;
+  rv.style.display='block';
+  document.getElementById('btn-next').style.display='block';
+}
+
+function nextRound(){
+  idx++;
+  if(idx>=rounds.length){showResult();return;}
+  loadRound();
+}
+
+function showResult(){
+  document.getElementById('game-area').style.display='none';
+  document.querySelector('.score-bar').style.display='none';
+  const rs=document.getElementById('result-screen');
+  rs.style.display='block';
+  const pct=Math.round(correct/rounds.length*100);
+  document.getElementById('r-c').textContent=correct;
+  document.getElementById('r-w').textContent=wrong;
+  document.getElementById('r-pct').textContent=pct+'%';
+  if(pct>=90){document.getElementById('r-icon').textContent='🏆';document.getElementById('r-title').textContent='¡Expertos detectores!';document.getElementById('r-msg').textContent='Tienen un ojo crítico excepcional. Pueden distinguir muy bien entre texto humano y texto generado por IA.';}
+  else if(pct>=67){document.getElementById('r-icon').textContent='🎯';document.getElementById('r-title').textContent='¡Buen resultado!';document.getElementById('r-msg').textContent='La frontera entre texto humano e IA se está borrando. Con práctica, el criterio se afina. ¡Sigan explorando!';}
+  else{document.getElementById('r-icon').textContent='🤔';document.getElementById('r-title').textContent='¡La IA engaña bien!';document.getElementById('r-msg').textContent='No se preocupen — la IA moderna es muy difícil de detectar. Lo importante es siempre verificar y no publicar sin revisar.';}
+}
+
+loadRound();
+</script>
+</body>
+</html>

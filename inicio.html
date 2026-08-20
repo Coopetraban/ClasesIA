@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IA para la Productividad · Coopetraban</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hidden;height:100vh;width:100vw}
+#video-intro{position:fixed;inset:0;z-index:999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .6s}
+#video-intro.hidden{opacity:0;pointer-events:none}
+#intro-vid{width:100%;height:100%;object-fit:contain;max-height:100vh}
+#btn-skip-video{position:absolute;bottom:32px;right:36px;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.35);color:#fff;font-size:1rem;font-weight:700;padding:10px 22px;border-radius:24px;cursor:pointer;letter-spacing:.03em;transition:background .2s}
+#btn-skip-video:hover{background:rgba(118,184,42,.5);border-color:#76B82A}
+#logo-text{position:fixed;top:18px;left:28px;z-index:100;line-height:1}
+.lt1{font-size:1.1rem;font-weight:800;color:#76B82A;letter-spacing:.04em;display:block}
+.lt2{font-size:.65rem;font-weight:400;color:#2D9E5F;letter-spacing:.12em;display:block;margin-top:2px}
+#welcome{position:fixed;inset:0;background:linear-gradient(135deg,#06100A 0%,#0D3020 50%,#0B1C12 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;transition:opacity .5s;pointer-events:auto}
+#welcome.hidden{opacity:0;pointer-events:none}
+#welcome h1{font-size:2.8rem;font-weight:900;color:#76B82A;text-shadow:0 0 30px rgba(118,184,42,.5);margin-bottom:.5rem;text-align:center}
+#welcome p{color:#aaa;font-size:1rem;margin-bottom:.3rem;text-align:center}
+#welcome .sub{color:#76B82A;font-size:.9rem;margin-bottom:2rem;text-align:center}
+#welcome .modules-preview{display:flex;gap:10px;margin-bottom:2rem;flex-wrap:wrap;justify-content:center;max-width:750px}
+#welcome .mp{background:rgba(13,92,58,.3);border:1px solid #2D9E5F33;border-radius:10px;padding:10px 14px;font-size:.72rem;color:#ccc;text-align:center;width:100px}
+#welcome .mp strong{display:block;color:#76B82A;font-size:.82rem;margin-bottom:4px}
+#btn-start{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:16px 40px;font-size:1.1rem;font-weight:700;border-radius:50px;cursor:pointer;box-shadow:0 4px 20px rgba(118,184,42,.4);transition:transform .2s}
+#btn-start:hover{transform:scale(1.07)}
+#roadmap{position:fixed;inset:0;opacity:0;pointer-events:none;transition:opacity .8s}
+#roadmap.visible{opacity:1;pointer-events:auto}
+#road-svg{width:100%;height:100%;position:absolute}
+#hud{position:fixed;top:18px;right:28px;z-index:50;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#progress-text{color:#76B82A;font-size:.9rem;font-weight:700}
+#hud-user{color:#aaa;font-size:.75rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#btn-logout{background:rgba(80,20,20,.6);border:1px solid #cc2200;color:#ff8888;padding:5px 12px;font-size:.73rem;border-radius:20px;cursor:pointer}
+#btn-free{background:rgba(13,92,58,.7);border:1px solid #2D9E5F;color:#76B82A;padding:6px 14px;font-size:.75rem;border-radius:20px;cursor:pointer}
+#btn-fs{background:rgba(13,92,58,.7);border:1px solid #2D9E5F;color:#76B82A;padding:6px 12px;font-size:.85rem;border-radius:20px;cursor:pointer;line-height:1}
+#prog-bar-wrap{width:110px;height:7px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden}
+#prog-bar{height:100%;background:linear-gradient(90deg,#76B82A,#2D9E5F);border-radius:10px;transition:width .6s;width:0%}
+.mod-node{cursor:pointer}
+.mod-node.locked{opacity:.4;cursor:not-allowed}
+.mod-node.done circle:first-of-type{fill:url(#grad-done)!important}
+.mod-node .hit-area{pointer-events:all;fill:transparent}
+.mod-node .ring-hover{opacity:0;transition:opacity .2s}
+.mod-node:hover .ring-hover{opacity:1}
+.slide h3{font-size:1.15rem!important}
+.slide p,.slide li{font-size:1rem!important;line-height:1.8!important}
+#modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+#modal-bg.show{display:flex}
+#modal{background:linear-gradient(160deg,#0B1C12,#0D3020);border:1px solid #2D9E5F44;border-radius:20px;width:min(1050px,94vw);max-height:92vh;overflow:auto;padding:44px 52px;position:relative}
+#modal h2{color:#76B82A;font-size:2.2rem;margin-bottom:8px;font-weight:900}
+#modal .mod-meta{color:#aaa;font-size:1.1rem;margin-bottom:28px}
+.slide{display:none;animation:fadeIn .4s}
+.slide.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.slide h3{color:#2D9E5F;font-size:1.7rem;margin-bottom:16px;border-left:5px solid #76B82A;padding-left:14px;font-weight:800}
+.slide ul{padding-left:26px;color:#ddd;line-height:2;font-size:1.35rem}
+.slide p{color:#ddd;line-height:1.9;font-size:1.35rem;margin-bottom:12px}
+.slide .highlight{background:rgba(118,184,42,.13);border:1px solid #76B82A55;border-radius:12px;padding:18px 22px;margin:14px 0;font-size:1.25rem;color:#c8f0ff;line-height:1.85}
+.slide-nav{display:flex;align-items:center;justify-content:space-between;margin-top:20px}
+.slide-nav button{background:rgba(13,92,58,.6);border:1px solid #2D9E5F;color:#fff;padding:12px 28px;border-radius:24px;cursor:pointer;font-size:1.05rem;font-weight:600}
+#slide-dots{display:flex;gap:6px}
+.sdot{width:12px;height:12px;border-radius:50%;background:#333;cursor:pointer;transition:background .3s}
+.sdot.active{background:#76B82A}
+.modal-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+#btn-game{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:16px 28px;border-radius:28px;cursor:pointer;font-weight:700;font-size:1.15rem;flex:1}
+#btn-complete{background:rgba(118,184,42,.15);border:2px solid #76B82A;color:#76B82A;padding:16px 28px;border-radius:28px;cursor:pointer;font-weight:700;font-size:1.15rem;flex:1}
+#btn-download-pdf{background:rgba(45,158,95,.12);border:2px solid #2D9E5F;color:#2D9E5F;padding:16px 22px;border-radius:28px;cursor:pointer;font-weight:700;font-size:1.05rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+#btn-close{position:absolute;top:20px;right:24px;background:transparent;border:none;color:#888;font-size:1.6rem;cursor:pointer}
+#drive-overlay{position:fixed;inset:0;z-index:500;display:none;flex-direction:column;overflow:hidden;background:#020806}
+#drive-overlay.show{display:flex}
+
+
+
+
+
+
+
+
+
+
+.overlay-msg{position:absolute;top:8%;left:50%;transform:translateX(-50%);font-size:2.4rem;font-weight:900;color:#76B82A;text-shadow:0 0 30px rgba(118,184,42,.9);text-align:center;white-space:nowrap;z-index:2;letter-spacing:.02em}
+.confetti-piece{position:fixed;width:10px;height:10px;top:-20px;animation:confettiFall 3s ease-out forwards;border-radius:2px;z-index:600}
+@keyframes confettiFall{to{top:110vh;transform:rotate(720deg) translateX(var(--tx))}}
+#finish-banner{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#finish-banner.show{display:flex}
+#finish-banner h1{font-size:3rem;color:#76B82A;margin-bottom:1rem}
+#finish-banner p{color:#aaa;font-size:1.1rem;max-width:500px;line-height:1.6}
+#btn-restart{margin-top:2rem;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px 36px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer}
+
+/* ── Carretera horizontal ── */
+.h-sky{flex:1;background:linear-gradient(180deg,#010504 0%,#0b1a0a 60%,#122010 100%);position:relative;overflow:hidden}
+.h-road{height:135px;background:#1e1e1e;position:relative;overflow:visible;flex-shrink:0;border-top:4px solid #2e2e2e;border-bottom:4px solid #111}
+.h-ground{height:72px;background:linear-gradient(180deg,#0c1c06 0%,#06100A 100%);flex-shrink:0}
+.h-curb-t,.h-curb-b{position:absolute;left:0;right:0;height:9px;background:repeating-linear-gradient(90deg,#aaa 0,#aaa 38px,#666 38px,#666 76px)}
+.h-curb-t{top:0}.h-curb-b{bottom:0}
+.h-center{position:absolute;top:50%;left:0;width:200%;height:8px;margin-top:-4px;background:repeating-linear-gradient(90deg,#FFD700 0,#FFD700 55px,transparent 55px,transparent 115px);animation:hScroll .65s linear infinite}
+.h-roadmark{position:absolute;bottom:28px;left:0;width:200%;height:4px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.25) 0,rgba(255,255,255,.25) 30px,transparent 30px,transparent 90px);animation:hScroll .65s linear infinite}
+@keyframes hScroll{from{transform:translateX(0)}to{transform:translateX(-115px)}}
+/* Líneas de velocidad en el cielo */
+.sky-line{position:absolute;height:2px;background:linear-gradient(to right,transparent,rgba(118,184,42,.35),transparent);animation:skySpeed .5s linear infinite}
+@keyframes skySpeed{from{transform:scaleX(0) translateX(-50%);opacity:1}to{transform:scaleX(1) translateX(0);opacity:0}}
+/* Carro sobre la carretera */
+.drive-car{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);animation:carBounce .28s ease-in-out infinite alternate;z-index:2}
+@keyframes carBounce{from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-5px)}}
+@keyframes wspin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY UNIFICADO -->
+<div id="login-overlay" style="position:fixed;inset:0;z-index:2000;background:linear-gradient(135deg,#06100A 0%,#0D3020 50%,#0B1C12 100%);display:flex;align-items:center;justify-content:center;overflow-y:auto">
+  <div style="width:min(480px,94vw);text-align:center;margin:20px auto">
+
+    <!-- CABECERA -->
+    <div style="margin-bottom:20px">
+      <span style="font-size:1.5rem;font-weight:800;color:#76B82A;display:block;letter-spacing:.04em">Coopetraban</span>
+      <span style="font-size:.7rem;color:#2D9E5F;letter-spacing:.14em">ahorro y crédito</span>
+    </div>
+    <div style="font-size:2rem;margin-bottom:8px">&#128663;</div>
+    <h2 style="color:#fff;font-size:1.5rem;font-weight:900;margin-bottom:4px">IA para la Productividad</h2>
+    <p style="color:#aaa;font-size:.9rem;margin-bottom:28px">¿Cómo deseas ingresar?</p>
+
+    <!-- SELECTOR DE ROL -->
+    <div id="role-selector" style="display:flex;gap:16px;justify-content:center;margin-bottom:28px">
+      <button onclick="selectRole('admin')" style="flex:1;padding:22px 16px;background:rgba(13,92,58,.2);border:2px solid #2D9E5F44;border-radius:20px;color:#fff;cursor:pointer;transition:all .2s;font-size:.95rem">
+        <div style="font-size:2rem;margin-bottom:8px">&#128202;</div>
+        <div style="font-weight:700;color:#76B82A;margin-bottom:4px">Instructor</div>
+        <div style="font-size:.78rem;color:#888">Panel de seguimiento</div>
+      </button>
+      <button onclick="selectRole('user')" style="flex:1;padding:22px 16px;background:rgba(13,92,58,.2);border:2px solid #2D9E5F44;border-radius:20px;color:#fff;cursor:pointer;transition:all .2s;font-size:.95rem">
+        <div style="font-size:2rem;margin-bottom:8px">&#127891;</div>
+        <div style="font-weight:700;color:#76B82A;margin-bottom:4px">Alumno</div>
+        <div style="font-size:.78rem;color:#888">Acceder al programa</div>
+      </button>
+    </div>
+
+    <!-- FORMULARIOS -->
+    <div id="form-box" style="display:none;background:rgba(13,92,58,.18);border:1px solid #2D9E5F55;border-radius:24px;padding:32px 36px;box-shadow:0 0 60px rgba(118,184,42,.1)">
+      <button onclick="volverRoles()" style="background:none;border:none;color:#2D9E5F;font-size:.85rem;cursor:pointer;margin-bottom:16px;display:block">&#8592; Volver</button>
+
+      <div id="auth-error" style="display:none;background:rgba(204,34,0,.15);border:1px solid #cc2200;border-radius:10px;padding:9px 14px;color:#ff8888;font-size:.85rem;margin-bottom:12px"></div>
+      <div id="auth-ok"    style="display:none;background:rgba(13,92,58,.3);border:1px solid #2D9E5F;border-radius:10px;padding:9px 14px;color:#76B82A;font-size:.85rem;margin-bottom:12px"></div>
+
+      <!-- FORM ADMIN -->
+      <div id="form-admin" style="display:none">
+        <p style="color:#76B82A;font-weight:700;font-size:1rem;margin-bottom:16px">&#128202; Acceso Instructor</p>
+        <input id="login-email" type="email" placeholder="Correo electrónico" autocomplete="email" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
+        <input id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:16px;outline:none;box-sizing:border-box">
+        <button id="btn-login" onclick="doAdminLogin()" style="width:100%;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:15px;font-size:1rem;font-weight:700;border-radius:50px;cursor:pointer">Ingresar al panel</button>
+      </div>
+
+      <!-- FORM USUARIO - Tabs -->
+      <div id="form-user" style="display:none">
+        <div style="display:flex;gap:0;margin-bottom:20px;border-radius:12px;overflow:hidden;border:1px solid #2D9E5F44">
+          <button id="tab-login" onclick="showTab('login')" style="flex:1;padding:10px;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;font-weight:700;font-size:.9rem;cursor:pointer">Ingresar</button>
+          <button id="tab-reg"   onclick="showTab('reg')"   style="flex:1;padding:10px;background:transparent;border:none;color:#aaa;font-weight:700;font-size:.9rem;cursor:pointer">Registrarse</button>
+        </div>
+        <div id="panel-login">
+          <input id="user-email" type="email" placeholder="Correo electrónico" autocomplete="email" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
+          <input id="user-pass"  type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:16px;outline:none;box-sizing:border-box">
+          <button onclick="doLogin()" style="width:100%;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:15px;font-size:1rem;font-weight:700;border-radius:50px;cursor:pointer">Ingresar al programa</button>
+        </div>
+        <div id="panel-reg" style="display:none">
+          <input id="reg-nombre" type="text" placeholder="Nombre completo" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
+          <select id="reg-area" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:#0D3020;color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
+            <option value="">Selecciona tu área</option>
+            <option>Crédito</option><option>Caja</option><option>Contabilidad</option>
+            <option>Recursos Humanos</option><option>Sistemas / TI</option>
+            <option>Gerencia</option><option>Atención al Alumno</option><option>Otra</option>
+          </select>
+          <input id="reg-email" type="email" placeholder="Correo electrónico" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
+          <input id="reg-pass"  type="password" placeholder="Contraseña (mín. 6 caracteres)" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:16px;outline:none;box-sizing:border-box">
+          <button onclick="doRegister()" style="width:100%;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:15px;font-size:1rem;font-weight:700;border-radius:50px;cursor:pointer">Crear cuenta</button>
+        </div>
+      </div>
+    </div>
+
+    <p style="color:#444;font-size:.75rem;margin-top:16px">Programa interno · Gestión Humana · Coopetraban</p>
+  </div>
+</div>
+
+<!-- VIDEO INTRO -->
+<div id="video-intro">
+  <video id="intro-vid" playsinline style="cursor:pointer">
+    <source src="intro_video.mp4" type="video/mp4">
+  </video>
+  <div id="pause-icon" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.5);border-radius:50%;width:80px;height:80px;align-items:center;justify-content:center;font-size:2.2rem;pointer-events:none">&#9646;&#9646;</div>
+  <button id="btn-skip-video" onclick="endIntroVideo()">Saltar &#9654;&#9654;</button>
+</div>
+
+<div id="logo-text"><span class="lt1">Coopetraban</span><span class="lt2">ahorro y crédito</span></div>
+
+<div id="welcome">
+  <h1><span style="display:inline-block;filter:hue-rotate(110deg) saturate(2) brightness(1.1)">&#128663;</span> IA para la Productividad</h1>
+  <p>Programa de capacitación interna · Coopetraban</p>
+  <p class="sub">7 módulos · 7 horas · aprendizaje práctico</p>
+  <div class="modules-preview">
+    <div class="mp"><strong>M0</strong>¿Qué es la IA?</div>
+    <div class="mp"><strong>M1</strong>Prompts básicos</div>
+    <div class="mp"><strong>M2</strong>Prompts avanzados</div>
+    <div class="mp"><strong>M3</strong>IA en mi área</div>
+    <div class="mp"><strong>M4</strong>C-R-E-A-T</div>
+    <div class="mp"><strong>M5</strong>Demo Day</div>
+    <div class="mp"><strong>M6</strong>Diseño con IA</div>
+  </div>
+  <button id="btn-start" onclick="startJourney()"><span style="display:inline-block;filter:hue-rotate(110deg) saturate(2) brightness(1.1)">&#128663;</span> ¡Comenzar el Viaje!</button>
+</div>
+
+<div id="roadmap">
+  <svg id="road-svg" viewBox="0 0 1400 760" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#06100A"/>
+        <stop offset="100%" stop-color="#0B1C12"/>
+      </linearGradient>
+      <linearGradient id="grad-done" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#76B82A"/>
+        <stop offset="100%" stop-color="#2D9E5F"/>
+      </linearGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="nodeglow"><feGaussianBlur stdDeviation="8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect width="1400" height="760" fill="url(#bgGrad)"/>
+    <!-- Decoracion -->
+    <text x="80" y="200" font-size="26" opacity=".35">&#127794;</text>
+    <text x="900" y="140" font-size="22" opacity=".3">&#127795;</text>
+    <text x="1300" y="200" font-size="24" opacity=".32">&#127794;</text>
+    <text x="200" y="540" font-size="22" opacity=".28">&#127795;</text>
+    <text x="1150" y="570" font-size="24" opacity=".32">&#127794;</text>
+    <!-- Sombra carretera -->
+    <path d="M 155,170 C 260,170 330,290 420,300 C 510,310 600,185 700,175 C 800,165 920,310 1020,320 C 1120,330 1050,485 850,495 C 730,501 820,655 1020,665 C 1120,670 1220,665 1360,655 C 1390,648 1370,715 1230,725" fill="none" stroke="rgba(0,0,0,.5)" stroke-width="28" stroke-linecap="round"/>
+    <!-- Carretera -->
+    <path id="road-path" d="M 155,165 C 260,165 330,285 420,295 C 510,305 600,180 700,170 C 800,160 920,305 1020,315 C 1120,325 1050,480 850,490 C 730,496 820,650 1020,660 C 1120,665 1220,660 1360,650 C 1390,643 1370,710 1230,720" fill="none" stroke="#2a2a2a" stroke-width="22" stroke-linecap="round"/>
+    <!-- Lineas -->
+    <path d="M 155,165 C 260,165 330,285 420,295 C 510,305 600,180 700,170 C 800,160 920,305 1020,315 C 1120,325 1050,480 850,490 C 730,496 820,650 1020,660 C 1120,665 1220,660 1360,650 C 1390,643 1370,710 1230,720" fill="none" stroke="#444" stroke-width="2" stroke-dasharray="20,15" stroke-linecap="round"/>
+    <!-- Brillo -->
+    <path d="M 155,165 C 260,165 330,285 420,295 C 510,305 600,180 700,170 C 800,160 920,305 1020,315 C 1120,325 1050,480 850,490 C 730,496 820,650 1020,660 C 1120,665 1220,660 1360,650 C 1390,643 1370,710 1230,720" fill="none" stroke="rgba(118,184,42,.12)" stroke-width="30" stroke-linecap="round" filter="url(#glow)"/>
+    <!-- MODULO 0 - Inicio -->
+    <g class="mod-node" id="node-0" data-idx="0" transform="translate(155,165)">
+      <circle class="ring-hover" r="54" fill="none" stroke="#76B82A" stroke-width="2.5" opacity=".5"/>
+      <circle r="44" fill="#0D5C3A" stroke="#76B82A" stroke-width="3" filter="url(#nodeglow)"/>
+      <text text-anchor="middle" dy="-10" font-size="22" fill="#fff">&#127919;</text>
+      <text text-anchor="middle" dy="12" font-size="12" fill="#fff" font-weight="700">MÓDULO 0</text>
+      <text text-anchor="middle" dy="26" font-size="10" fill="#ccc">¿Qué es la IA?</text>
+      <circle class="hit-area" r="54"/>
+    </g>
+    <!-- MODULO 1 -->
+    <g class="mod-node locked" id="node-1" data-idx="1" transform="translate(420,295)">
+      <circle class="ring-hover" r="54" fill="none" stroke="#76B82A" stroke-width="2.5" opacity=".5"/>
+      <circle r="44" fill="#0D3020" stroke="#2D9E5F" stroke-width="2.5" filter="url(#nodeglow)"/>
+      <text text-anchor="middle" dy="-10" font-size="22" fill="#fff">&#128172;</text>
+      <text text-anchor="middle" dy="12" font-size="12" fill="#fff" font-weight="700">MÓDULO 1</text>
+      <text text-anchor="middle" dy="26" font-size="10" fill="#ccc">Prompts básicos</text>
+      <circle class="hit-area" r="54"/>
+    </g>
+    <!-- MODULO 2 -->
+    <g class="mod-node locked" id="node-2" data-idx="2" transform="translate(700,170)">
+      <circle class="ring-hover" r="54" fill="none" stroke="#76B82A" stroke-width="2.5" opacity=".5"/>
+      <circle r="44" fill="#0D3020" stroke="#2D9E5F" stroke-width="2.5" filter="url(#nodeglow)"/>
+      <text text-anchor="middle" dy="-10" font-size="22" fill="#fff">&#128295;</text>
+      <text text-anchor="middle" dy="12" font-size="12" fill="#fff" font-weight="700">MÓDULO 2</text>
+      <text text-anchor="middle" dy="26" font-size="10" fill="#ccc">Prompts avanzados</text>
+      <circle class="hit-area" r="54"/>
+    </g>
+    <!-- MODULO 3 -->
+    <g class="mod-node locked" id="node-3" data-idx="3" transform="translate(1020,315)">
+      <circle class="ring-hover" r="54" fill="none" stroke="#76B82A" stroke-width="2.5" opacity=".5"/>
+      <circle r="44" fill="#0D3020" stroke="#2D9E5F" stroke-width="2.5" filter="url(#nodeglow)"/>
+      <text text-anchor="middle" dy="-10" font-size="22" fill="#fff">&#127970;</text>
+      <text text-anchor="middle" dy="12" font-size="12" fill="#fff" font-weight="700">MÓDULO 3</text>
+      <text text-anchor="middle" dy="26" font-size="10" fill="#ccc">IA en mi área</text>
+      <circle class="hit-area" r="54"/>
+    </g>
+    <!-- MODULO 4 -->
+    <g class="mod-node locked" id="node-4" data-idx="4" transform="translate(850,490)">
+      <circle class="ring-hover" r="54" fill="none" stroke="#76B82A" stroke-width="2.5" opacity=".5"/>
+      <circle r="44" fill="#0D3020" stroke="#2D9E5F" stroke-width="2.5" filter="url(#nodeglow)"/>
+      <text text-anchor="middle" dy="-10" font-size="22" fill="#fff">&#9889;</text>
+      <text text-anchor="middle" dy="12" font-size="12" fill="#fff" font-weight="700">MÓDULO 4</text>
+      <text text-anchor="middle" dy="26" font-size="10" fill="#ccc">C-R-E-A-T</text>
+      <circle class="hit-area" r="54"/>
+    </g>
+    <!-- MODULO 5 -->
+    <g class="mod-node locked" id="node-5" data-idx="5" transform="translate(1020,660)">
+      <circle class="ring-hover" r="54" fill="none" stroke="#76B82A" stroke-width="2.5" opacity=".5"/>
+      <circle r="44" fill="#0D3020" stroke="#2D9E5F" stroke-width="2.5" filter="url(#nodeglow)"/>
+      <text text-anchor="middle" dy="-10" font-size="22" fill="#fff">&#127942;</text>
+      <text text-anchor="middle" dy="12" font-size="12" fill="#fff" font-weight="700">MÓDULO 5</text>
+      <text text-anchor="middle" dy="26" font-size="10" fill="#ccc">Demo Day</text>
+      <circle class="hit-area" r="54"/>
+    </g>
+    <!-- MODULO 6 -->
+    <g class="mod-node locked" id="node-6" data-idx="6" transform="translate(1230,720)">
+      <circle class="ring-hover" r="54" fill="none" stroke="#76B82A" stroke-width="2.5" opacity=".5"/>
+      <circle r="44" fill="#0D3020" stroke="#2D9E5F" stroke-width="2.5" filter="url(#nodeglow)"/>
+      <text text-anchor="middle" dy="-10" font-size="22" fill="#fff">&#127912;</text>
+      <text text-anchor="middle" dy="12" font-size="12" fill="#fff" font-weight="700">MÓDULO 6</text>
+      <text text-anchor="middle" dy="26" font-size="10" fill="#ccc">Diseño con IA</text>
+      <circle class="hit-area" r="54"/>
+    </g>
+    <!-- NODO EVALUACIÓN FINAL -->
+    <g class="mod-node locked" id="node-7" data-idx="7" transform="translate(1340,530)">
+      <circle class="ring-hover" r="54" fill="none" stroke="#FFD700" stroke-width="2.5" opacity=".5"/>
+      <circle r="44" fill="#1a1200" stroke="#FFD700" stroke-width="2.5" filter="url(#nodeglow)"/>
+      <text text-anchor="middle" dy="-10" font-size="22" fill="#FFD700">&#127942;</text>
+      <text text-anchor="middle" dy="12" font-size="12" fill="#FFD700" font-weight="700">EVALUACIÓN</text>
+      <text text-anchor="middle" dy="26" font-size="10" fill="#ccc">Final</text>
+      <circle class="hit-area" r="54"/>
+    </g>
+    <!-- Carro deportivo mejorado -->
+    <g id="car-group" transform="translate(155,165)">
+      <!-- Sombra -->
+      <ellipse cx="0" cy="3" rx="14" ry="22" fill="rgba(0,0,0,.45)"/>
+      <!-- Carrocería principal -->
+      <path d="M -9,-17 Q -5,-23 0,-25 Q 5,-23 9,-17 L 12,-5 Q 13,5 12,14 Q 9,21 0,23 Q -9,21 -12,14 Q -13,5 -12,-5 Z" fill="#3db825"/>
+      <!-- Panel lateral izquierdo -->
+      <path d="M -9,-17 Q -12,-5 -12,14 L -9,14 Q -9,-3 -8,-15 Z" fill="#1e8010" opacity=".7"/>
+      <!-- Panel lateral derecho -->
+      <path d="M 9,-17 Q 12,-5 12,14 L 9,14 Q 9,-3 8,-15 Z" fill="#1e8010" opacity=".7"/>
+      <!-- Parabrisas delantero -->
+      <path d="M -7,-13 Q 0,-16 7,-13 L 6,-5 Q 0,-4 -6,-5 Z" fill="#b0d8ff" opacity=".85"/>
+      <!-- Interior cabina -->
+      <path d="M -6,-5 Q 0,-7 6,-5 L 5,9 Q 0,10 -5,9 Z" fill="#0f4010"/>
+      <!-- Luna trasera -->
+      <path d="M -5,9 Q 0,8 5,9 L 4,15 Q 0,16 -4,15 Z" fill="#80b8e0" opacity=".7"/>
+      <!-- Línea central capó -->
+      <line x1="0" y1="-25" x2="0" y2="-14" stroke="#52d020" stroke-width="1.2" opacity=".6"/>
+      <!-- Detalle capó izquierdo -->
+      <path d="M -4,-22 Q -7,-18 -8,-13" stroke="#2a9018" stroke-width=".8" fill="none" opacity=".5"/>
+      <!-- Detalle capó derecho -->
+      <path d="M 4,-22 Q 7,-18 8,-13" stroke="#2a9018" stroke-width=".8" fill="none" opacity=".5"/>
+      <!-- Ruedas delanteras -->
+      <rect x="-18" y="-19" width="8" height="13" rx="3" fill="#1a1a1a"/>
+      <rect x="10" y="-19" width="8" height="13" rx="3" fill="#1a1a1a"/>
+      <!-- Rines delanteros -->
+      <circle cx="-14" cy="-12" r="3.5" fill="#3a3a3a"/>
+      <circle cx="14" cy="-12" r="3.5" fill="#3a3a3a"/>
+      <circle cx="-14" cy="-12" r="1.5" fill="#666"/>
+      <circle cx="14" cy="-12" r="1.5" fill="#666"/>
+      <!-- Ruedas traseras -->
+      <rect x="-17" y="8" width="8" height="13" rx="3" fill="#1a1a1a"/>
+      <rect x="9" y="8" width="8" height="13" rx="3" fill="#1a1a1a"/>
+      <!-- Rines traseros -->
+      <circle cx="-13" cy="14" r="3.5" fill="#3a3a3a"/>
+      <circle cx="13" cy="14" r="3.5" fill="#3a3a3a"/>
+      <circle cx="-13" cy="14" r="1.5" fill="#666"/>
+      <circle cx="13" cy="14" r="1.5" fill="#666"/>
+      <!-- Faros delanteros -->
+      <rect x="-10" y="-24" width="6" height="3.5" rx="1.8" fill="#ffffa0"/>
+      <rect x="4" y="-24" width="6" height="3.5" rx="1.8" fill="#ffffa0"/>
+      <!-- Brillo faros -->
+      <rect x="-10" y="-24" width="6" height="1.5" rx="1" fill="#fff" opacity=".5"/>
+      <rect x="4" y="-24" width="6" height="1.5" rx="1" fill="#fff" opacity=".5"/>
+      <!-- Luces traseras -->
+      <rect x="-9" y="22" width="5.5" height="3" rx="1.5" fill="#ff4444"/>
+      <rect x="3.5" y="22" width="5.5" height="3" rx="1.5" fill="#ff4444"/>
+      <!-- Insignia Coopetraban -->
+      <circle cx="0" cy="-18" r="4" fill="#0D5C3A" stroke="#76B82A" stroke-width="1"/>
+      <text x="0" y="-16" text-anchor="middle" font-size="5" fill="#76B82A" font-weight="bold">C</text>
+      <!-- Spoiler trasero -->
+      <rect x="-11" y="21" width="22" height="2.5" rx="1.2" fill="#1a6a0a"/>
+    </g>
+  </svg>
+  <div id="hud">
+    <span id="hud-user"></span>
+    <div id="prog-bar-wrap"><div id="prog-bar"></div></div>
+    <span id="progress-text">Módulo 0 desbloqueado</span>
+    <button id="btn-free" onclick="toggleFreeMode()">Modo libre &#128275;</button>
+    <button id="btn-fs" onclick="toggleFullscreen()" title="Pantalla completa (F11)">&#9974;</button>
+    <button id="btn-logout" onclick="doLogout()">Salir &#x2192;</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-bg">
+  <div id="modal">
+    <button id="btn-close" onclick="closeModal()">&#10005;</button>
+    <h2 id="modal-title"></h2>
+    <p class="mod-meta" id="modal-meta"></p>
+    <div id="slides-container"></div>
+    <div class="slide-nav">
+      <button onclick="changeSlide(-1)">&#8592; Anterior</button>
+      <div id="slide-dots"></div>
+      <button onclick="changeSlide(1)">Siguiente &#8594;</button>
+    </div>
+    <div class="modal-actions">
+      <button id="btn-game" onclick="openGame()">&#127918; Abrir Juego</button>
+      <a id="btn-download-pdf" href="#" download>&#128196; Descargar Resumen</a>
+      <button id="btn-complete" onclick="completeModule()">&#9989; Módulo Completado</button>
+    </div>
+  </div>
+</div>
+
+<!-- DRIVE OVERLAY -->
+<div id="drive-overlay">
+  <!-- Cielo con líneas de velocidad -->
+  <div class="h-sky">
+    <div class="sky-line" style="top:22%;left:5%;width:18%;animation-delay:0s"></div>
+    <div class="sky-line" style="top:35%;left:3%;width:14%;animation-delay:.12s"></div>
+    <div class="sky-line" style="top:50%;left:8%;width:20%;animation-delay:.06s"></div>
+    <div class="sky-line" style="top:65%;left:2%;width:16%;animation-delay:.18s"></div>
+    <div class="sky-line" style="top:78%;left:6%;width:12%;animation-delay:.09s"></div>
+    <div class="sky-line" style="top:28%;right:4%;width:15%;animation-delay:.03s"></div>
+    <div class="sky-line" style="top:55%;right:6%;width:18%;animation-delay:.15s"></div>
+    <div class="sky-line" style="top:70%;right:3%;width:13%;animation-delay:.22s"></div>
+  </div>
+  <!-- Carretera horizontal -->
+  <div class="h-road">
+    <div class="h-curb-t"></div>
+    <div class="h-center"></div>
+    <div class="h-roadmark"></div>
+    <div class="h-curb-b"></div>
+    <!-- Carro sobre la carretera -->
+    <div class="drive-car">
+      <svg viewBox="0 0 460 160" xmlns="http://www.w3.org/2000/svg" style="width:500px;max-width:92vw">
+      <defs>
+        <linearGradient id="dBodyG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#88ef40"/>
+          <stop offset="28%" stop-color="#52cc18"/>
+          <stop offset="65%" stop-color="#2a8a0a"/>
+          <stop offset="100%" stop-color="#144a06"/>
+        </linearGradient>
+        <linearGradient id="dBodySide" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"  stop-color="rgba(255,255,255,0)"/>
+          <stop offset="40%" stop-color="rgba(255,255,255,.06)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </linearGradient>
+        <linearGradient id="dRoofG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#1c6a0e"/>
+          <stop offset="100%" stop-color="#083005"/>
+        </linearGradient>
+        <linearGradient id="dWindG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stop-color="#cce8ff" stop-opacity=".9"/>
+          <stop offset="55%"  stop-color="#80b8e0" stop-opacity=".75"/>
+          <stop offset="100%" stop-color="#4090c8" stop-opacity=".55"/>
+        </linearGradient>
+        <radialGradient id="dWheelG" cx="35%" cy="32%" r="65%">
+          <stop offset="0%"   stop-color="#505050"/>
+          <stop offset="55%"  stop-color="#1a1a1a"/>
+          <stop offset="100%" stop-color="#060606"/>
+        </radialGradient>
+        <linearGradient id="dBeamG" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#ffffa8" stop-opacity=".55"/>
+          <stop offset="100%" stop-color="#ffff80" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="dUndG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#76B82A" stop-opacity=".35"/>
+          <stop offset="100%" stop-color="#76B82A" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="dGlow">
+          <feGaussianBlur stdDeviation="2.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="dShadow">
+          <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="rgba(0,0,0,.55)"/>
+        </filter>
+      </defs>
+
+      <!-- Headlight beam -->
+      <path d="M 414,86 L 460,60 L 460,120 Z" fill="url(#dBeamG)"/>
+
+      <!-- Ground shadow -->
+      <ellipse cx="230" cy="150" rx="188" ry="9"  fill="rgba(0,0,0,.42)"/>
+      <ellipse cx="230" cy="148" rx="135" ry="4.5" fill="rgba(60,180,25,.1)"/>
+
+      <!-- Speed lines -->
+      <line x1="0" y1="72" x2="62" y2="72" stroke="#76B82A" stroke-width="3.8" stroke-linecap="round" opacity=".72"/>
+      <line x1="0" y1="84" x2="48" y2="84" stroke="#76B82A" stroke-width="2.8" stroke-linecap="round" opacity=".58"/>
+      <line x1="0" y1="62" x2="36" y2="62" stroke="#76B82A" stroke-width="2.2" stroke-linecap="round" opacity=".44"/>
+      <line x1="0" y1="96" x2="40" y2="96" stroke="#76B82A" stroke-width="2.2" stroke-linecap="round" opacity=".38"/>
+      <line x1="0" y1="108" x2="26" y2="108" stroke="#76B82A" stroke-width="1.6" stroke-linecap="round" opacity=".26"/>
+
+      <!-- Exhaust -->
+      <ellipse cx="46" cy="116" rx="13" ry="8" fill="rgba(180,220,160,.13)"/>
+      <ellipse cx="30" cy="122" rx="8"  ry="5" fill="rgba(180,220,160,.08)"/>
+
+      <!-- ═══ BODY — sporty low coupe ═══ -->
+      <!-- Cuerpo principal — perfil ultra bajo tipo superdeportivo -->
+      <path d="M 74,122
+               L 62,116 Q 48,108 50,96 Q 52,86 68,82
+               L 90,72 Q 110,46 140,28 Q 170,10 210,8
+               L 284,8 Q 328,10 358,32 Q 378,48 386,68
+               L 400,76 Q 420,82 422,98 Q 424,112 412,120
+               L 392,124 L 380,126 L 90,126 Z"
+            fill="url(#dBodyG)" filter="url(#dShadow)"/>
+
+      <!-- Highlight band across top -->
+      <path d="M 142,28 Q 172,10 210,8 L 284,8 Q 324,10 354,30 L 326,70 L 162,70 Z"
+            fill="rgba(255,255,255,.09)"/>
+
+      <!-- Roof cabin -->
+      <path d="M 162,70 L 144,30 Q 172,10 210,8 L 284,8 Q 322,10 350,28 L 326,70 Z"
+            fill="url(#dRoofG)" opacity=".6"/>
+
+      <!-- Windshield — raked aggressively -->
+      <path d="M 166,68 L 148,32 Q 172,12 206,10 L 244,10 L 232,68 Z"
+            fill="url(#dWindG)"/>
+      <path d="M 172,64 L 156,34 Q 174,16 200,12 L 226,12 L 218,32 Z"
+            fill="rgba(255,255,255,.22)"/>
+
+      <!-- Rear fastback window -->
+      <path d="M 244,10 L 284,8 Q 322,10 346,28 L 322,68 L 244,68 Z"
+            fill="url(#dWindG)" opacity=".8"/>
+      <path d="M 248,11 L 282,9 Q 312,12 332,28 L 318,42 Z"
+            fill="rgba(255,255,255,.16)"/>
+
+      <!-- B-pillar -->
+      <rect x="238" y="8" width="8" height="64" rx="4" fill="#083008"/>
+
+      <!-- Side mirror — slim sporty -->
+      <path d="M 142,54 L 126,50 L 122,64 L 142,68 Z" fill="#1e6a0e"/>
+      <rect x="118" y="50" width="8" height="16" rx="4" fill="#145a0a"/>
+      <path d="M 130,52 L 124,54 L 123,62 L 131,60 Z" fill="rgba(200,240,180,.22)"/>
+
+      <!-- Body crease lines — sharp sportcar lines -->
+      <path d="M 74,98 Q 230,90 392,98"  stroke="rgba(150,255,80,.22)" stroke-width="2"   fill="none"/>
+      <path d="M 74,98 Q 230,90 392,98"  stroke="#0e4805"               stroke-width="1.2" fill="none"/>
+
+      <!-- Lower door crease -->
+      <path d="M 140,68 Q 138,90 142,112 L 316,112 Q 320,90 318,68"
+            stroke="#1a6810" stroke-width="1.8" fill="none" opacity=".4"/>
+
+      <!-- Hood vent scoops (active) -->
+      <path d="M 298,24 L 320,24 L 316,44 L 294,44 Z" fill="#083008"/>
+      <path d="M 300,25 L 318,25 L 315,28 L 301,28 Z" fill="rgba(120,220,60,.14)"/>
+      <path d="M 272,22 L 290,22 L 286,42 L 268,42 Z" fill="#083008"/>
+      <path d="M 274,23 L 288,23 L 285,26 L 275,26 Z" fill="rgba(120,220,60,.12)"/>
+
+      <!-- Front splitter -->
+      <rect x="376" y="116" width="42" height="12" rx="3" fill="#083208"/>
+      <rect x="378" y="117" width="38" height="4"  rx="2" fill="rgba(120,220,60,.18)"/>
+
+      <!-- Rear diffuser + exhaust -->
+      <path d="M 50,108 Q 42,116 46,126 L 76,126 L 72,108 Z" fill="#083208"/>
+      <ellipse cx="56" cy="126" rx="6" ry="4" fill="#1c1c1c"/>
+      <ellipse cx="56" cy="126" rx="4" ry="2.5" fill="#2e2e2e"/>
+      <ellipse cx="66" cy="126" rx="5" ry="3.5" fill="#1c1c1c"/>
+      <ellipse cx="66" cy="126" rx="3" ry="2" fill="#2e2e2e"/>
+
+      <!-- Side sill / skirt -->
+      <rect x="100" y="116" width="250" height="12" rx="6"   fill="#072806"/>
+      <rect x="102" y="117" width="246" height="5"  rx="3.5" fill="rgba(80,200,30,.18)"/>
+
+      <!-- Front bumper -->
+      <path d="M 378,82 Q 416,90 422,106 L 422,126 L 378,126 Q 374,110 374,94 Z" fill="#083208"/>
+      <!-- Grille slots -->
+      <rect x="384" y="92"  width="32" height="3" rx="1.5" fill="#1a5a08"/>
+      <rect x="384" y="99"  width="32" height="3" rx="1.5" fill="#1a5a08"/>
+      <rect x="384" y="106" width="28" height="3" rx="1.5" fill="#1a5a08"/>
+      <rect x="384" y="113" width="24" height="3" rx="1.5" fill="#1a5a08"/>
+
+      <!-- Low rear wing (GT style) -->
+      <rect x="50" y="64" width="12" height="32" rx="5"  fill="#0D5C3A"/>
+      <rect x="36" y="56" width="32" height="12" rx="6"  fill="#0D5C3A"/>
+      <rect x="40" y="49" width="24" height="10" rx="5"  fill="#0a5020"/>
+      <rect x="44" y="51" width="10" height="4"  rx="2"  fill="rgba(255,255,255,.13)"/>
+
+      <!-- Tail lights — full-width LED bar (modern supercar) -->
+      <rect x="50" y="76" width="16" height="36" rx="7" fill="#770000"/>
+      <rect x="50" y="76" width="8"  height="36" rx="6" fill="#ee3333"/>
+      <rect x="50" y="76" width="4"  height="18" rx="2" fill="rgba(255,150,150,.35)"/>
+      <!-- LED connecting bar -->
+      <rect x="52" y="118" width="14" height="7" rx="3.5" fill="#cc4400"/>
+      <rect x="53" y="118" width="7"  height="3" rx="2"   fill="#ff8822"/>
+
+      <!-- Headlight — full LED unit -->
+      <path d="M 387,78 Q 418,76 424,94 Q 420,112 387,112 L 385,94 Z" fill="#ffff99"/>
+      <path d="M 389,81 Q 414,80 420,94 Q 416,108 389,108 L 388,94 Z" fill="rgba(255,255,255,.5)"/>
+      <!-- DRL strip -->
+      <rect x="383" y="114" width="30" height="6" rx="3" fill="#ffe060"/>
+      <ellipse cx="416" cy="94" rx="5" ry="3.5" fill="white" opacity=".4"/>
+
+      <!-- Wheel arches — wide flares supercar -->
+      <path d="M 60,126 Q 60,100 105,100 Q 158,100 158,126" fill="#062006"/>
+      <path d="M 292,126 Q 292,100 338,100 Q 390,100 390,126" fill="#062006"/>
+
+      <!-- ── REAR WHEEL (cx=105 cy=128 r=30) ── -->
+      <circle cx="105" cy="128" r="30" fill="url(#dWheelG)"/>
+      <circle cx="105" cy="128" r="28" fill="none" stroke="#181818" stroke-width="5"/>
+      <!-- Brake disc hint -->
+      <circle cx="105" cy="128" r="20" fill="#1e1e1e"/>
+      <circle cx="105" cy="128" r="20" fill="none" stroke="#333" stroke-width=".8"/>
+      <!-- 5-spoke performance rim (pre-calculated, no SVG transform) -->
+      <g class="wspin" style="transform-origin:105px 128px;animation:wspin .28s linear infinite">
+        <!-- spoke 0: up    --> <line x1="105" y1="109" x2="105" y2="128" stroke="#888" stroke-width="5.5" stroke-linecap="round"/>
+        <!-- spoke 1: +72°  --> <line x1="123" y1="122" x2="105" y2="128" stroke="#888" stroke-width="5.5" stroke-linecap="round"/>
+        <!-- spoke 2: +144° --> <line x1="116" y1="145" x2="105" y2="128" stroke="#888" stroke-width="5.5" stroke-linecap="round"/>
+        <!-- spoke 3: +216° --> <line x1="94"  y1="145" x2="105" y2="128" stroke="#888" stroke-width="5.5" stroke-linecap="round"/>
+        <!-- spoke 4: +288° --> <line x1="87"  y1="122" x2="105" y2="128" stroke="#888" stroke-width="5.5" stroke-linecap="round"/>
+        <!-- outer ring detail -->
+        <circle cx="105" cy="109" r="3" fill="#aaa"/>
+        <circle cx="123" cy="122" r="3" fill="#aaa"/>
+        <circle cx="116" cy="145" r="3" fill="#aaa"/>
+        <circle cx="94"  cy="145" r="3" fill="#aaa"/>
+        <circle cx="87"  cy="122" r="3" fill="#aaa"/>
+      </g>
+      <circle cx="105" cy="128" r="8"   fill="#222"/>
+      <circle cx="105" cy="128" r="4.5" fill="#76B82A"/>
+      <path d="M 82,112 Q 74,124 78,140" stroke="rgba(255,255,255,.1)" stroke-width="5" fill="none" stroke-linecap="round"/>
+
+      <!-- ── FRONT WHEEL (cx=334 cy=128 r=30) ── -->
+      <circle cx="334" cy="128" r="30" fill="url(#dWheelG)"/>
+      <circle cx="334" cy="128" r="28" fill="none" stroke="#181818" stroke-width="5"/>
+      <circle cx="334" cy="128" r="20" fill="#1e1e1e"/>
+      <circle cx="334" cy="128" r="20" fill="none" stroke="#333" stroke-width=".8"/>
+      <g class="wspin" style="transform-origin:334px 128px;animation:wspin .28s linear infinite">
+        <line x1="334" y1="109" x2="334" y2="128" stroke="#888" stroke-width="5.5" stroke-linecap="round"/>
+        <line x1="352" y1="122" x2="334" y2="128" stroke="#888" stroke-width="5.5" stroke-linecap="round"/>
+        <line x1="345" y1="145" x2="334" y2="128" stroke="#888" stroke-width="5.5" stroke-linecap="round"/>
+        <line x1="323" y1="145" x2="334" y2="128" stroke="#888" stroke-width="5.5" stroke-linecap="round"/>
+        <line x1="316" y1="122" x2="334" y2="128" stroke="#888" stroke-width="5.5" stroke-linecap="round"/>
+        <circle cx="334" cy="109" r="3" fill="#aaa"/>
+        <circle cx="352" cy="122" r="3" fill="#aaa"/>
+        <circle cx="345" cy="145" r="3" fill="#aaa"/>
+        <circle cx="323" cy="145" r="3" fill="#aaa"/>
+        <circle cx="316" cy="122" r="3" fill="#aaa"/>
+      </g>
+      <circle cx="334" cy="128" r="8"   fill="#222"/>
+      <circle cx="334" cy="128" r="4.5" fill="#76B82A"/>
+      <path d="M 311,112 Q 303,124 307,140" stroke="rgba(255,255,255,.1)" stroke-width="5" fill="none" stroke-linecap="round"/>
+
+      <!-- ══ COOPETRABAN LOGO BADGE ══ -->
+      <circle cx="218" cy="52" r="22" fill="#0D5C3A" stroke="#76B82A" stroke-width="2.8" filter="url(#dGlow)"/>
+      <text x="218" y="60" text-anchor="middle" font-size="24" fill="#76B82A" font-weight="900" font-family="Arial,sans-serif">C</text>
+
+      <!-- LED underbody glow strip -->
+      <rect x="96" y="138" width="248" height="6" rx="3" fill="#52cc18" opacity=".28"/>
+    </svg>
+    </div>
+  </div>
+  <!-- Tierra / pasto -->
+  <div class="h-ground"></div>
+  <!-- Mensaje -->
+  <div class="overlay-msg" id="drive-msg">&#128640; ¡Módulo completado!</div>
+</div>
+
+<!-- FIN -->
+<div id="finish-banner">
+  <div style="font-size:4rem;margin-bottom:1rem">&#127942;</div>
+  <h1>¡Programa Completado!</h1>
+  <p>Han recorrido toda la ruta de <strong style="color:#76B82A">IA para la Productividad</strong>. Ahora son embajadores de IA en Coopetraban.</p>
+  <button id="btn-restart" onclick="location.reload()">&#128260; Recorrer de nuevo</button>
+</div>
+
+<script>
+// ===== SUPABASE =====
+var SUPA_URL = 'https://eoedqopxsgxtkfqzbplt.supabase.co';
+var SUPA_KEY = 'sb_publishable_klzlK_YrjlzcRVzmnz07fA_PtUawB4u';
+var supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var currentUser = null;
+
+supa.auth.getSession().then(function(r){
+  if (r.data && r.data.session) {
+    currentUser = r.data.session.user;
+    hidePantallaLogin();
+    loadProgressFromDB();
+  }
+  // Si no hay sesión, login-overlay ya está visible por defecto
+});
+
+function selectRole(role) {
+  document.getElementById('role-selector').style.display = 'none';
+  document.getElementById('form-box').style.display = 'block';
+  document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('auth-ok').style.display = 'none';
+  if (role === 'admin') {
+    document.getElementById('form-admin').style.display = 'block';
+    document.getElementById('form-user').style.display  = 'none';
+  } else {
+    document.getElementById('form-admin').style.display = 'none';
+    document.getElementById('form-user').style.display  = 'block';
+    showTab('login');
+  }
+}
+
+function volverRoles() {
+  document.getElementById('role-selector').style.display = 'flex';
+  document.getElementById('form-box').style.display = 'none';
+}
+
+function showTab(t) {
+  var isLogin = t === 'login';
+  document.getElementById('panel-login').style.display = isLogin ? '' : 'none';
+  document.getElementById('panel-reg').style.display  = isLogin ? 'none' : '';
+  document.getElementById('tab-login').style.background = isLogin ? 'linear-gradient(135deg,#76B82A,#2D9E5F)' : 'transparent';
+  document.getElementById('tab-login').style.color = isLogin ? '#fff' : '#aaa';
+  document.getElementById('tab-reg').style.background = !isLogin ? 'linear-gradient(135deg,#76B82A,#2D9E5F)' : 'transparent';
+  document.getElementById('tab-reg').style.color = !isLogin ? '#fff' : '#aaa';
+  document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('auth-ok').style.display = 'none';
+}
+
+function authErr(msg) { var e=document.getElementById('auth-error'); e.textContent=msg; e.style.display='block'; document.getElementById('auth-ok').style.display='none'; }
+function authOk(msg)  { var e=document.getElementById('auth-ok');    e.textContent=msg; e.style.display='block'; document.getElementById('auth-error').style.display='none'; }
+
+function doAdminLogin() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass  = document.getElementById('login-pass').value;
+  var btn   = document.getElementById('btn-login');
+  if (!email || !pass) { authErr('Completa todos los campos.'); return; }
+  btn.textContent = 'Verificando...'; btn.disabled = true;
+  supa.auth.signInWithPassword({email:email, password:pass}).then(function(r){
+    btn.textContent = 'Ingresar al panel'; btn.disabled = false;
+    if (r.error) { authErr('Correo o contraseña incorrectos.'); return; }
+    supa.rpc('is_admin').then(function(ra){
+      if (ra.error || !ra.data) { authErr('No tienes permisos de instructor.'); supa.auth.signOut(); return; }
+      window.location.href = 'admin.html';
+    });
+  });
+}
+
+function doLogin() {
+  var email = document.getElementById('user-email').value.trim();
+  var pass  = document.getElementById('user-pass').value;
+  if (!email || !pass) { authErr('Completa todos los campos.'); return; }
+  authErr(''); document.getElementById('auth-error').style.display='none';
+  supa.auth.signInWithPassword({email:email, password:pass}).then(function(r){
+    if (r.error) { authErr('Correo o contraseña incorrectos.'); }
+    else { currentUser = r.data.user; hidePantallaLogin(); loadProgressFromDB(); }
+  });
+}
+
+function doRegister() {
+  var nombre = document.getElementById('reg-nombre').value.trim();
+  var area   = document.getElementById('reg-area').value;
+  var email  = document.getElementById('reg-email').value.trim();
+  var pass   = document.getElementById('reg-pass').value;
+  if (!nombre || !area || !email || !pass) { authErr('Completa todos los campos.'); return; }
+  if (pass.length < 6) { authErr('La contraseña debe tener mínimo 6 caracteres.'); return; }
+  document.getElementById('auth-error').style.display='none';
+  supa.auth.signUp({email:email, password:pass}).then(function(r){
+    if (r.error) { authErr(r.error.message); return; }
+    var uid = r.data.user.id;
+    supa.from('profiles').insert({id:uid, email:email, nombre:nombre, area:area}).then(function(){
+      authOk('✓ Cuenta creada. Ya puedes ingresar con tu correo y contraseña.');
+      showTab('login');
+      document.getElementById('user-email').value = email;
+    });
+  });
+}
+
+document.getElementById('login-pass').addEventListener('keydown', function(e){ if(e.key==='Enter') doAdminLogin(); });
+document.getElementById('login-email').addEventListener('keydown', function(e){ if(e.key==='Enter') doAdminLogin(); });
+
+function hidePantallaLogin() {
+  document.getElementById('login-overlay').style.display = 'none';
+  if (currentUser) document.getElementById('hud-user').textContent = currentUser.email;
+  document.getElementById('role-selector').style.display = 'flex';
+  document.getElementById('form-box').style.display = 'none';
+}
+
+function doLogout() {
+  supa.auth.signOut().then(function(){
+    currentUser = null; progress = 0;
+    document.getElementById('hud-user').textContent = '';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('login-overlay').style.display = 'flex';
+    document.getElementById('roadmap').classList.remove('visible');
+    var w = document.getElementById('welcome');
+    w.style.display = ''; w.classList.remove('hidden');
+    document.getElementById('video-intro').classList.remove('hidden');
+    document.getElementById('video-intro').style.display = '';
+    updateProgressBar();
+  });
+}
+
+function loadProgressFromDB() {
+  supa.from('progress').select('module_index').then(function(r){
+    if (r.data && r.data.length > 0) {
+      var indices = r.data.map(function(x){ return x.module_index; });
+      var maxIdx = Math.max.apply(null, indices);
+      progress = maxIdx + 1;
+    } else {
+      progress = 0;
+    }
+    updateNodes();
+    updateProgressBar();
+  });
+}
+
+function saveProgressToDB(moduleIdx) {
+  if (!currentUser) return;
+  supa.from('progress').upsert(
+    {user_id: currentUser.id, module_index: moduleIdx, score: 100, completed_at: new Date().toISOString()},
+    {onConflict: 'user_id,module_index'}
+  ).then(function(r){ if(r.error) console.warn('Supabase save error:', r.error); });
+}
+
+function updateProgressBar() {
+  var pct = Math.min(100, Math.round((progress / 7) * 100));
+  var bar = document.getElementById('prog-bar');
+  if (bar) bar.style.width = pct + '%';
+  var txt = document.getElementById('progress-text');
+  if (txt) {
+    txt.textContent = progress >= 7
+      ? '\u{1F3C6} ¡Programa completado!'
+      : progress + '/7 · ' + pct + '%';
+  }
+}
+
+// ===== DATOS DE MODULOS =====
+var MODULES = [
+  {title:"M\u00f3dulo 0 \u00b7 \u00bfQu\u00e9 es la Inteligencia Artificial?",meta:"1 hora \u00b7 Apertura 10min \u00b7 Contenido 35min \u00b7 Juego 15min",game:"modulo0_semaforo.html",pdf:"Resumen_M0_QueEsIA.pdf",slides:[
+    {h:"Bienvenida al programa",b:'<p>Bienvenidos a <strong style="color:#76B82A">IA para la Productividad</strong>, el programa de capacitaci\u00f3n interna de Coopetraban.</p><div class="highlight">&#127919; <strong>Objetivo:</strong> Comprender qu\u00e9 es la IA, c\u00f3mo funciona y cu\u00e1les son sus limitaciones reales.</div>'},
+    {h:"\u00bfQu\u00e9 es la IA? Desmitificando",b:'<p>La inteligencia artificial de hoy <strong>no piensa ni siente</strong>. Es un sistema entrenado con millones de textos que aprende a predecir respuestas \u00fatiles.</p><ul><li>Procesa lenguaje de forma probabil\u00edstica</li><li>No tiene memoria entre conversaciones</li><li>Puede equivocarse \u2014 siempre hay que verificar</li><li>No reemplaza el juicio humano</li></ul>'},
+    {h:"\u00bfQu\u00e9 puede y qu\u00e9 NO puede hacer?",b:'<p><strong style="color:#76B82A">\u2705 Puede:</strong></p><ul><li>Redactar, resumir, corregir textos</li><li>Generar ideas y borradores</li><li>Organizar informaci\u00f3n</li></ul><p style="margin-top:10px"><strong style="color:#e66">\u274c No puede:</strong></p><ul><li>Acceder a informaci\u00f3n privada de la cooperativa</li><li>Tomar decisiones por ti</li><li>Garantizar que todo lo que dice es verdad</li></ul>'},
+    {h:"Preparaci\u00f3n para el juego",b:'<p>Jugaremos <strong style="color:#76B82A">El Sem\u00e1foro IA</strong>.</p><div class="highlight">&#128994; <strong>Verde</strong> = OK usar IA aqu\u00ed<br>&#128308; <strong>Rojo</strong> = No es apropiado / hay riesgo</div>'}
+  ]},
+  {title:"M\u00f3dulo 1 \u00b7 Primeros Pasos con Prompts",meta:"1 hora \u00b7 Apertura 10min \u00b7 Contenido 35min \u00b7 Juego 15min",game:"modulo1_humano_o_ia.html",pdf:"Resumen_M1_PrimerosPrompts.pdf",slides:[
+    {h:"\u00bfQu\u00e9 es un prompt?",b:'<p>Un <strong style="color:#76B82A">prompt</strong> es la instrucci\u00f3n que le das a la herramienta de IA. La calidad del resultado depende de qu\u00e9 tan claro sea.</p><div class="highlight">&#128505; Regla de oro: "Basura entra, basura sale". Un prompt vago da una respuesta vaga.</div>'},
+    {h:"Los 3 ingredientes b\u00e1sicos",b:"<ul><li><strong>Contexto:</strong> Qui\u00e9n eres / qu\u00e9 situaci\u00f3n tienes</li><li><strong>Tarea clara:</strong> Qu\u00e9 quieres que haga exactamente</li><li><strong>Formato deseado:</strong> C\u00f3mo quieres la respuesta</li></ul>"},
+    {h:"Pr\u00e1ctica: Prompt para mi \u00e1rea",b:'<p>Cada participante construye un prompt b\u00e1sico para una tarea repetitiva de su d\u00eda a d\u00eda.</p><div class="highlight">&#9203; 15 minutos de pr\u00e1ctica guiada</div>'},
+    {h:"Preparaci\u00f3n para el juego",b:'<p>Jugaremos <strong style="color:#76B82A">\u00bfHumano o IA?</strong></p><div class="highlight">&#129300; Se mostrar\u00e1n textos cortos \u2014 vota: \u00bfhumano o IA? El objetivo es desarrollar el ojo cr\u00edtico.</div>'}
+  ]},
+  {title:"M\u00f3dulo 2 \u00b7 Prompts Avanzados: El Arte de Preguntar",meta:"1 hora \u00b7 Apertura 10min \u00b7 Contenido 35min \u00b7 Juego 15min",game:"modulo2_transformador.html",pdf:"Resumen_M2_PromptsAvanzados.pdf",slides:[
+    {h:"\u00bfPor qu\u00e9 mejorar los prompts?",b:'<div class="highlight">&#128202; Prompt b\u00e1sico: "Resume esto" \u2192 resultado gen\u00e9rico<br>Prompt avanzado: "Resume esto en 3 puntos clave para la junta directiva, tono formal" \u2192 resultado listo para usar</div>'},
+    {h:"T\u00e9cnicas avanzadas",b:"<ul><li><strong>Asignar un rol:</strong> \"Act\u00faa como experto en...\"</li><li><strong>Dar ejemplos:</strong> \"El tono que busco es como...\"</li><li><strong>Pedir pasos:</strong> \"Expl\u00edcame paso a paso...\"</li><li><strong>Iterar:</strong> \"Est\u00e1 bien pero h\u00e1zelo m\u00e1s formal\"</li></ul>"},
+    {h:"Errores comunes",b:"<ul><li>\u274c Prompts demasiado cortos sin contexto</li><li>\u274c Pedir varias cosas distintas en un solo mensaje</li><li>\u274c No indicar el formato de salida</li><li>\u274c Copiar y pegar sin revisar</li></ul>"},
+    {h:"Preparaci\u00f3n para el juego",b:'<p>Jugaremos <strong style="color:#76B82A">El Transformador de Prompts</strong>.</p><div class="highlight">&#127942; Los equipos compiten para transformar prompts malos en efectivos.</div>'}
+  ]},
+  {title:"M\u00f3dulo 3 \u00b7 IA en Mi \u00c1rea de Trabajo",meta:"1 hora \u00b7 Apertura 10min \u00b7 Contenido 35min \u00b7 Juego 15min",game:"modulo3_ruleta_roles.html",pdf:"Resumen_M3_IAenMiArea.pdf",slides:[
+    {h:"IA en el trabajo real de Coopetraban",b:"<ul><li><strong>Cr\u00e9dito:</strong> Redactar comunicados, an\u00e1lisis de contexto</li><li><strong>Caja:</strong> Gu\u00edas de procesos, preguntas frecuentes</li><li><strong>Gesti\u00f3n Humana:</strong> Comunicaciones internas, capacitaciones</li><li><strong>Tecnolog\u00eda:</strong> Documentaci\u00f3n, soporte</li><li><strong>Gerencia:</strong> Res\u00famenes ejecutivos, presentaciones</li></ul>"},
+    {h:"Casos de uso concretos",b:'<div class="highlight">&#128203; <strong>Ejemplo Cr\u00e9dito:</strong><br>\"Redacta un correo de rechazo de cr\u00e9dito. Tono emp\u00e1tico. Incluye recomendaciones para reaplicar.\"</div><div class="highlight">&#128203; <strong>Ejemplo RRHH:</strong><br>\"Plan de inducci\u00f3n de 3 d\u00edas para Alumno de caja. Temas, duraci\u00f3n y objetivos.\"</div>'},
+    {h:"L\u00edmites importantes",b:"<ul><li>&#128274; Nunca ingresar datos de Alumnos en herramientas externas</li><li>&#128274; No compartir informaci\u00f3n confidencial</li><li>\u2705 La IA estructura y redacta \u2014 no decide</li></ul>"},
+    {h:"Preparaci\u00f3n para el juego",b:'<p>Jugaremos <strong style="color:#76B82A">Ruleta de Roles</strong>.</p><div class="highlight">&#127919; La ruleta asigna un \u00e1rea. 3 minutos para idear c\u00f3mo usar IA en ese rol.</div>'}
+  ]},
+  {title:"M\u00f3dulo 4 \u00b7 M\u00e9todo C-R-E-A-T",meta:"1 hora \u00b7 Apertura 10min \u00b7 Contenido 35min \u00b7 Juego 15min",game:"modulo4_constructor_creat.html",pdf:"Resumen_M4_CREAT.pdf",slides:[
+    {h:"El m\u00e9todo C-R-E-A-T",b:'<ul><li><strong style="color:#76B82A">C</strong> \u2014 Contexto: Qui\u00e9n soy, qu\u00e9 situaci\u00f3n tengo</li><li><strong style="color:#76B82A">R</strong> \u2014 Rol: Qu\u00e9 papel asume la IA</li><li><strong style="color:#76B82A">E</strong> \u2014 Ejemplo: Un modelo del resultado esperado</li><li><strong style="color:#76B82A">A</strong> \u2014 Acci\u00f3n: La tarea espec\u00edfica</li><li><strong style="color:#76B82A">T</strong> \u2014 Tono: Formal, amigable, t\u00e9cnico...</li></ul>'},
+    {h:"C-R-E-A-T en acci\u00f3n",b:'<div class="highlight">&#128221; C: Soy coordinador de RRHH en Coopetraban.<br>R: Act\u00faa como experto en comunicaci\u00f3n organizacional.<br>E: Tono similar a carta corporativa cercana.<br>A: Redacta convocatoria para capacitaci\u00f3n obligatoria de 2h.<br>T: Formal, motivador, m\u00e1ximo 150 palabras.</div>'},
+    {h:"Por qu\u00e9 funciona",b:"<ul><li>Reduce iteraciones necesarias</li><li>Produce resultados m\u00e1s consistentes</li><li>F\u00e1cil de ense\u00f1ar y recordar</li></ul>"},
+    {h:"Preparaci\u00f3n para el juego",b:'<p>Usaremos el <strong style="color:#76B82A">Constructor C-R-E-A-T</strong>.</p><div class="highlight">&#9889; Construyan el mejor prompt C-R-E-A-T para un escenario real de Coopetraban.</div>'}
+  ]},
+  {title:"M\u00f3dulo 5 \u00b7 Demo Day",meta:"1 hora \u00b7 Apertura 10min \u00b7 Presentaciones 35min \u00b7 Premiaci\u00f3n 15min",game:"modulo5_demo_day.html",pdf:"Resumen_M5_DemoDay.pdf",slides:[
+    {h:"\u00bfQu\u00e9 es el Demo Day?",b:'<p>Cada equipo demuestra lo aprendido con una presentaci\u00f3n de 5-7 minutos sobre c\u00f3mo aplicar\u00edan IA en su \u00e1rea.</p><div class="highlight">&#127919; Se valora creatividad, utilidad real y claridad \u2014 no lo \"tecnol\u00f3gico\".</div>'},
+    {h:"Criterios de evaluaci\u00f3n",b:"<ul><li>&#11088; <strong>Creatividad</strong> \u2014 \u00bfLa idea es original?</li><li>&#11088; <strong>Utilidad</strong> \u2014 \u00bfResuelve un problema real?</li><li>&#11088; <strong>Viabilidad</strong> \u2014 \u00bfSe puede implementar?</li><li>&#11088; <strong>Claridad</strong> \u2014 \u00bfLa presentaci\u00f3n es clara?</li><li>&#11088; <strong>Impacto</strong> \u2014 \u00bfMejora el proceso actual?</li></ul>"},
+    {h:"Estructura",b:'<ol style="padding-left:20px;color:#ccc;line-height:2;font-size:.9rem"><li>El problema o proceso actual</li><li>C\u00f3mo la IA puede ayudar</li><li>Demo con prompt C-R-E-A-T</li><li>Impacto esperado</li></ol>'},
+    {h:"\u00a1A demostrar!",b:'<div class="highlight">&#127942; Al final se anuncia el equipo ganador. \u00a1Felicidades a todos por completar el viaje!</div>'}
+  ]},
+  {title:"M\u00f3dulo 6 \u00b7 Dise\u00f1o Visual con IA",meta:"1 hora \u00b7 Apertura 10min \u00b7 Contenido 35min \u00b7 Pr\u00e1ctica 15min",game:"modulo6_diseno.html",pdf:"Resumen_M6_Diseno.pdf",slides:[
+    {h:"IA para crear y dise\u00f1ar",b:'<p>Las herramientas de IA pueden ayudar a crear materiales visuales, estructurar presentaciones y producir contenido gr\u00e1fico.</p><div class="highlight">&#127912; Generar im\u00e1genes \u00b7 Crear flyers \u00b7 Dise\u00f1ar presentaciones \u00b7 Adaptar formatos</div>'},
+    {h:"El prompt visual",b:"<ul><li><strong>Qu\u00e9:</strong> El objeto principal a representar</li><li><strong>Estilo:</strong> Ilustraci\u00f3n, foto, minimalista, corporativo...</li><li><strong>Colores:</strong> Paleta deseada</li><li><strong>Formato:</strong> Horizontal, cuadrado, vertical...</li><li><strong>Prop\u00f3sito:</strong> Para qu\u00e9 se va a usar</li></ul>"},
+    {h:"Aplicaciones en Coopetraban",b:"<ul><li>&#128444; Im\u00e1genes para boletines y correos</li><li>&#128202; Portadas para presentaciones</li><li>&#128226; Materiales para campa\u00f1as de ahorro</li><li>&#127891; Material did\u00e1ctico para talleres</li></ul>"},
+    {h:"Preparaci\u00f3n para la pr\u00e1ctica",b:'<p>Usaremos <strong style="color:#76B82A">El Estudio Creativo</strong>.</p><div class="highlight">&#127919; Construyan el prompt visual m\u00e1s completo para un reto de dise\u00f1o de Coopetraban.</div>'}
+  ]},
+  {title:"Evaluación Final · IA para la Productividad", isEval:true, meta:"Evaluación de conocimientos · 10 preguntas · ~15 minutos", pdf:null, slides:[]}
+
+];
+
+// ===== ESTADO =====
+var progress = 0;
+var freeMode = false;
+var currentMod = -1;
+var currentSlide = 0;
+
+// ===== VIDEO INTRO =====
+(function(){
+  var overlay = document.getElementById("video-intro");
+  var vid     = document.getElementById("intro-vid");
+  if (!vid || !overlay) return;
+  // Intentar reproducir automáticamente
+  var playPromise = vid.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(function(){
+      // Autoplay bloqueado — mostrar botón más prominente para que lo inicien manualmente
+      document.getElementById("btn-skip-video").textContent = "▶ Reproducir / Saltar";
+      vid.addEventListener("click", function(){ vid.play(); });
+    });
+  }
+  vid.addEventListener("ended", endIntroVideo);
+  // Clic en el video = pausar/reanudar
+  vid.addEventListener("click", function(){
+    if (vid.paused) { vid.play(); document.getElementById("pause-icon").style.display="none"; }
+    else { vid.pause(); document.getElementById("pause-icon").style.display="flex"; }
+  });
+})();
+
+function endIntroVideo() {
+  var vid = document.getElementById("intro-vid");
+  if (vid) { vid.pause(); vid.currentTime = 0; }
+  var overlay = document.getElementById("video-intro");
+  overlay.classList.add("hidden");
+  setTimeout(function(){ overlay.style.display = "none"; }, 700);
+}
+var PATH_PCTS = [0.0, 0.16, 0.32, 0.48, 0.63, 0.78, 0.94, 0.99];
+var roadSVGPath = null;
+
+// ===== FUNCIONES =====
+function startJourney() {
+  var vid = document.getElementById("intro-vid");
+  if (vid) { vid.pause(); }
+  var w = document.getElementById("welcome");
+  w.classList.add("hidden");
+  setTimeout(function(){ w.style.display = "none"; }, 600);
+  document.getElementById("roadmap").classList.add("visible");
+  updateNodes();
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(function(e){ console.log(e); });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+function toggleFreeMode() {
+  freeMode = !freeMode;
+  document.getElementById("btn-free").textContent = freeMode ? "Modo secuencial \u{1F512}" : "Modo libre \u{1F513}";
+  updateNodes();
+}
+
+function getRoadPath() {
+  if (!roadSVGPath) roadSVGPath = document.getElementById("road-path");
+  return roadSVGPath;
+}
+
+function getPointAt(pct) {
+  var p = getRoadPath();
+  var len = p.getTotalLength();
+  return p.getPointAtLength(len * pct);
+}
+
+function animateCar(fromPct, toPct, dur, onDone) {
+  var start = performance.now();
+  function step(now) {
+    var t = Math.min((now - start) / dur, 1);
+    var ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+    var pt = getPointAt(fromPct + (toPct - fromPct) * ease);
+    document.getElementById("car-group").setAttribute("transform", "translate(" + pt.x + "," + pt.y + ")");
+    if (t < 1) requestAnimationFrame(step);
+    else if (onDone) onDone();
+  }
+  requestAnimationFrame(step);
+}
+
+function showDriveTransition(idx, onDone) {
+  var ov = document.getElementById("drive-overlay");
+  var msgs = ["&#128640; \u00a1M\u00f3dulo completado!","&#127775; \u00a1Excelente trabajo!","&#128170; \u00a1Seguimos avanzando!","&#127919; \u00a1As\u00ed se hace!","&#9889; \u00a1Casi llegamos!","&#128293; \u00a1Incre\u00edble!","&#127942; \u00a1Lo lograron!"];
+  document.getElementById("drive-msg").innerHTML = msgs[idx] || "&#128640; \u00a1M\u00f3dulo completado!";
+  ov.classList.add("show");
+  setTimeout(function() {
+    ov.style.transition = "opacity .5s";
+    ov.style.opacity = "0";
+    setTimeout(function() {
+      ov.classList.remove("show");
+      ov.style.opacity = "";
+      ov.style.transition = "";
+      if (onDone) onDone();
+    }, 500);
+  }, 2800);
+}
+
+function updateNodes() {
+  var nodes = document.querySelectorAll(".mod-node");
+  nodes.forEach(function(n, i) {
+    n.classList.remove("locked", "done");
+    if (i < progress) n.classList.add("done");
+    else if (i > progress && !freeMode) n.classList.add("locked");
+  });
+  updateProgressBar();
+}
+
+function openModule(idx) {
+  currentMod = idx;
+  currentSlide = 0;
+  var mod = MODULES[idx];
+  if (mod.isEval) {
+    var ov = document.getElementById("eval-overlay");
+    ov.style.display = "flex";
+    // Recargar iframe para resetear el examen cada vez
+    document.getElementById("eval-frame").src = "evaluacion_final.html";
+    return;
+  }
+  document.getElementById("modal-title").textContent = mod.title;
+  document.getElementById("modal-meta").textContent = mod.meta;
+  var sc = document.getElementById("slides-container");
+  sc.innerHTML = "";
+  mod.slides.forEach(function(s, i) {
+    var d = document.createElement("div");
+    d.className = "slide" + (i === 0 ? " active" : "");
+    d.innerHTML = "<h3>" + s.h + "</h3>" + s.b;
+    sc.appendChild(d);
+  });
+  buildDots(mod.slides.length);
+  document.getElementById("btn-complete").style.display = (idx === progress) ? "block" : "none";
+  var dlBtn = document.getElementById("btn-download-pdf");
+  if (mod.pdf) { dlBtn.href = mod.pdf; dlBtn.style.display = "inline-flex"; }
+  else { dlBtn.style.display = "none"; }
+  document.getElementById("modal-bg").classList.add("show");
+}
+
+function closeEval() {
+  document.getElementById("eval-overlay").style.display = "none";
+}
+
+function closeModal() {
+  document.getElementById("modal-bg").classList.remove("show");
+}
+
+function changeSlide(dir) {
+  var slides = document.querySelectorAll(".slide");
+  slides[currentSlide].classList.remove("active");
+  currentSlide = Math.max(0, Math.min(MODULES[currentMod].slides.length - 1, currentSlide + dir));
+  slides[currentSlide].classList.add("active");
+  updateDots();
+}
+
+function buildDots(n) {
+  var d = document.getElementById("slide-dots");
+  d.innerHTML = "";
+  for (var i = 0; i < n; i++) {
+    var dot = document.createElement("div");
+    dot.className = "sdot" + (i === 0 ? " active" : "");
+    (function(idx){ dot.onclick = function(){ 
+      document.querySelectorAll(".slide")[currentSlide].classList.remove("active");
+      currentSlide = idx;
+      document.querySelectorAll(".slide")[currentSlide].classList.add("active");
+      updateDots();
+    }; })(i);
+    d.appendChild(dot);
+  }
+}
+
+function updateDots() {
+  document.querySelectorAll(".sdot").forEach(function(d, i){ d.classList.toggle("active", i === currentSlide); });
+}
+
+function openGame() {
+  window.open(MODULES[currentMod].game, "_blank");
+}
+
+function completeModule() {
+  if (currentMod !== progress) return;
+  saveProgressToDB(currentMod);
+  closeModal();
+  var fromPct = PATH_PCTS[progress];
+  var nextProgress = progress + 1;
+  showDriveTransition(progress, function() {
+    confetti();
+    if (nextProgress < 7) {
+      animateCar(fromPct, PATH_PCTS[nextProgress], 2500, function() {
+        progress = nextProgress;
+        updateNodes();
+        updateProgressBar();
+      });
+    } else {
+      progress = 7;
+      updateNodes();
+      updateProgressBar();
+      bigConfetti();
+      setTimeout(function(){ document.getElementById("finish-banner").classList.add("show"); }, 1500);
+    }
+  });
+}
+
+function confetti() {
+  var colors = ["#76B82A","#2D9E5F","#FFD700","#fff","#0D5C3A"];
+  for (var i = 0; i < 35; i++) {
+    var c = document.createElement("div");
+    c.className = "confetti-piece";
+    c.style.left = Math.random() * 100 + "vw";
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.setProperty("--tx", (Math.random() * 200 - 100) + "px");
+    c.style.animationDuration = (2 + Math.random() * 2) + "s";
+    c.style.animationDelay = Math.random() * 0.5 + "s";
+    c.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+    document.body.appendChild(c);
+    setTimeout(function(el){ return function(){ el.remove(); }; }(c), 4500);
+  }
+}
+
+function bigConfetti() {
+  for (var j = 0; j < 5; j++) setTimeout(confetti, j * 400);
+}
+
+// ===== EVENTOS =====
+document.getElementById("modal-bg").addEventListener("click", function(e) {
+  if (e.target === document.getElementById("modal-bg")) closeModal();
+});
+
+document.getElementById("road-svg").addEventListener("click", function(e) {
+  var node = e.target.closest(".mod-node");
+  if (!node) return;
+  var idx = parseInt(node.dataset.idx);
+  if (node.classList.contains("locked") && !freeMode) return;
+  openModule(idx);
+});
+
+document.addEventListener("keydown", function(e) {
+  if (e.key === "F11") {
+    e.preventDefault();
+    toggleFullscreen();
+  }
+  if (e.key === "Escape" && document.getElementById("modal-bg").classList.contains("show")) {
+    closeModal();
+  }
+});
+
+document.addEventListener("fullscreenchange", function() {
+  var btn = document.getElementById("btn-fs");
+  btn.textContent = document.fullscreenElement ? "\u29c9" : "\u26f6";
+  btn.title = document.fullscreenElement ? "Salir de pantalla completa" : "Pantalla completa (F11)";
+});
+</script>
+
+<!-- EVALUACIÓN FINAL OVERLAY -->
+<div id="eval-overlay" style="display:none;position:fixed;inset:0;z-index:800;background:#06100A;flex-direction:column">
+  <div style="background:linear-gradient(135deg,#0D5C3A,#0B3020);padding:14px 24px;border-bottom:3px solid #76B82A;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div>
+      <span style="font-size:1.1rem;font-weight:800;color:#76B82A">Coopetraban</span>
+      <span style="font-size:.65rem;color:#2D9E5F;display:block;letter-spacing:.12em">ahorro y crédito</span>
+    </div>
+    <span style="font-size:1rem;font-weight:700;color:#fff">&#127942; Evaluación Final · IA para la Productividad</span>
+    <button onclick="closeEval()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);color:#fff;padding:8px 20px;border-radius:20px;cursor:pointer;font-size:.9rem;font-weight:700">✕ Cerrar</button>
+  </div>
+  <iframe id="eval-frame" src="evaluacion_final.html" style="flex:1;border:none;width:100%;background:#06100A"></iframe>
+</div>
+</body>
+</html>

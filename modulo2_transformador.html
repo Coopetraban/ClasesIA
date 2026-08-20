@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Transformador de Prompts · Módulo 2</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;min-height:100vh;padding:24px;display:flex;flex-direction:column;align-items:center}
+  .logo{font-size:.9rem;color:#2D9E5F;font-weight:600;margin-bottom:10px;text-align:center}
+  h1{font-size:2rem;font-weight:900;color:#76B82A;text-align:center;margin-bottom:4px}
+  .subtitle{color:#888;font-size:.85rem;text-align:center;margin-bottom:28px}
+  .score-bar{display:flex;gap:20px;background:rgba(13,92,58,.3);border:1px solid #2D9E5F33;border-radius:14px;padding:12px 24px;margin-bottom:28px}
+  .sb{text-align:center}.sb-num{font-size:1.6rem;font-weight:900;color:#76B82A}.sb-label{font-size:.7rem;color:#888}
+  #game-area{width:100%;max-width:740px}
+  .battle-card{background:linear-gradient(145deg,#0B1C12,#0D3020);border:1px solid #2D9E5F44;border-radius:20px;padding:28px}
+  .round-num{font-size:.75rem;color:#666;margin-bottom:12px}
+  .battle-label{display:inline-block;background:rgba(229,57,53,.15);border:1px solid rgba(229,57,53,.3);border-radius:20px;padding:4px 12px;font-size:.75rem;color:#ef9a9a;margin-bottom:10px}
+  .bad-prompt{background:rgba(229,57,53,.08);border-left:3px solid #e53935;border-radius:8px;padding:14px 18px;font-size:.9rem;color:#ddd;font-style:italic;margin-bottom:20px;line-height:1.6}
+  .context-box{background:rgba(13,92,58,.2);border:1px solid #2D9E5F33;border-radius:10px;padding:14px 18px;font-size:.85rem;color:#bbb;margin-bottom:20px;line-height:1.6}
+  .context-box strong{color:#76B82A}
+  textarea{width:100%;background:rgba(0,0,0,.4);border:1px solid #2D9E5F;border-radius:12px;padding:14px;color:#fff;font-size:.9rem;font-family:inherit;resize:vertical;min-height:100px;margin-bottom:16px}
+  textarea:focus{outline:none;border-color:#76B82A}
+  .btn-check{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:12px 30px;border-radius:25px;font-weight:700;cursor:pointer;font-size:.9rem;width:100%}
+  .btn-check:hover{opacity:.9}
+  .evaluation{display:none;margin-top:16px;border-radius:12px;padding:16px;font-size:.85rem;line-height:1.7}
+  .eval-good{background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.3)}
+  .eval-ok{background:rgba(255,193,7,.12);border:1px solid rgba(255,193,7,.3)}
+  .criteria-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+  .crit{padding:10px;border-radius:8px;font-size:.82rem;text-align:center}
+  .crit.found{background:rgba(76,175,80,.15);color:#a5d6a7}
+  .crit.missing{background:rgba(100,100,100,.15);color:#888}
+  .model-answer{background:rgba(13,92,58,.2);border:1px solid #2D9E5F44;border-radius:10px;padding:14px;font-size:.85rem;color:#ccc;margin-top:12px;line-height:1.7}
+  .model-answer strong{display:block;color:#76B82A;margin-bottom:6px}
+  #btn-next{display:none;margin:16px auto 0;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:12px 28px;border-radius:25px;font-weight:700;cursor:pointer;font-size:.9rem}
+  #result-screen{display:none;text-align:center;padding:40px 20px;max-width:600px;margin:0 auto}
+  #result-screen h2{font-size:2.2rem;color:#76B82A;margin-bottom:16px}
+  .stars{font-size:2.5rem;margin:16px 0}
+  #btn-restart{margin-top:24px;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px 36px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="logo">Coopetraban · ahorro y crédito</div>
+<h1>🔧 El Transformador de Prompts</h1>
+<p class="subtitle">Módulo 2 · Convierte prompts básicos en prompts de alta calidad</p>
+
+<div class="score-bar">
+  <div class="sb"><div class="sb-num" id="s-score">0</div><div class="sb-label">⭐ Puntos</div></div>
+  <div class="sb"><div class="sb-num" id="s-round" style="color:#888">1/6</div><div class="sb-label">Ronda</div></div>
+</div>
+
+<div id="game-area">
+  <div class="battle-card">
+    <div class="round-num" id="rnd-num">Ronda 1 / 6</div>
+    <div class="battle-label">❌ Prompt malo</div>
+    <div class="bad-prompt" id="bad-p"></div>
+    <div class="context-box" id="ctx-box"></div>
+    <p style="color:#76B82A;font-size:.85rem;font-weight:600;margin-bottom:8px">✏️ Tu versión mejorada:</p>
+    <textarea id="user-prompt" placeholder="Escribe aquí tu prompt mejorado..."></textarea>
+    <button class="btn-check" onclick="checkPrompt()">⚡ Evaluar mi prompt</button>
+    <div class="evaluation" id="eval-box"></div>
+    <button id="btn-next" onclick="nextRound()">Siguiente ronda →</button>
+  </div>
+</div>
+
+<div id="result-screen">
+  <div style="font-size:3rem;margin-bottom:12px" id="r-icon">🎉</div>
+  <h2 id="r-title"></h2>
+  <p id="r-msg" style="color:#aaa;font-size:.9rem;line-height:1.6;max-width:480px;margin:0 auto"></p>
+  <div class="stars" id="r-stars"></div>
+  <button id="btn-restart" onclick="location.reload()">🔄 Jugar de nuevo</button>
+</div>
+
+<script>
+const ROUNDS = [
+  {
+    bad:"Dame información sobre créditos",
+    ctx:"<strong>Contexto:</strong> Un Alumno quiere saber si puede obtener un crédito de consumo para comprar un electrodoméstico. Necesitas responderle con información clara y empática.",
+    criteria:["Contexto o rol","Tipo de crédito específico","Tono o estilo","Formato de respuesta"],
+    model:"Actúa como asesor de crédito de una cooperativa de ahorro y crédito. Un Alumno me pregunta sobre un crédito de consumo para comprar un electrodoméstico. Explícame en 3-4 puntos claros los requisitos generales, el proceso de solicitud y los plazos típicos. Usa un tono amable y evita tecnicismos."
+  },
+  {
+    bad:"Haz una presentación",
+    ctx:"<strong>Contexto:</strong> Necesitas preparar una presentación de resultados del primer semestre para presentar a la Junta Directiva. Tienes datos de captación, cartera de créditos y morosidad.",
+    criteria:["Audiencia definida","Datos o estructura","Extensión/formato","Tono formal"],
+    model:"Actúa como analista financiero. Ayúdame a estructurar una presentación ejecutiva de resultados del primer semestre para la Junta Directiva de una cooperativa. La presentación debe tener máximo 8 diapositivas e incluir: resumen ejecutivo, captación de ahorro, cartera de créditos, índice de morosidad y conclusiones. Tono formal y datos en tablas o gráficos cuando sea posible."
+  },
+  {
+    bad:"Escribe un correo",
+    ctx:"<strong>Contexto:</strong> Debes notificar a los Alumnos que el sistema estará en mantenimiento el sábado de 8am a 2pm y no habrá atención presencial.",
+    criteria:["Destinatario específico","Información clave incluida","Tono apropiado","Instrucciones de acción"],
+    model:"Eres especialista en comunicación institucional. Redacta un correo formal para notificar a los Alumnos de Coopetraban que el sábado habrá mantenimiento del sistema de 8am a 2pm y no habrá atención presencial. El correo debe: disculparse por los inconvenientes, informar alternativas (app o sucursal más cercana), y agradecer la comprensión. Máximo 150 palabras, tono cálido y formal."
+  },
+  {
+    bad:"Resume esto",
+    ctx:"<strong>Contexto:</strong> Tienes un acta de reunión de 5 páginas con acuerdos del Consejo de Administración y necesitas compartir los puntos clave al equipo operativo.",
+    criteria:["Para quién es el resumen","Qué incluir/excluir","Formato de salida","Extensión máxima"],
+    model:"Actúa como asistente ejecutivo. Resume el siguiente documento de acta del Consejo de Administración para compartirlo con el equipo operativo. Incluye solo: los acuerdos tomados, los responsables y las fechas límite. Omite los debates y antecedentes. Formato: lista numerada. Máximo 10 puntos. [Pegar aquí el texto del acta]"
+  },
+  {
+    bad:"Crea un plan de trabajo",
+    ctx:"<strong>Contexto:</strong> El área de Gestión Humana debe implementar un programa de bienestar para los Alumnos durante el segundo semestre.",
+    criteria:["Área específica","Duración/plazos","Tipo de actividades","Indicadores de éxito"],
+    model:"Eres consultor de bienestar organizacional. Crea un plan de trabajo semestral para implementar un programa de bienestar para los Alumnos del área de Gestión Humana de una cooperativa. El plan debe incluir: 4-6 actividades mensuales variadas (talleres, pausas activas, charlas), responsables, cronograma mensual e indicadores de éxito medibles. Formato: tabla con columnas Mes, Actividad, Responsable, Indicador."
+  },
+  {
+    bad:"Ayúdame con atención al cliente",
+    ctx:"<strong>Contexto:</strong> Un Alumno está molesto porque le cobraron una comisión que no esperaba. Necesitas una guía de respuesta para el Alumno de caja.",
+    criteria:["Rol del Alumno","Situación específica","Tono empático","Pasos concretos"],
+    model:"Eres experto en resolución de quejas para instituciones financieras. Un Alumno está molesto porque le cobraron una comisión inesperada en su cuenta. Dame un guión de 4-5 pasos para que el Alumno de caja maneje esta situación: cómo escuchar activamente, cómo explicar la comisión con claridad, cómo ofrecer soluciones, y cómo cerrar la conversación de forma positiva. Tono empático y profesional."
+  }
+];
+
+let idx=0, totalScore=0;
+const CRITERIA_KEYWORDS = {
+  "Contexto o rol":["actúa","eres","contexto","cooperativa","soy","como"],
+  "Tipo de crédito específico":["consumo","crédito","electrodom","préstamo","financiero"],
+  "Tono o estilo":["tono","formal","amable","empático","cálido","profesional"],
+  "Formato de respuesta":["lista","tabla","puntos","formato","máximo","pasos","numerada"],
+  "Audiencia definida":["junta","directiva","equipo","alumno","Alumno","gerencia"],
+  "Datos o estructura":["incluye","estructura","sección","diapositiva","datos"],
+  "Extensión/formato":["palabras","máximo","mínimo","brevemente","conciso"],
+  "Tono formal":["formal","ejecutivo","profesional","institucional"],
+  "Destinatario específico":["alumno","Alumno","cliente","coopetraban"],
+  "Información clave incluida":["mantenimiento","horario","sábado","alternativa"],
+  "Tono apropiado":["tono","formal","amable","empático","cálido"],
+  "Instrucciones de acción":["alternativa","recomend","qué hacer","opción"],
+  "Para quién es el resumen":["equipo","directivo","operativo","junta","compañero"],
+  "Qué incluir/excluir":["incluye","omite","excluye","solo","acuerdo"],
+  "Extensión máxima":["máximo","brevemente","palabras","puntos"],
+  "Área específica":["gestión humana","rrhh","área","departamento"],
+  "Duración/plazos":["semestre","mes","semana","fecha","plazo"],
+  "Tipo de actividades":["taller","actividad","charla","pausa","evento"],
+  "Indicadores de éxito":["indicador","medible","métrica","resultado"],
+  "Rol del Alumno":["Alumno","caja","asesor","cajero"],
+  "Situación específica":["molesto","queja","comisión","cobro"],
+  "Tono empático":["empatía","empático","comprensión","entender"],
+  "Pasos concretos":["paso","guión","proceso","cómo","instrucción"]
+};
+
+function loadRound(){
+  const r=ROUNDS[idx];
+  document.getElementById('rnd-num').textContent=`Ronda ${idx+1} / ${ROUNDS.length}`;
+  document.getElementById('s-round').textContent=`${idx+1}/6`;
+  document.getElementById('bad-p').textContent=r.bad;
+  document.getElementById('ctx-box').innerHTML=r.ctx;
+  document.getElementById('user-prompt').value='';
+  document.getElementById('eval-box').style.display='none';
+  document.getElementById('btn-next').style.display='none';
+}
+
+function checkPrompt(){
+  const r=ROUNDS[idx];
+  const userText=document.getElementById('user-prompt').value.toLowerCase().trim();
+  if(!userText){alert('Escribe tu prompt primero');return;}
+  let found=0;
+  const results=r.criteria.map(c=>{
+    const kws=CRITERIA_KEYWORDS[c]||[];
+    const f=kws.some(k=>userText.includes(k));
+    if(f)found++;
+    return{c,f};
+  });
+  const pct=found/r.criteria.length;
+  let pts=0;
+  if(pct===1)pts=3;
+  else if(pct>=.75)pts=2;
+  else if(pct>=.5)pts=1;
+  totalScore+=pts;
+  document.getElementById('s-score').textContent=totalScore;
+  const ev=document.getElementById('eval-box');
+  ev.className='evaluation '+(pct>=.75?'eval-good':'eval-ok');
+  let html=`<strong style="color:${pct>=.75?'#76B82A':'#FFD700'}">${pct===1?'⭐⭐⭐ Excelente prompt!':pct>=.75?'⭐⭐ Muy bien — '+pts+' puntos':'⭐ Buen intento — '+pts+' punto'+(pts!==1?'s':'')}</strong><div class="criteria-grid">`;
+  results.forEach(({c,f})=>{html+=`<div class="crit ${f?'found':'missing'}">${f?'✅':'○'} ${c}</div>`;});
+  html+='</div><div class="model-answer"><strong>💡 Ejemplo de prompt ideal:</strong>'+r.model+'</div>';
+  ev.innerHTML=html;
+  ev.style.display='block';
+  document.getElementById('btn-next').style.display='block';
+}
+
+function nextRound(){
+  idx++;
+  if(idx>=ROUNDS.length){showResult();return;}
+  loadRound();
+}
+
+function showResult(){
+  document.getElementById('game-area').style.display='none';
+  document.querySelector('.score-bar').style.display='none';
+  document.getElementById('result-screen').style.display='block';
+  const max=ROUNDS.length*3;
+  const pct=totalScore/max;
+  document.getElementById('r-stars').textContent='⭐'.repeat(Math.round(pct*5));
+  if(pct>=.85){document.getElementById('r-icon').textContent='🏆';document.getElementById('r-title').textContent='¡Maestros del prompt!';document.getElementById('r-msg').textContent='Dominan el arte de construir instrucciones claras y precisas. Sus prompts obtendrán resultados profesionales de forma consistente.';}
+  else if(pct>=.6){document.getElementById('r-icon').textContent='🎯';document.getElementById('r-title').textContent='¡Buen nivel!';document.getElementById('r-msg').textContent='Van por buen camino. Con práctica, construirán prompts más completos que ahorren tiempo de iteración.';}
+  else{document.getElementById('r-icon').textContent='📝';document.getElementById('r-title').textContent='¡A practicar!';document.getElementById('r-msg').textContent='La mejora es parte del proceso. Recuerden: contexto + tarea específica + formato = prompt efectivo.';}
+  document.getElementById('r-title').insertAdjacentHTML('afterend',`<p style="color:#888;font-size:.9rem;margin-top:8px">${totalScore} / ${max} puntos</p>`);
+}
+
+loadRound();
+</script>
+</body>
+</html>

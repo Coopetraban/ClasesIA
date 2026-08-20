@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IA Quest · Repaso General</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px}
+  .logo{font-size:.9rem;color:#2D9E5F;font-weight:600;margin-bottom:10px}
+  h1{font-size:2rem;font-weight:900;color:#76B82A;text-align:center;margin-bottom:4px}
+  .subtitle{color:#888;font-size:.85rem;text-align:center;margin-bottom:24px}
+
+  /* LEVEL SELECT */
+  #level-select{width:100%;max-width:800px}
+  #level-select h2{color:#76B82A;text-align:center;font-size:1.1rem;margin-bottom:20px}
+  .levels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .level-card{background:linear-gradient(145deg,#0B1C12,#0D3020);border:1px solid #2D9E5F44;border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:transform .2s,border-color .2s}
+  .level-card:hover{transform:scale(1.04);border-color:#76B82A}
+  .lc-icon{font-size:2.5rem;margin-bottom:8px}
+  .lc-num{font-size:.7rem;color:#888;margin-bottom:4px}
+  .lc-name{font-size:.95rem;font-weight:700;color:#fff;margin-bottom:4px}
+  .lc-desc{font-size:.75rem;color:#aaa;line-height:1.4}
+  .lc-badge{display:inline-block;background:rgba(118,184,42,.15);border:1px solid #76B82A44;border-radius:20px;padding:3px 10px;font-size:.7rem;color:#76B82A;margin-top:6px}
+
+  /* QUIZ */
+  #quiz-area{width:100%;max-width:680px;display:none}
+  .quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  .q-level{font-size:.8rem;color:#76B82A;font-weight:600}
+  .q-progress{font-size:.8rem;color:#888}
+  .progress-bar{width:100%;height:6px;background:#1a3a2a;border-radius:3px;margin-bottom:24px}
+  .progress-fill{height:100%;background:linear-gradient(135deg,#76B82A,#2D9E5F);border-radius:3px;transition:width .3s}
+  .score-chips{display:flex;gap:16px;margin-bottom:20px}
+  .chip-s{background:rgba(13,92,58,.3);border:1px solid #2D9E5F33;border-radius:30px;padding:8px 16px;font-size:.85rem}
+  .chip-s span{color:#76B82A;font-weight:700}
+  .q-card{background:linear-gradient(145deg,#0B1C12,#0D3020);border:1px solid #2D9E5F44;border-radius:20px;padding:28px}
+  .q-text{font-size:1rem;font-weight:600;color:#fff;line-height:1.5;margin-bottom:24px}
+  .q-options{display:grid;gap:10px}
+  .opt-btn{background:rgba(0,0,0,.3);border:1px solid #2D9E5F44;border-radius:12px;padding:14px 18px;text-align:left;cursor:pointer;color:#ccc;font-size:.9rem;font-family:inherit;transition:all .2s;line-height:1.4}
+  .opt-btn:hover:not(:disabled){border-color:#76B82A;color:#fff;background:rgba(13,92,58,.3)}
+  .opt-btn.correct{background:rgba(76,175,80,.15);border-color:rgba(76,175,80,.6);color:#a5d6a7}
+  .opt-btn.wrong{background:rgba(229,57,53,.15);border-color:rgba(229,57,53,.6);color:#ef9a9a}
+  .q-feedback{display:none;margin-top:16px;padding:14px;border-radius:12px;font-size:.85rem;line-height:1.6;background:rgba(13,92,58,.2);border:1px solid #2D9E5F33;color:#bbb}
+  #btn-q-next{display:none;margin-top:16px;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:12px 28px;border-radius:25px;font-weight:700;cursor:pointer;float:right}
+
+  /* RESULT */
+  #result-screen{display:none;text-align:center;max-width:600px;padding:40px 20px}
+  #result-screen h2{font-size:2rem;color:#76B82A;margin-bottom:12px}
+  .result-stats{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+  .rs{background:rgba(13,92,58,.3);border:1px solid #2D9E5F33;border-radius:14px;padding:16px 24px;text-align:center}
+  .rs .n{font-size:2rem;font-weight:900;color:#76B82A}
+  .rs p{font-size:.75rem;color:#888;margin-top:4px}
+  #btn-back{margin-top:24px;background:rgba(13,92,58,.5);border:1px solid #2D9E5F;color:#76B82A;padding:12px 28px;border-radius:25px;font-weight:700;cursor:pointer;margin-right:10px}
+  #btn-retry{margin-top:24px;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:12px 28px;border-radius:25px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="logo">Coopetraban · ahorro y crédito</div>
+<h1>🗺️ IA Quest</h1>
+<p class="subtitle">Repaso general del programa · Elige un nivel y demuestra lo aprendido</p>
+
+<!-- LEVEL SELECT -->
+<div id="level-select">
+  <h2>⚡ Selecciona un nivel</h2>
+  <div class="levels-grid" id="levels-grid"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-area">
+  <div class="quiz-header">
+    <span class="q-level" id="q-level-name"></span>
+    <span class="q-progress" id="q-progress"></span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0"></div></div>
+  <div class="score-chips">
+    <div class="chip-s">✅ Correctas: <span id="sc-c">0</span></div>
+    <div class="chip-s">❌ Incorrectas: <span id="sc-w">0</span></div>
+    <div class="chip-s">⭐ Puntos: <span id="sc-p">0</span></div>
+  </div>
+  <div class="q-card">
+    <div class="q-text" id="q-text"></div>
+    <div class="q-options" id="q-options"></div>
+    <div class="q-feedback" id="q-feedback"></div>
+    <button id="btn-q-next" onclick="nextQuestion()">Siguiente →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result-screen">
+  <div style="font-size:3rem;margin-bottom:10px" id="r-icon">🎉</div>
+  <h2 id="r-title"></h2>
+  <p id="r-msg" style="color:#aaa;font-size:.9rem;line-height:1.6;max-width:440px;margin:0 auto"></p>
+  <div class="result-stats">
+    <div class="rs"><div class="n" id="r-c">0</div><p>Correctas</p></div>
+    <div class="rs"><div class="n" id="r-w" style="color:#e55">0</div><p>Incorrectas</p></div>
+    <div class="rs"><div class="n" id="r-pts" style="color:#FFD700">0</div><p>Puntos</p></div>
+    <div class="rs"><div class="n" id="r-pct">0%</div><p>Precisión</p></div>
+  </div>
+  <button id="btn-back" onclick="backToLevels()">← Niveles</button>
+  <button id="btn-retry" onclick="retryLevel()">🔄 Reintentar</button>
+</div>
+
+<script>
+const LEVELS = [
+  {name:"Nivel 1",subtitle:"Conceptos básicos de IA",icon:"🎯",badge:"Módulo 0",questions:[
+    {q:"¿Qué hace principalmente una herramienta de IA generativa?",opts:["Almacena información en servidores seguros","Predice texto probable basándose en patrones aprendidos","Conecta a los usuarios con expertos en tiempo real","Traduce código de programación a lenguaje natural"],a:1,exp:"La IA generativa aprende patrones de millones de textos y predice cuál es la respuesta más probable dado un contexto."},
+    {q:"¿Cuál de estas afirmaciones sobre la IA es CORRECTA?",opts:["La IA siempre dice la verdad","La IA puede acceder a información en tiempo real","La IA puede equivocarse y debe ser verificada","La IA recuerda todas las conversaciones anteriores"],a:2,exp:"La IA puede generar información incorrecta (alucinaciones). Siempre hay que verificar datos importantes."},
+    {q:"¿Qué es lo más importante hacer ANTES de usar IA en el trabajo?",opts:["Tener una cuenta premium","Verificar que la información que ingresas no es confidencial","Descargar la aplicación en el celular personal","Tener permiso del área de marketing"],a:1,exp:"Nunca se deben ingresar datos personales de Alumnos ni información confidencial en herramientas de IA externas."},
+    {q:"¿Cuál es la analogía más apropiada para describir la IA?",opts:["Una calculadora que solo suma y resta","Un asistente rápido que ha leído miles de libros pero puede equivocarse","Un sistema de vigilancia corporativo","Una persona con título universitario que trabaja en tu equipo"],a:1,exp:"La IA es como un asistente muy informado pero falible que necesita instrucciones claras y supervisión humana."},
+    {q:"¿Cuál de estos usos de la IA en Coopetraban es APROPIADO?",opts:["Ingresar el expediente completo de un Alumno para analizarlo","Pegar la contraseña del sistema en el prompt","Generar ideas para una campaña de ahorro navideña","Decidir si aprobar o rechazar un crédito basándose en la respuesta de la IA"],a:2,exp:"Generar ideas creativas es un uso ideal. Nunca se deben ingresar datos confidenciales ni dejar que la IA tome decisiones críticas."}
+  ]},
+  {name:"Nivel 2",subtitle:"Prompts básicos",icon:"💬",badge:"Módulo 1",questions:[
+    {q:"¿Qué es un 'prompt' en el contexto de la IA?",opts:["Un sistema de pago en línea","La instrucción o pregunta que le das a la herramienta de IA","El nombre del modelo de IA más avanzado","Un tipo de gráfico en presentaciones"],a:1,exp:"Un prompt es la instrucción o pregunta que escribes para orientar a la IA hacia el resultado que necesitas."},
+    {q:"Un prompt básico de alta calidad debe tener como mínimo:",opts:["Solo la pregunta principal","Contexto de quién eres y la tarea clara","Un ejemplo de otro texto y la fuente","Solo el resultado esperado en formato detallado"],a:1,exp:"El mínimo efectivo es: contexto (quién soy, cuál es la situación) + la tarea específica."},
+    {q:"¿Cuál de estos prompts es más efectivo?",opts:["Resume","Resume este reglamento para presentarlo a nuevos Alumnos en máximo 5 puntos clave","Dame información","Escribe algo sobre el crédito"],a:1,exp:"El segundo prompt tiene destinatario, propósito, extensión máxima y formato definidos."},
+    {q:"¿Qué debería hacer siempre después de recibir una respuesta de la IA?",opts:["Copiarla y pegarla directamente","Publicarla inmediatamente en redes sociales","Revisarla, verificar los datos y adaptarla antes de usar","Compartirla con el gerente para aprobación"],a:2,exp:"Siempre revisar, verificar datos y adaptar la respuesta. La IA puede equivocarse."},
+    {q:"¿Cuál de estos NO es un buen componente de un prompt?",opts:["El formato de respuesta deseado","El tono de comunicación","Tu contraseña de trabajo","El contexto de la situación"],a:2,exp:"Jamás incluir contraseñas o datos de acceso en un prompt."}
+  ]},
+  {name:"Nivel 3",subtitle:"Prompts avanzados",icon:"🔧",badge:"Módulo 2",questions:[
+    {q:"¿Qué técnica avanzada mejora más la calidad de los prompts?",opts:["Escribir el prompt todo en mayúsculas","Asignar un rol específico a la IA","Hacer preguntas muy cortas de una sola palabra","Pedir respuestas en inglés aunque se necesiten en español"],a:1,exp:"Asignar un rol ('Actúa como experto en...') orienta el tono, vocabulario y perspectiva de la respuesta."},
+    {q:"¿Qué significa 'iterar' en el contexto de prompts?",opts:["Traducir el prompt a otro idioma","Eliminar el prompt y empezar de cero cada vez","Seguir mejorando la respuesta dando instrucciones adicionales","Copiar prompts de otras personas"],a:2,exp:"Iterar significa refinar: 'Está bien pero hazlo más formal' o 'Agrega un párrafo de cierre'."},
+    {q:"¿Cuál es el error más común al hacer prompts?",opts:["Usar buena ortografía","No especificar contexto ni formato","Pedir respuestas muy largas","Usar comillas en el texto"],a:1,exp:"Sin contexto ni formato, la IA produce respuestas genéricas que requieren mucho trabajo adicional."},
+    {q:"Si la primera respuesta no es exactamente lo que necesitas, ¿qué debes hacer?",opts:["Cerrar la herramienta y no usarla más","Aceptar la respuesta tal cual y usarla","Dar instrucciones más específicas para mejorarla","Reportar un error al proveedor de la herramienta"],a:2,exp:"La iteración es normal y esperada. Con instrucciones adicionales la respuesta mejora notablemente."},
+    {q:"¿Para qué sirve dar un EJEMPLO en el prompt?",opts:["Para que la IA sepa qué sitios web visitar","Para mostrar el estilo, tono o formato que esperas","Para calcular el tiempo de respuesta","Para elegir el idioma de respuesta"],a:1,exp:"Un ejemplo muestra concretamente el tipo de respuesta esperada, lo que mejora mucho la precisión."}
+  ]},
+  {name:"Nivel 4",subtitle:"IA en el trabajo real",icon:"🏢",badge:"Módulo 3",questions:[
+    {q:"¿Cuál de estas tareas es ideal para usar IA en el área de crédito?",opts:["Tomar la decisión final de aprobar un préstamo","Ingresar los datos financieros del Alumno para análisis","Redactar una comunicación empática de rechazo de crédito","Calcular automáticamente la cuota del crédito sin revisar"],a:2,exp:"Redactar comunicaciones es ideal para la IA. La decisión y los datos del Alumno siempre son responsabilidad del equipo."},
+    {q:"¿Por qué NO se deben ingresar datos de Alumnos en herramientas de IA externas?",opts:["Porque la IA no entiende el idioma español","Porque viola la privacidad y puede tener implicaciones legales","Porque la IA cobra más por procesar datos personales","Porque los datos se borraron automáticamente"],a:1,exp:"Los datos personales son confidenciales por ley (Ley 8968 de Costa Rica) y no deben salir de los sistemas autorizados."},
+    {q:"¿En qué área de Coopetraban puede aportar más valor la IA?",opts:["Solo en el área de Tecnología","Ninguna área, la IA es solo para empresas grandes","En todas las áreas para tareas de redacción, organización y generación de ideas","Solo en Gestión Humana"],a:2,exp:"Cada área tiene tareas de redacción, comunicación y organización donde la IA puede ahorrar tiempo valioso."},
+    {q:"¿Qué debe reemplazar la IA según los principios del programa?",opts:["El trato personalizado con los Alumnos","Las decisiones críticas del negocio","Las tareas repetitivas de redacción y organización","La supervisión de los gerentes"],a:2,exp:"La IA complementa el trabajo humano. El trato personal y el juicio profesional siguen siendo irreemplazables."},
+    {q:"Un buen caso de uso de IA para el área de Caja sería:",opts:["Verificar automáticamente la identidad de los Alumnos","Crear una guía paso a paso de los procesos más frecuentes","Aprobar retiros sin supervisión humana","Calcular y ejecutar pagos de forma autónoma"],a:1,exp:"Crear guías de procesos es perfecto: ahorra tiempo, estandariza el servicio y la revisión humana la valida."}
+  ]},
+  {name:"Nivel 5",subtitle:"Método C-R-E-A-T",icon:"⚡",badge:"Módulo 4",questions:[
+    {q:"¿Qué significa la 'C' en el método C-R-E-A-T?",opts:["Calidad de la respuesta","Contexto de la situación","Cantidad de palabras","Código del sistema"],a:1,exp:"C = Contexto: quién soy, dónde trabajo, cuál es la situación que origina el pedido."},
+    {q:"¿Para qué sirve incluir el 'Rol' en un prompt C-R-E-A-T?",opts:["Para limitar las respuestas a temas simples","Para orientar la perspectiva, tono y vocabulario de la IA","Para acelerar la velocidad de respuesta","Para ocultar información sensible"],a:1,exp:"Asignar un rol define desde qué perspectiva responde la IA, mejorando la relevancia y el tono."},
+    {q:"En el método C-R-E-A-T, la 'A' de Acción debe ser:",opts:["Ambigua para darle libertad a la IA","Muy específica con un verbo de acción claro","Opcional si el contexto es claro","En inglés para mejores resultados"],a:1,exp:"La Acción debe ser específica: redacta, resume, crea, analiza, lista. La vaguedad produce resultados genéricos."},
+    {q:"¿Cuáles son los dos elementos mínimos del método C-R-E-A-T para un prompt funcional?",opts:["Rol y Ejemplo","Contexto y Acción","Tono y Contexto","Ejemplo y Tono"],a:1,exp:"C + A es el mínimo funcional. Agrega R, E, T para obtener resultados más precisos y profesionales."},
+    {q:"Un prompt con todos los elementos de C-R-E-A-T produce:",opts:["Siempre el mismo resultado sin importar el contexto","Resultados más consistentes, precisos y listos para usar","Respuestas más largas pero de menor calidad","Resultados que no necesitan revisión"],a:1,exp:"Prompts completos reducen iteraciones y producen resultados más directamente utilizables."}
+  ]},
+  {name:"Nivel 6",subtitle:"Repaso maestro",icon:"🏆",badge:"Final",questions:[
+    {q:"¿Cuál es el principal riesgo de usar IA sin criterio en Coopetraban?",opts:["Que la herramienta se vuelva demasiado lenta","Ingresar información confidencial o tomar decisiones basadas en datos incorrectos","Que los Alumnos descubran que se usa IA","Que se agote el presupuesto del área de tecnología"],a:1,exp:"El doble riesgo: privacidad (datos confidenciales) y exactitud (la IA puede inventar datos). Verificar siempre."},
+    {q:"¿Cuál es la actitud correcta ante un resultado de IA que no es perfecto?",opts:["Rechazar completamente el uso de IA","Usarlo tal cual para ahorrar tiempo","Iterarlo con instrucciones más específicas hasta obtener lo que necesitas","Pedir a otra persona que lo use por ti"],a:2,exp:"La iteración es parte del proceso normal. Raramente el primer resultado es el definitivo."},
+    {q:"¿Qué diferencia a un prompt C-R-E-A-T de un prompt básico?",opts:["El idioma en que está escrito","La estructura completa: contexto, rol, ejemplo, acción y tono definidos","Que solo puede escribirlo un experto en tecnología","Que usa comandos especiales de programación"],a:1,exp:"C-R-E-A-T es un framework que garantiza que el prompt tenga toda la información necesaria para resultados de calidad."},
+    {q:"Después de completar el programa, ¿cuál es la mejor forma de seguir mejorando con IA?",opts:["Esperar a que la empresa compre herramientas premium","Practicar regularmente con casos reales de tu trabajo y compartir lo aprendido con el equipo","No usar IA hasta que haya una política oficial","Delegar todo el trabajo de IA al área de Tecnología"],a:1,exp:"La práctica constante con casos reales y el intercambio de experiencias son la clave del aprendizaje continuo."},
+    {q:"¿Cuál es el papel del juicio humano en el uso de IA según lo visto en el programa?",opts:["Es prescindible si la IA tiene suficiente información","Puede ser reemplazado gradualmente por la IA","Es siempre el componente final e irremplazable","Solo importa en decisiones financieras muy grandes"],a:2,exp:"El juicio humano es SIEMPRE el componente final. La IA apoya, sugiere y acelera, pero no decide."}
+  ]}
+];
+
+let currentLevel=null, currentQ=0, correct=0, wrong=0, points=0;
+
+function buildLevelSelect(){
+  const grid=document.getElementById('levels-grid');
+  grid.innerHTML='';
+  LEVELS.forEach((lv,i)=>{
+    const card=document.createElement('div');
+    card.className='level-card';
+    card.innerHTML=`<div class="lc-icon">${lv.icon}</div><div class="lc-num">${lv.name}</div><div class="lc-name">${lv.subtitle}</div><div class="lc-badge">${lv.badge} · ${lv.questions.length} preguntas</div>`;
+    card.onclick=()=>startLevel(i);
+    grid.appendChild(card);
+  });
+}
+
+function startLevel(idx){
+  currentLevel=idx;
+  currentQ=0;correct=0;wrong=0;points=0;
+  document.getElementById('level-select').style.display='none';
+  document.getElementById('quiz-area').style.display='block';
+  document.getElementById('result-screen').style.display='none';
+  document.getElementById('q-level-name').textContent=LEVELS[idx].icon+' '+LEVELS[idx].name+' — '+LEVELS[idx].subtitle;
+  loadQuestion();
+}
+
+function loadQuestion(){
+  const lv=LEVELS[currentLevel];
+  const q=lv.questions[currentQ];
+  const total=lv.questions.length;
+  document.getElementById('q-progress').textContent=`${currentQ+1}/${total}`;
+  document.getElementById('progress-fill').style.width=((currentQ/total)*100)+'%';
+  document.getElementById('sc-c').textContent=correct;
+  document.getElementById('sc-w').textContent=wrong;
+  document.getElementById('sc-p').textContent=points;
+  document.getElementById('q-text').textContent=q.q;
+  const opts=document.getElementById('q-options');
+  opts.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn';
+    btn.textContent=opt;
+    btn.onclick=()=>selectAnswer(i);
+    opts.appendChild(btn);
+  });
+  document.getElementById('q-feedback').style.display='none';
+  document.getElementById('btn-q-next').style.display='none';
+}
+
+function selectAnswer(idx){
+  const q=LEVELS[currentLevel].questions[currentQ];
+  document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+  const btns=document.querySelectorAll('.opt-btn');
+  if(idx===q.a){correct++;points+=10;btns[idx].classList.add('correct');}
+  else{wrong++;btns[idx].classList.add('wrong');btns[q.a].classList.add('correct');}
+  document.getElementById('sc-c').textContent=correct;
+  document.getElementById('sc-w').textContent=wrong;
+  document.getElementById('sc-p').textContent=points;
+  const fb=document.getElementById('q-feedback');
+  fb.textContent=q.exp;
+  fb.style.display='block';
+  document.getElementById('btn-q-next').style.display='inline-block';
+}
+
+function nextQuestion(){
+  currentQ++;
+  const lv=LEVELS[currentLevel];
+  if(currentQ>=lv.questions.length){showResult();return;}
+  loadQuestion();
+}
+
+function showResult(){
+  document.getElementById('quiz-area').style.display='none';
+  const rs=document.getElementById('result-screen');
+  rs.style.display='block';
+  const total=LEVELS[currentLevel].questions.length;
+  const pct=Math.round(correct/total*100);
+  document.getElementById('r-c').textContent=correct;
+  document.getElementById('r-w').textContent=wrong;
+  document.getElementById('r-pts').textContent=points;
+  document.getElementById('r-pct').textContent=pct+'%';
+  if(pct>=90){document.getElementById('r-icon').textContent='🏆';document.getElementById('r-title').textContent='¡Nivel maestro!';document.getElementById('r-msg').textContent='Dominio total del nivel. Sus conocimientos están listos para aplicarse en el trabajo.';}
+  else if(pct>=70){document.getElementById('r-icon').textContent='🎯';document.getElementById('r-title').textContent='¡Muy bien!';document.getElementById('r-msg').textContent='Buen desempeño. Revisen las respuestas incorrectas para reforzar los conceptos.';}
+  else{document.getElementById('r-icon').textContent='📚';document.getElementById('r-title').textContent='¡A repasar!';document.getElementById('r-msg').textContent='No hay problema — el aprendizaje es un proceso. Intenten de nuevo para mejorar su puntaje.';}
+}
+
+function backToLevels(){
+  document.getElementById('result-screen').style.display='none';
+  document.getElementById('level-select').style.display='block';
+}
+
+function retryLevel(){startLevel(currentLevel);}
+
+buildLevelSelect();
+</script>
+</body>
+</html>
