@@ -629,7 +629,6 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
   <h1>¡Programa Completado!</h1>
   <p>Han recorrido toda la ruta de <strong style="color:#76B82A">IA para la Productividad</strong>. Ahora son embajadores de IA en Coopetraban.</p>
   <div style="display:flex;gap:16px;margin-top:2rem;flex-wrap:wrap;justify-content:center">
-    <button onclick="generarCertificado()" style="background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px 32px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer">&#127891; Descargar Certificado</button>
     <button id="btn-restart" onclick="location.reload()" style="background:rgba(13,92,58,.5);border:1px solid #2D9E5F;color:#76B82A;padding:14px 32px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer">&#128260; Recorrer de nuevo</button>
   </div>
 </div>
@@ -1156,6 +1155,21 @@ document.addEventListener("fullscreenchange", function() {
   btn.title = document.fullscreenElement ? "Salir de pantalla completa" : "Pantalla completa (F11)";
 });
 
+// ===== LISTENER EXAMEN APROBADO =====
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'examAprobado') {
+    // Si el examen viene con nombre, actualizarlo
+    if (e.data.nombre) currentNombre = e.data.nombre;
+    // Cerrar overlay del examen
+    var ov = document.getElementById('eval-overlay');
+    if (ov) ov.style.display = 'none';
+    // Mostrar botón de certificado
+    document.getElementById('btn-cert-wrap').style.display = 'block';
+    // Confetti de celebración
+    bigConfetti();
+  }
+});
+
 // ===== CERTIFICADO PDF =====
 function generarCertificado() {
   var nombre = currentNombre || (currentUser ? currentUser.email.split('@')[0] : 'Participante');
@@ -1285,6 +1299,11 @@ function generarCertificado() {
   doc.save('Certificado_IA_' + nombre.replace(/\s+/g,'_') + '.pdf');
 }
 </script>
+
+<!-- BOTÓN CERTIFICADO (aparece solo al aprobar el examen) -->
+<div id="btn-cert-wrap" style="display:none;position:fixed;bottom:28px;right:28px;z-index:600;animation:fadeIn .5s">
+  <button onclick="generarCertificado()" style="background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px 24px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(118,184,42,.5)">&#127891; Descargar Certificado</button>
+</div>
 
 <!-- EVALUACIÓN FINAL OVERLAY -->
 <div id="eval-overlay" style="display:none;position:fixed;inset:0;z-index:800;background:#06100A;flex-direction:column">

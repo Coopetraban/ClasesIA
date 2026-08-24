@@ -352,6 +352,11 @@ function enviarExamen() {
   document.getElementById('estado-display').innerHTML = estado;
   document.getElementById('resultado').style.display = 'block';
   document.getElementById('resultado').scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Notificar al mapa si aprobó (pct >= 0.6)
+  if (pct >= 0.6) {
+    try { window.parent.postMessage({type: 'examAprobado', nombre: nombre, score: correctas}, '*'); } catch(e) {}
+  }
 }
 
 function exportarPDF() {
