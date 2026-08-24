@@ -7,11 +7,6 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hidden;height:100vh;width:100vw}
-#video-intro{position:fixed;inset:0;z-index:999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .6s}
-#video-intro.hidden{opacity:0;pointer-events:none}
-#intro-vid{width:100%;height:100%;object-fit:contain;max-height:100vh}
-#btn-skip-video{position:absolute;bottom:32px;right:36px;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.35);color:#fff;font-size:1rem;font-weight:700;padding:10px 22px;border-radius:24px;cursor:pointer;letter-spacing:.03em;transition:background .2s}
-#btn-skip-video:hover{background:rgba(118,184,42,.5);border-color:#76B82A}
 #logo-text{position:fixed;top:18px;left:28px;z-index:100;line-height:1}
 .lt1{font-size:1.1rem;font-weight:800;color:#76B82A;letter-spacing:.04em;display:block}
 .lt2{font-size:.65rem;font-weight:400;color:#2D9E5F;letter-spacing:.12em;display:block;margin-top:2px}
@@ -105,6 +100,7 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
 @keyframes wspin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -180,14 +176,6 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
   </div>
 </div>
 
-<!-- VIDEO INTRO -->
-<div id="video-intro">
-  <video id="intro-vid" playsinline style="cursor:pointer">
-    <source src="intro_video.mp4" type="video/mp4">
-  </video>
-  <div id="pause-icon" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.5);border-radius:50%;width:80px;height:80px;align-items:center;justify-content:center;font-size:2.2rem;pointer-events:none">&#9646;&#9646;</div>
-  <button id="btn-skip-video" onclick="endIntroVideo()">Saltar &#9654;&#9654;</button>
-</div>
 
 <div id="logo-text"><span class="lt1">Coopetraban</span><span class="lt2">ahorro y crédito</span></div>
 
@@ -640,7 +628,10 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
   <div style="font-size:4rem;margin-bottom:1rem">&#127942;</div>
   <h1>¡Programa Completado!</h1>
   <p>Han recorrido toda la ruta de <strong style="color:#76B82A">IA para la Productividad</strong>. Ahora son embajadores de IA en Coopetraban.</p>
-  <button id="btn-restart" onclick="location.reload()">&#128260; Recorrer de nuevo</button>
+  <div style="display:flex;gap:16px;margin-top:2rem;flex-wrap:wrap;justify-content:center">
+    <button onclick="generarCertificado()" style="background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px 32px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer">&#127891; Descargar Certificado</button>
+    <button id="btn-restart" onclick="location.reload()" style="background:rgba(13,92,58,.5);border:1px solid #2D9E5F;color:#76B82A;padding:14px 32px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer">&#128260; Recorrer de nuevo</button>
+  </div>
 </div>
 
 <script>
@@ -649,6 +640,7 @@ var SUPA_URL = 'https://eoedqopxsgxtkfqzbplt.supabase.co';
 var SUPA_KEY = 'sb_publishable_klzlK_YrjlzcRVzmnz07fA_PtUawB4u';
 var supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var currentUser = null;
+var currentNombre = '';
 
 supa.auth.getSession().then(function(r){
   if (r.data && r.data.session) {
@@ -719,6 +711,7 @@ function doLogin() {
     if (r.error) { authErr('Correo o contraseña incorrectos.'); }
     else {
       currentUser = r.data.user;
+      currentNombre = currentUser.email.split('@')[0];
       // Auto-crear perfil si no existe (usa SECURITY DEFINER para evitar RLS)
       supa.rpc('create_profile', {
         p_id: currentUser.id,
@@ -755,9 +748,6 @@ document.getElementById('login-email').addEventListener('keydown', function(e){ 
 
 function hidePantallaLogin() {
   document.getElementById('login-overlay').style.display = 'none';
-  // Ocultar video intro (no existe en GitHub)
-  var vi = document.getElementById('video-intro');
-  vi.style.display = 'none'; vi.classList.add('hidden');
   // Mostrar bienvenida de inmediato; loadProgressFromDB la reemplazará si hay progreso
   var w = document.getElementById('welcome');
   w.style.display = 'flex'; w.classList.remove('hidden');
@@ -791,6 +781,13 @@ function doLogout() {
 }
 
 function loadProgressFromDB() {
+  // Cargar nombre del perfil para el certificado
+  if (currentUser) {
+    supa.from('profiles').select('nombre').eq('id', currentUser.id).then(function(rp){
+      if (rp.data && rp.data.length > 0 && rp.data[0].nombre) currentNombre = rp.data[0].nombre;
+      else currentNombre = currentUser.email.split('@')[0];
+    });
+  }
   // Leer localStorage como respaldo inmediato
   var key = currentUser ? 'progress_' + currentUser.id : null;
   var localSaved = key ? JSON.parse(localStorage.getItem(key) || '[]') : [];
@@ -913,36 +910,8 @@ var progress = 0;
 var freeMode = false;
 var currentMod = -1;
 var currentSlide = 0;
+var slidesVistas = new Set(); // slides visitadas en el módulo actual
 
-// ===== VIDEO INTRO =====
-(function(){
-  var overlay = document.getElementById("video-intro");
-  var vid     = document.getElementById("intro-vid");
-  if (!vid || !overlay) return;
-  // Intentar reproducir automáticamente
-  var playPromise = vid.play();
-  if (playPromise !== undefined) {
-    playPromise.catch(function(){
-      // Autoplay bloqueado — mostrar botón más prominente para que lo inicien manualmente
-      document.getElementById("btn-skip-video").textContent = "▶ Reproducir / Saltar";
-      vid.addEventListener("click", function(){ vid.play(); });
-    });
-  }
-  vid.addEventListener("ended", endIntroVideo);
-  // Clic en el video = pausar/reanudar
-  vid.addEventListener("click", function(){
-    if (vid.paused) { vid.play(); document.getElementById("pause-icon").style.display="none"; }
-    else { vid.pause(); document.getElementById("pause-icon").style.display="flex"; }
-  });
-})();
-
-function endIntroVideo() {
-  var vid = document.getElementById("intro-vid");
-  if (vid) { vid.pause(); vid.currentTime = 0; }
-  var overlay = document.getElementById("video-intro");
-  overlay.classList.add("hidden");
-  setTimeout(function(){ overlay.style.display = "none"; }, 700);
-}
 var PATH_PCTS = [0.0, 0.16, 0.32, 0.48, 0.63, 0.78, 0.94, 0.99];
 var roadSVGPath = null;
 
@@ -1025,6 +994,7 @@ function updateNodes() {
 function openModule(idx) {
   currentMod = idx;
   currentSlide = 0;
+  slidesVistas = new Set([0]); // la primera slide ya se ve al abrir
   var mod = MODULES[idx];
   if (mod.isEval) {
     var ov = document.getElementById("eval-overlay");
@@ -1044,7 +1014,17 @@ function openModule(idx) {
     sc.appendChild(d);
   });
   buildDots(mod.slides.length);
-  document.getElementById("btn-complete").style.display = (idx === progress) ? "block" : "none";
+  var btnC = document.getElementById("btn-complete");
+  if (idx === progress) {
+    btnC.style.display = "block";
+    // Solo habilitar si el módulo tiene 1 sola slide (o ninguna), si no se requiere ver todas
+    var totalSlides = mod.slides ? mod.slides.length : 0;
+    btnC.disabled = totalSlides > 1;
+    btnC.style.opacity = totalSlides > 1 ? '0.4' : '1';
+    btnC.title = totalSlides > 1 ? 'Debes ver todas las diapositivas primero' : '';
+  } else {
+    btnC.style.display = "none";
+  }
   var dlBtn = document.getElementById("btn-download-pdf");
   if (mod.pdf) { dlBtn.href = mod.pdf; dlBtn.style.display = "inline-flex"; }
   else { dlBtn.style.display = "none"; }
@@ -1064,7 +1044,19 @@ function changeSlide(dir) {
   slides[currentSlide].classList.remove("active");
   currentSlide = Math.max(0, Math.min(MODULES[currentMod].slides.length - 1, currentSlide + dir));
   slides[currentSlide].classList.add("active");
+  slidesVistas.add(currentSlide);
   updateDots();
+  checkSlideCompletion();
+}
+
+function checkSlideCompletion() {
+  if (currentMod !== progress) return;
+  var total = MODULES[currentMod].slides ? MODULES[currentMod].slides.length : 0;
+  var todasVistas = slidesVistas.size >= total;
+  var btnC = document.getElementById("btn-complete");
+  btnC.disabled = !todasVistas;
+  btnC.style.opacity = todasVistas ? '1' : '0.4';
+  btnC.title = todasVistas ? '' : 'Debes ver todas las diapositivas (' + slidesVistas.size + '/' + total + ')';
 }
 
 function buildDots(n) {
@@ -1073,11 +1065,13 @@ function buildDots(n) {
   for (var i = 0; i < n; i++) {
     var dot = document.createElement("div");
     dot.className = "sdot" + (i === 0 ? " active" : "");
-    (function(idx){ dot.onclick = function(){ 
+    (function(idx){ dot.onclick = function(){
       document.querySelectorAll(".slide")[currentSlide].classList.remove("active");
       currentSlide = idx;
       document.querySelectorAll(".slide")[currentSlide].classList.add("active");
+      slidesVistas.add(currentSlide);
       updateDots();
+      checkSlideCompletion();
     }; })(i);
     d.appendChild(dot);
   }
@@ -1163,6 +1157,135 @@ document.addEventListener("fullscreenchange", function() {
   btn.textContent = document.fullscreenElement ? "\u29c9" : "\u26f6";
   btn.title = document.fullscreenElement ? "Salir de pantalla completa" : "Pantalla completa (F11)";
 });
+
+// ===== CERTIFICADO PDF =====
+function generarCertificado() {
+  var nombre = currentNombre || (currentUser ? currentUser.email.split('@')[0] : 'Participante');
+  var hoy = new Date();
+  var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var fecha = hoy.getDate() + ' de ' + meses[hoy.getMonth()] + ' de ' + hoy.getFullYear();
+
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  var W = 297, H = 210;
+
+  // Fondo verde oscuro
+  doc.setFillColor(6, 16, 10);
+  doc.rect(0, 0, W, H, 'F');
+
+  // Marco exterior dorado/verde
+  doc.setDrawColor(118, 184, 42);
+  doc.setLineWidth(3);
+  doc.rect(8, 8, W-16, H-16);
+  doc.setLineWidth(1);
+  doc.rect(12, 12, W-24, H-24);
+
+  // Franja superior verde
+  doc.setFillColor(13, 92, 58);
+  doc.rect(8, 8, W-16, 28, 'F');
+
+  // Franja inferior verde
+  doc.setFillColor(13, 92, 58);
+  doc.rect(8, H-36, W-16, 28, 'F');
+
+  // L\u00ednea decorativa superior
+  doc.setDrawColor(118, 184, 42);
+  doc.setLineWidth(1.5);
+  doc.line(8, 36, W-8, 36);
+
+  // L\u00ednea decorativa inferior
+  doc.line(8, H-36, W-8, H-36);
+
+  // COOPETRABAN
+  doc.setTextColor(118, 184, 42);
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.text('COOPETRABAN', W/2, 26, { align: 'center' });
+
+  doc.setTextColor(45, 158, 95);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('COOPERATIVA DE AHORRO Y CR\u00c9DITO', W/2, 32, { align: 'center' });
+
+  // T\u00edtulo certificado
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CERTIFICADO DE PARTICIPACI\u00d3N', W/2, 52, { align: 'center' });
+
+  // L\u00ednea divisoria
+  doc.setDrawColor(118, 184, 42);
+  doc.setLineWidth(0.8);
+  doc.line(60, 57, W-60, 57);
+
+  // Texto "Se certifica que"
+  doc.setTextColor(180, 220, 180);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Se certifica que', W/2, 70, { align: 'center' });
+
+  // NOMBRE DEL PARTICIPANTE
+  doc.setTextColor(118, 184, 42);
+  doc.setFontSize(28);
+  doc.setFont('helvetica', 'bold');
+  doc.text(nombre.toUpperCase(), W/2, 90, { align: 'center' });
+
+  // L\u00ednea bajo el nombre
+  doc.setDrawColor(118, 184, 42);
+  doc.setLineWidth(0.5);
+  var nombreW = doc.getTextWidth(nombre.toUpperCase());
+  doc.line(W/2 - nombreW/2, 93, W/2 + nombreW/2, 93);
+
+  // Texto principal
+  doc.setTextColor(200, 230, 200);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.text('ha completado exitosamente el programa de capacitaci\u00f3n interna', W/2, 106, { align: 'center' });
+
+  // Nombre del curso
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('"IA para la Productividad"', W/2, 118, { align: 'center' });
+
+  // Detalles del curso
+  doc.setTextColor(118, 184, 42);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('7 m\u00f3dulos  \u00b7  7 horas de aprendizaje pr\u00e1ctico  \u00b7  Gesti\u00f3n Humana', W/2, 128, { align: 'center' });
+
+  // Fecha
+  doc.setTextColor(180, 220, 180);
+  doc.setFontSize(10);
+  doc.text('Emitido el ' + fecha, W/2, 140, { align: 'center' });
+
+  // L\u00edneas de firma
+  doc.setDrawColor(118, 184, 42);
+  doc.setLineWidth(0.5);
+  doc.line(50, 163, 130, 163);
+  doc.line(167, 163, 247, 163);
+
+  // Texto de firma
+  doc.setTextColor(118, 184, 42);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Gesti\u00f3n Humana', 90, 169, { align: 'center' });
+  doc.text('Instructor del Programa', 207, 169, { align: 'center' });
+
+  doc.setTextColor(150, 200, 150);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Coopetraban', 90, 174, { align: 'center' });
+  doc.text('IA para la Productividad', 207, 174, { align: 'center' });
+
+  // Pie
+  doc.setTextColor(45, 158, 95);
+  doc.setFontSize(8);
+  doc.text('Programa de Capacitaci\u00f3n Interna \u00b7 Coopetraban \u00b7 ' + hoy.getFullYear(), W/2, H-18, { align: 'center' });
+
+  // Guardar
+  doc.save('Certificado_IA_' + nombre.replace(/\s+/g,'_') + '.pdf');
+}
 </script>
 
 <!-- EVALUACIÓN FINAL OVERLAY -->
