@@ -1181,7 +1181,7 @@ function generarCertificado() {
   var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   var W = 297, H = 210;
 
-  // \u2500\u2500 Fondo crema/marfil (estilo diploma cl\u00e1sico)
+  // \u2500\u2500 Fondo crema/marfil completo
   doc.setFillColor(252, 248, 238);
   doc.rect(0, 0, W, H, 'F');
 
@@ -1193,116 +1193,100 @@ function generarCertificado() {
   // \u2500\u2500 Borde interior dorado fino
   doc.setDrawColor(166, 124, 0);
   doc.setLineWidth(1.2);
-  doc.rect(12, 12, W-24, H-24);
+  doc.rect(13, 13, W-26, H-26);
 
-  // \u2500\u2500 Franja verde superior
-  doc.setFillColor(13, 92, 58);
-  doc.rect(6, 6, W-12, 32, 'F');
-
-  // \u2500\u2500 Franja verde inferior
-  doc.setFillColor(13, 92, 58);
-  doc.rect(6, H-38, W-12, 32, 'F');
-
-  // \u2500\u2500 COOPETRABAN (header blanco sobre verde)
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(20);
+  // \u2500\u2500 COOPETRABAN (sobre fondo crema)
+  doc.setTextColor(13, 92, 58);
+  doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
-  doc.text('COOPETRABAN', W/2, 22, { align: 'center' });
+  doc.text('COOPETRABAN', W/2, 28, { align: 'center' });
 
-  doc.setTextColor(118, 184, 42);
+  doc.setTextColor(166, 124, 0);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('COOPERATIVA DE AHORRO Y CREDITO', W/2, 29, { align: 'center' });
+  doc.text('COOPERATIVA DE AHORRO Y CREDITO', W/2, 35, { align: 'center' });
 
-  // \u2500\u2500 Ornamento superior central
+  // \u2500\u2500 Separador ornamental superior
   doc.setDrawColor(166, 124, 0);
   doc.setLineWidth(0.8);
-  doc.line(60, 44, W/2-20, 44);
-  doc.line(W/2+20, 44, W-60, 44);
+  doc.line(70, 41, W/2-18, 41);
+  doc.line(W/2+18, 41, W-70, 41);
   doc.setFillColor(166, 124, 0);
-  doc.circle(W/2, 44, 2, 'F');
+  doc.circle(W/2, 41, 2, 'F');
 
-  // \u2500\u2500 DIPLOMA / CERTIFICADO
+  // \u2500\u2500 CERTIFICADO DE PARTICIPACION (centrado)
   doc.setTextColor(13, 92, 58);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.setCharSpace(3);
-  doc.text('CERTIFICADO DE PARTICIPACION', W/2, 54, { align: 'center' });
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setCharSpace(2.5);
+  doc.text('CERTIFICADO DE PARTICIPACION', W/2, 53, { align: 'center' });
   doc.setCharSpace(0);
 
   // \u2500\u2500 "Se certifica que"
   doc.setTextColor(100, 80, 40);
   doc.setFontSize(12);
   doc.setFont('helvetica', 'italic');
-  doc.text('Se certifica que', W/2, 68, { align: 'center' });
+  doc.text('Se certifica que', W/2, 66, { align: 'center' });
 
-  // \u2500\u2500 NOMBRE (marr\u00f3n oscuro elegante)
-  doc.setTextColor(40, 30, 10);
+  // \u2500\u2500 NOMBRE
+  doc.setTextColor(30, 20, 5);
   doc.setFontSize(30);
   doc.setFont('helvetica', 'bold');
-  doc.text(nombre, W/2, 90, { align: 'center' });
+  doc.text(nombre, W/2, 87, { align: 'center' });
 
   // \u2500\u2500 L\u00ednea dorada bajo el nombre
   doc.setDrawColor(166, 124, 0);
   doc.setLineWidth(0.7);
   var nw = doc.getTextWidth(nombre);
-  doc.line(W/2 - nw/2 - 5, 94, W/2 + nw/2 + 5, 94);
+  doc.line(W/2 - nw/2 - 5, 91, W/2 + nw/2 + 5, 91);
 
   // \u2500\u2500 Texto del logro
   doc.setTextColor(80, 60, 20);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
-  doc.text('ha completado exitosamente el programa de capacitacion interna', W/2, 107, { align: 'center' });
+  doc.text('ha completado exitosamente el programa de capacitacion interna', W/2, 104, { align: 'center' });
 
   // \u2500\u2500 Nombre del programa
   doc.setTextColor(13, 92, 58);
-  doc.setFontSize(17);
+  doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text('IA para la Productividad', W/2, 119, { align: 'center' });
+  doc.text('IA para la Productividad', W/2, 117, { align: 'center' });
 
-  // \u2500\u2500 Detalles
+  // \u2500\u2500 Detalles (sin "Gestion Humana Coopetraban")
   doc.setTextColor(120, 95, 40);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text('7 modulos  -  7 horas de aprendizaje practico  -  Gestion Humana \u00b7 Coopetraban', W/2, 129, { align: 'center' });
+  doc.text('7 modulos  -  7 horas de aprendizaje practico', W/2, 127, { align: 'center' });
 
   // \u2500\u2500 Fecha
   doc.setTextColor(100, 80, 40);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'italic');
-  doc.text('Emitido el ' + fecha, W/2, 141, { align: 'center' });
+  doc.text('Emitido el ' + fecha, W/2, 139, { align: 'center' });
 
-  // \u2500\u2500 Separador ornamental
+  // \u2500\u2500 Separador ornamental inferior
   doc.setDrawColor(166, 124, 0);
   doc.setLineWidth(0.5);
-  doc.line(80, 148, W-80, 148);
+  doc.line(80, 147, W-80, 147);
 
-  // \u2500\u2500 DOS L\u00cdNEAS DE FIRMA (Formadores)
-  // Firma 1
-  doc.setDrawColor(80, 60, 20);
-  doc.setLineWidth(0.5);
-  doc.line(45, 162, 135, 162);
-  // Firma 2
-  doc.line(162, 162, 252, 162);
-
-  // Nombres de formadores
+  // \u2500\u2500 FORMADORES (solo nombres, sin l\u00edneas de firma)
   doc.setTextColor(13, 92, 58);
-  doc.setFontSize(9);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text('Johnatan Yesid Velasquez Jaramillo', 90, 167, { align: 'center' });
-  doc.text('Anderson Ocampo Bedoya', 207, 167, { align: 'center' });
+  doc.text('Johnatan Yesid Velasquez Jaramillo', 90, 162, { align: 'center' });
+  doc.text('Anderson Ocampo Bedoya', 207, 162, { align: 'center' });
 
-  // Rol
-  doc.setTextColor(100, 80, 40);
+  doc.setTextColor(120, 95, 40);
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'italic');
+  doc.text('Formador', 90, 168, { align: 'center' });
+  doc.text('Formador', 207, 168, { align: 'center' });
+
+  // \u2500\u2500 Pie
+  doc.setTextColor(13, 92, 58);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('Formador', 90, 172, { align: 'center' });
-  doc.text('Formador', 207, 172, { align: 'center' });
-
-  // \u2500\u2500 Pie (sobre franja verde inferior)
-  doc.setTextColor(118, 184, 42);
-  doc.setFontSize(8);
-  doc.text('Programa de Capacitacion Interna  -  Coopetraban  -  ' + hoy.getFullYear(), W/2, H-22, { align: 'center' });
+  doc.text('Programa de Capacitacion Interna  -  Coopetraban  -  ' + hoy.getFullYear(), W/2, H-14, { align: 'center' });
 
   doc.save('Certificado_IA_' + nombre.replace(/\s+/g,'_') + '.pdf');
 }
