@@ -696,7 +696,7 @@ function doAdminLogin() {
     if (r.error) { authErr('Correo o contraseña incorrectos.'); return; }
     supa.rpc('is_admin').then(function(ra){
       if (ra.error || !ra.data) { authErr('No tienes permisos de instructor.'); supa.auth.signOut(); return; }
-      window.location.href = 'admin.html';
+      window.location.href = 'admin/';
     });
   });
 }
