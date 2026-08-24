@@ -793,7 +793,7 @@ function loadProgressFromDB() {
   var localSaved = key ? JSON.parse(localStorage.getItem(key) || '[]') : [];
   var localMax = localSaved.length > 0 ? Math.max.apply(null, localSaved) : -1;
 
-  supa.from('progress').select('module_index').then(function(r){
+  supa.rpc('get_my_progress').then(function(r){
     var dbIndices = (r.data && r.data.length > 0) ? r.data.map(function(x){ return x.module_index; }) : [];
     var dbMax = dbIndices.length > 0 ? Math.max.apply(null, dbIndices) : -1;
 
