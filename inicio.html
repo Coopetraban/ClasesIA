@@ -838,11 +838,9 @@ function saveProgressToDB(moduleIdx) {
   var saved = JSON.parse(localStorage.getItem(key) || '[]');
   if (saved.indexOf(moduleIdx) === -1) saved.push(moduleIdx);
   localStorage.setItem(key, JSON.stringify(saved));
-  // Guardar en Supabase
-  supa.from('progress').upsert(
-    {user_id: currentUser.id, module_index: moduleIdx, score: 100, completed_at: new Date().toISOString()},
-    {onConflict: 'user_id,module_index'}
-  ).then(function(r){ if(r.error) console.warn('Supabase save error:', r.error); });
+  // Guardar en Supabase via SECURITY DEFINER (evita problemas de RLS)
+  supa.rpc('save_progress', {p_module_index: moduleIdx, p_score: 100})
+    .then(function(r){ if(r.error) console.warn('Supabase save error:', r.error); });
 }
 
 function updateProgressBar() {
