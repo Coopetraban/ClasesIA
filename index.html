@@ -196,7 +196,7 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
 </div>
 
 <div id="roadmap">
-  <svg id="road-svg" viewBox="0 0 1400 760" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <svg id="road-svg" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stop-color="#06100A"/>
@@ -209,7 +209,7 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
       <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       <filter id="nodeglow"><feGaussianBlur stdDeviation="8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>
-    <rect width="1400" height="760" fill="url(#bgGrad)"/>
+    <rect width="1440" height="800" fill="url(#bgGrad)"/>
     <!-- Decoracion -->
     <text x="80" y="200" font-size="26" opacity=".35">&#127794;</text>
     <text x="900" y="140" font-size="22" opacity=".3">&#127795;</text>
@@ -288,7 +288,7 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
       <circle class="hit-area" r="54"/>
     </g>
     <!-- NODO EVALUACIÓN FINAL -->
-    <g class="mod-node locked" id="node-7" data-idx="7" transform="translate(1340,530)">
+    <g class="mod-node locked" id="node-7" data-idx="7" transform="translate(1300,500)">
       <circle class="ring-hover" r="54" fill="none" stroke="#FFD700" stroke-width="2.5" opacity=".5"/>
       <circle r="44" fill="#1a1200" stroke="#FFD700" stroke-width="2.5" filter="url(#nodeglow)"/>
       <text text-anchor="middle" dy="-10" font-size="22" fill="#FFD700">&#127942;</text>
@@ -848,9 +848,13 @@ function updateProgressBar() {
   if (bar) bar.style.width = pct + '%';
   var txt = document.getElementById('progress-text');
   if (txt) {
-    txt.textContent = progress >= 7
-      ? '\u{1F3C6} ¡Programa completado!'
-      : progress + '/7 · ' + pct + '%';
+    if (examPassed) {
+      txt.textContent = '\u{1F3C6} ¡Programa completado!';
+    } else if (progress >= 7) {
+      txt.textContent = '7/7 · ¡Realiza la evaluación final! \u{1F3C6}';
+    } else {
+      txt.textContent = progress + '/7 · ' + pct + '%';
+    }
   }
 }
 
@@ -904,6 +908,7 @@ var MODULES = [
 
 // ===== ESTADO =====
 var progress = 0;
+var examPassed = false;
 var freeMode = false;
 var currentMod = -1;
 var currentSlide = 0;
@@ -1160,6 +1165,8 @@ window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'examAprobado') {
     // Si el examen viene con nombre, actualizarlo
     if (e.data.nombre) currentNombre = e.data.nombre;
+    examPassed = true;
+    updateProgressBar();
     // Cerrar overlay del examen
     var ov = document.getElementById('eval-overlay');
     if (ov) ov.style.display = 'none';
