@@ -1214,13 +1214,11 @@ function generarCertificado() {
   doc.setFillColor(166, 124, 0);
   doc.circle(W/2, 41, 2, 'F');
 
-  // \u2500\u2500 CERTIFICADO DE PARTICIPACION (centrado)
+  // \u2500\u2500 CERTIFICADO DE PARTICIPACI\u00d3N (centrado, sin charSpace para alineaci\u00f3n correcta)
   doc.setTextColor(13, 92, 58);
-  doc.setFontSize(10);
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.setCharSpace(2.5);
-  doc.text('CERTIFICADO DE PARTICIPACION', W/2, 53, { align: 'center' });
-  doc.setCharSpace(0);
+  doc.text('CERTIFICADO DE PARTICIPACI\u00d3N', W/2, 53, { align: 'center' });
 
   // \u2500\u2500 "Se certifica que"
   doc.setTextColor(100, 80, 40);
@@ -1244,7 +1242,7 @@ function generarCertificado() {
   doc.setTextColor(80, 60, 20);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
-  doc.text('ha completado exitosamente el programa de capacitacion interna', W/2, 104, { align: 'center' });
+  doc.text('ha completado exitosamente el programa de capacitación interna', W/2, 104, { align: 'center' });
 
   // \u2500\u2500 Nombre del programa
   doc.setTextColor(13, 92, 58);
@@ -1256,7 +1254,7 @@ function generarCertificado() {
   doc.setTextColor(120, 95, 40);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text('7 modulos  -  7 horas de aprendizaje practico', W/2, 127, { align: 'center' });
+  doc.text('7 módulos  -  7 horas de aprendizaje práctico', W/2, 127, { align: 'center' });
 
   // \u2500\u2500 Fecha
   doc.setTextColor(100, 80, 40);
@@ -1286,7 +1284,7 @@ function generarCertificado() {
   doc.setTextColor(13, 92, 58);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('Programa de Capacitacion Interna  -  Coopetraban  -  ' + hoy.getFullYear(), W/2, H-14, { align: 'center' });
+  doc.text('Programa de Capacitación Interna  ·  Coopetraban  ·  ' + hoy.getFullYear(), W/2, H-18, { align: 'center' });
 
   doc.save('Certificado_IA_' + nombre.replace(/\s+/g,'_') + '.pdf');
 }
