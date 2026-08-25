@@ -18,11 +18,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f9f5;color:#1a1a1a;pa
 .prompt-box{background:#f0faf3;border:2px solid #76B82A;border-radius:10px;padding:16px 20px;margin-top:10px;font-size:.9rem;color:#0D5C3A;line-height:1.7;font-style:italic}
 .prompt-box strong{display:block;color:#0D5C3A;font-style:normal;margin-bottom:6px;font-size:.8rem;letter-spacing:.05em}
 .footer{text-align:center;color:#aaa;font-size:.8rem;margin-top:32px;padding-top:16px;border-top:1px solid #ddd}
-@media print{body{background:white;padding:16px}@page{margin:1.5cm}}
+@media print{.no-print{display:none!important}body{background:white;padding:16px}.header{-webkit-print-color-adjust:exact;print-color-adjust:exact}.section{break-inside:avoid}@page{margin:1.5cm}}
 </style>
 
 </head>
 <body>
+<div class="no-print" style="text-align:center;margin:24px 0">
+  <button onclick="window.print()" style="background:linear-gradient(135deg,#0D5C3A,#2D9E5F);color:#fff;border:none;padding:14px 32px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(13,92,58,.4)">🖨️ Imprimir / Guardar como PDF</button>
+  <p style="color:#aaa;font-size:.8rem;margin-top:8px">En el cuadro de impresión selecciona "Guardar como PDF" como destino</p>
+</div>
 <div class="header">
   <h1>Módulo 0 · ¿Qué es la Inteligencia Artificial?</h1>
   <p>📋 Resumen del participante · IA para la Productividad · Coopetraban</p>
