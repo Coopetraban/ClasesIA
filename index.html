@@ -354,7 +354,7 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
     <span id="hud-user"></span>
     <div id="prog-bar-wrap"><div id="prog-bar"></div></div>
     <span id="progress-text">Módulo 0 desbloqueado</span>
-    <button id="btn-free" onclick="toggleFreeMode()">Modo libre &#128275;</button>
+    <button id="btn-free" style="display:none" onclick="toggleFreeMode()">Modo libre &#128275;</button>
     <button id="btn-fs" onclick="toggleFullscreen()" title="Pantalla completa (F11)">&#9974;</button>
     <button id="btn-logout" onclick="doLogout()">Salir &#x2192;</button>
   </div>
@@ -999,6 +999,8 @@ function updateNodes() {
 }
 
 function openModule(idx) {
+  // Bloquear acceso a módulos no desbloqueados (solo pueden revisitar anteriores)
+  if (idx > progress) return;
   currentMod = idx;
   currentSlide = 0;
   slidesVistas = new Set([0]); // la primera slide ya se ve al abrir
