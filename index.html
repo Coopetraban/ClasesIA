@@ -1089,7 +1089,15 @@ function updateDots() {
 }
 
 function openGame() {
-  window.location.href = MODULES[currentMod].game;
+  var mod = MODULES[currentMod];
+  document.getElementById('game-overlay-title').textContent = '🎮 ' + mod.title;
+  document.getElementById('game-frame').src = mod.game;
+  document.getElementById('game-overlay').style.display = 'flex';
+}
+function closeGame() {
+  document.getElementById('game-overlay').style.display = 'none';
+  document.getElementById('game-frame').src = '';
+  openModule(currentMod);
 }
 
 function completeModule() {
@@ -1318,6 +1326,16 @@ function generarCertificado() {
     <button onclick="closeEval()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);color:#fff;padding:8px 20px;border-radius:20px;cursor:pointer;font-size:.9rem;font-weight:700">✕ Cerrar</button>
   </div>
   <iframe id="eval-frame" src="evaluacion_final.html" style="flex:1;border:none;width:100%;background:#06100A"></iframe>
+</div>
+
+<!-- JUEGO OVERLAY -->
+<div id="game-overlay" style="display:none;position:fixed;inset:0;z-index:800;background:#06100A;flex-direction:column">
+  <div style="background:linear-gradient(135deg,#0D5C3A,#0B3020);padding:14px 24px;border-bottom:3px solid #76B82A;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div><span style="font-size:1.1rem;font-weight:800;color:#76B82A">Coopetraban</span><span style="font-size:.7rem;color:#2D9E5F;display:block;letter-spacing:.1em">ahorro y crédito</span></div>
+    <span id="game-overlay-title" style="font-size:1rem;font-weight:700;color:#fff">🎮 Juego</span>
+    <button onclick="closeGame()" style="background:rgba(118,184,42,.15);border:1px solid #76B82A;color:#76B82A;padding:8px 20px;border-radius:20px;cursor:pointer;font-size:.9rem;font-weight:700">← Volver al módulo</button>
+  </div>
+  <iframe id="game-frame" src="" style="flex:1;border:none;width:100%;background:#06100A"></iframe>
 </div>
 </body>
 </html>
