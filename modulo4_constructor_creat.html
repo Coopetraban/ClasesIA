@@ -64,7 +64,7 @@
 </style>
 </head>
 <body>
-<div class="logo">Coopetraban · ahorro y crédito</div>
+<div class="logo">Escuela IA · ahorro y crédito</div>
 <h1>⚡ Constructor C-R-E-A-T</h1>
 <p class="subtitle">Módulo 4 · El método profesional para prompts de alta calidad</p>
 
@@ -88,7 +88,7 @@
   <div class="creat-grid">
     <div class="creat-field">
       <div class="cf-label"><div class="cf-letter">C</div><div><div class="cf-name">Contexto</div><div class="cf-desc">¿Quién eres? ¿Cuál es la situación?</div></div></div>
-      <textarea id="f-c" placeholder="Ej: Soy Alumno de crédito en Coopetraban. Un Alumno me pide información sobre créditos de consumo..."></textarea>
+      <textarea id="f-c" placeholder="Ej: Soy Alumno de crédito en Escuela IA. Un Alumno me pide información sobre créditos de consumo..."></textarea>
     </div>
     <div class="creat-field">
       <div class="cf-label"><div class="cf-letter">R</div><div><div class="cf-name">Rol</div><div class="cf-desc">¿Qué papel debe asumir la IA?</div></div></div>
@@ -132,7 +132,7 @@
       <div class="gc-letter">C</div>
       <h3>Contexto</h3>
       <p>Explica quién eres, en qué organización trabajas y cuál es la situación específica que motiva el pedido.</p>
-      <div class="example">"Soy coordinadora de Gestión Humana en Coopetraban, cooperativa de ahorro y crédito con 200 Alumnos..."</div>
+      <div class="example">"Soy coordinadora de Gestión Humana en Escuela IA, cooperativa de ahorro y crédito con 200 Alumnos..."</div>
     </div>
     <div class="guide-card">
       <div class="gc-letter">R</div>
@@ -166,8 +166,8 @@
     </div>
   </div>
   <div class="complete-example">
-    <h3>📝 Ejemplo completo C-R-E-A-T para Coopetraban</h3>
-    <div class="creat-line"><strong>C —</strong> Soy funcionaria de Gestión Humana en Coopetraban, una cooperativa de ahorro y crédito. Necesito convocar a todos los Alumnos a una capacitación obligatoria.</div>
+    <h3>📝 Ejemplo completo C-R-E-A-T para Escuela IA</h3>
+    <div class="creat-line"><strong>C —</strong> Soy funcionaria de Gestión Humana en Escuela IA, una cooperativa de ahorro y crédito. Necesito convocar a todos los Alumnos a una capacitación obligatoria.</div>
     <div class="creat-line"><strong>R —</strong> Actúa como especialista en comunicación interna corporativa para instituciones financieras cooperativas.</div>
     <div class="creat-line"><strong>E —</strong> El tono que busco es cálido pero formal, similar a: "Con gusto les compartimos esta importante oportunidad de formación..."</div>
     <div class="creat-line"><strong>A —</strong> Redacta una convocatoria interna para una capacitación obligatoria de 2 horas sobre herramientas de productividad con IA. La capacitación es el próximo martes a las 2pm en la sala de reuniones.</div>
@@ -177,8 +177,8 @@
 
 <script>
 const SCENARIOS = [
-  {c:"Soy Alumno de crédito en Coopetraban. Un Alumno aprobado necesita información de su crédito.",r:"Actúa como asesor de crédito con trato empático y profesional.",e:"El tono que busco: 'Estimado Alumno, con mucho gusto le comunicamos...'",a:"Redacta un correo notificando la aprobación del crédito, monto, cuota y próximos pasos.",t:"Formal y cálido. Máximo 150 palabras. Sin tecnicismos."},
-  {c:"Soy coordinadora de Gestión Humana en Coopetraban. Necesito un plan de capacitación semestral.",r:"Actúa como experto en diseño instruccional y desarrollo organizacional.",e:"El resultado debe tener formato de tabla con columnas: Mes, Tema, Duración, Objetivo.",a:"Crea un plan de capacitación para 6 meses con 1 taller mensual relacionado con cooperativismo y servicio al Alumno.",t:"Tono profesional. Formato tabla. Incluye indicador de éxito por taller."},
+  {c:"Soy Alumno de crédito en Escuela IA. Un Alumno aprobado necesita información de su crédito.",r:"Actúa como asesor de crédito con trato empático y profesional.",e:"El tono que busco: 'Estimado Alumno, con mucho gusto le comunicamos...'",a:"Redacta un correo notificando la aprobación del crédito, monto, cuota y próximos pasos.",t:"Formal y cálido. Máximo 150 palabras. Sin tecnicismos."},
+  {c:"Soy coordinadora de Gestión Humana en Escuela IA. Necesito un plan de capacitación semestral.",r:"Actúa como experto en diseño instruccional y desarrollo organizacional.",e:"El resultado debe tener formato de tabla con columnas: Mes, Tema, Duración, Objetivo.",a:"Crea un plan de capacitación para 6 meses con 1 taller mensual relacionado con cooperativismo y servicio al Alumno.",t:"Tono profesional. Formato tabla. Incluye indicador de éxito por taller."},
   {c:"Soy gerente de área. Debo presentar resultados del primer semestre a la Junta Directiva.",r:"Actúa como analista financiero especializado en presentaciones ejecutivas.",e:"Quiero algo conciso, al estilo de un one-pager ejecutivo.",a:"Resume los resultados de captación, crédito y morosidad en un formato de resumen ejecutivo de máximo 2 páginas.",t:"Muy formal. Máximo 400 palabras. Estructura: resumen, logros, retos, próximos pasos."},
   {c:"Soy Alumno de caja. Un Alumno está molesto por un cobro inesperado de comisión.",r:"Actúa como experto en atención al cliente para instituciones financieras.",e:"El guión debe ser empático, como lo haría un asesor senior con experiencia en resolución de conflictos.",a:"Crea un guión de 5 pasos para atender la queja: escucha activa, explicación, solución, compensación si aplica, y cierre positivo.",t:"Empático y profesional. Pasos numerados. Incluye frases de ejemplo para cada paso."}
 ];

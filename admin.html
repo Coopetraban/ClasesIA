@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · IA para la Productividad · Escuela IA</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;min-height:100vh}
+.header{background:linear-gradient(135deg,#0D5C3A,#0B3020);padding:16px 32px;border-bottom:3px solid #76B82A;display:flex;align-items:center;justify-content:space-between}
+.header-left span.lt1{font-size:1.2rem;font-weight:800;color:#76B82A;display:block}
+.header-left span.lt2{font-size:.65rem;color:#2D9E5F;letter-spacing:.12em}
+.header-right{display:flex;align-items:center;gap:12px}
+#admin-email{color:#aaa;font-size:.85rem}
+#btn-logout{background:rgba(80,20,20,.6);border:1px solid #cc2200;color:#ff8888;padding:7px 16px;border-radius:20px;cursor:pointer;font-size:.8rem}
+.container{max-width:1100px;margin:0 auto;padding:32px 24px}
+h1{color:#76B82A;font-size:1.6rem;font-weight:900;margin-bottom:6px}
+.subtitle{color:#aaa;font-size:.9rem;margin-bottom:28px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:32px}
+.stat{background:rgba(13,92,58,.2);border:1px solid #2D9E5F33;border-radius:16px;padding:20px 24px;text-align:center}
+.stat .num{font-size:2.2rem;font-weight:900;color:#76B82A}
+.stat .lbl{font-size:.8rem;color:#aaa;margin-top:4px}
+.toolbar{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.toolbar input{background:rgba(13,92,58,.2);border:1px solid #2D9E5F44;border-radius:10px;color:#fff;padding:9px 14px;font-size:.9rem;outline:none;width:240px}
+.toolbar input::placeholder{color:#666}
+.btn-export{background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:10px 22px;border-radius:20px;cursor:pointer;font-weight:700;font-size:.9rem}
+.btn-reload{background:rgba(13,92,58,.5);border:1px solid #2D9E5F;color:#76B82A;padding:10px 18px;border-radius:20px;cursor:pointer;font-size:.9rem}
+table{width:100%;border-collapse:collapse;background:rgba(13,92,58,.1);border-radius:16px;overflow:hidden}
+thead tr{background:#0D5C3A}
+th{padding:13px 16px;text-align:left;font-size:.82rem;color:#76B82A;font-weight:700;letter-spacing:.04em}
+td{padding:12px 16px;font-size:.88rem;border-bottom:1px solid rgba(45,158,95,.1);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(118,184,42,.05)}
+.prog-cell{display:flex;align-items:center;gap:10px}
+.mini-bar{width:80px;height:7px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;flex-shrink:0}
+.mini-fill{height:100%;background:linear-gradient(90deg,#76B82A,#2D9E5F);border-radius:10px;transition:width .4s}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700}
+.badge-done{background:rgba(118,184,42,.2);color:#76B82A;border:1px solid #76B82A55}
+.badge-prog{background:rgba(45,158,95,.15);color:#2D9E5F;border:1px solid #2D9E5F44}
+.badge-new{background:rgba(255,255,255,.07);color:#888;border:1px solid #33333366}
+#login-wrap{position:fixed;inset:0;background:linear-gradient(135deg,#06100A,#0D3020);display:flex;align-items:center;justify-content:center;z-index:100}
+.login-box{background:rgba(13,92,58,.18);border:1px solid #2D9E5F55;border-radius:24px;padding:44px 48px;width:min(400px,92vw);text-align:center}
+.login-box h2{color:#76B82A;font-size:1.4rem;font-weight:900;margin-bottom:4px}
+.login-box p{color:#aaa;font-size:.85rem;margin-bottom:24px}
+.inp{width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none}
+.btn-main{width:100%;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:14px;font-size:1rem;font-weight:700;border-radius:50px;cursor:pointer}
+#login-err{display:none;background:rgba(204,34,0,.15);border:1px solid #cc2200;border-radius:10px;padding:9px;color:#ff8888;font-size:.85rem;margin-bottom:12px}
+.empty{text-align:center;padding:48px;color:#555;font-size:1rem}
+</style>
+</head>
+<body>
+
+<div id="login-wrap">
+  <div class="login-box">
+    <div style="margin-bottom:16px">
+      <span style="font-size:1.3rem;font-weight:800;color:#76B82A;display:block">Escuela IA</span>
+      <span style="font-size:.7rem;color:#2D9E5F;letter-spacing:.12em">ahorro y crédito</span>
+    </div>
+    <h2>Panel Administrador</h2>
+    <p>Acceso exclusivo para instructores</p>
+    <div id="login-err"></div>
+    <input id="a-email" class="inp" type="email" placeholder="Correo administrador">
+    <input id="a-pass"  class="inp" type="password" placeholder="Contraseña">
+    <button class="btn-main" onclick="adminLogin()">Ingresar</button>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="header">
+    <div class="header-left">
+      <span class="lt1">Escuela IA</span>
+      
+    </div>
+    <div style="color:#fff;font-weight:700;font-size:1rem">&#128202; Panel Administrador · IA para la Productividad</div>
+    <div class="header-right">
+      <span id="admin-email"></span>
+      <button id="btn-logout" onclick="adminLogout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>&#128202; Seguimiento de Alumnos</h1>
+    <p class="subtitle">Progreso en tiempo real del programa IA para la Productividad</p>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="st-total">—</div><div class="lbl">Alumnos registrados</div></div>
+      <div class="stat"><div class="num" id="st-active">—</div><div class="lbl">Con al menos 1 módulo</div></div>
+      <div class="stat"><div class="num" id="st-done">—</div><div class="lbl">Programa completo</div></div>
+      <div class="stat"><div class="num" id="st-avg">—</div><div class="lbl">Promedio de avance</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input id="search" type="text" placeholder="Buscar por nombre, área o correo..." oninput="renderTable()">
+      <button class="btn-reload" onclick="loadData()">&#8635; Actualizar</button>
+      <button class="btn-export" onclick="exportCSV()">&#8681; Exportar a Excel/CSV</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Área</th>
+          <th>Correo</th>
+          <th>Progreso</th>
+          <th>Módulos</th>
+          <th>Estado</th>
+          <th>Último acceso</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-body">
+        <tr><td colspan="7" class="empty">Cargando datos...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+var SUPA_URL = 'https://eoedqopxsgxtkfqzbplt.supabase.co';
+var SUPA_KEY = 'sb_publishable_klzlK_YrjlzcRVzmnz07fA_PtUawB4u';
+var supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var allData = [];
+
+var MODULOS = ['M0 · ¿Qué es la IA?','M1 · Prompts básicos','M2 · Prompts avanzados','M3 · IA en mi área','M4 · C-R-E-A-T','M5 · Demo Day','M6 · Diseño con IA'];
+
+supa.auth.getSession().then(function(r){
+  if (r.data && r.data.session) checkAdmin(r.data.session.user);
+});
+
+function adminLogin() {
+  var email = document.getElementById('a-email').value.trim();
+  var pass  = document.getElementById('a-pass').value;
+  var err   = document.getElementById('login-err');
+  err.style.display = 'none';
+  supa.auth.signInWithPassword({email:email, password:pass}).then(function(r){
+    if (r.error) { err.textContent='Credenciales incorrectas.'; err.style.display='block'; return; }
+    checkAdmin(r.data.user);
+  });
+}
+
+function checkAdmin(user) {
+  supa.rpc('is_admin').then(function(r){
+    if (r.error || !r.data) {
+      var err = document.getElementById('login-err');
+      err.textContent = 'No tienes permisos de administrador.';
+      err.style.display = 'block';
+      supa.auth.signOut();
+      return;
+    }
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('admin-email').textContent = user.email;
+    loadData();
+  });
+}
+
+function adminLogout() {
+  supa.auth.signOut().then(function(){
+    document.getElementById('login-wrap').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  });
+}
+
+function loadData() {
+  document.getElementById('tabla-body').innerHTML = '<tr><td colspan="7" class="empty">Cargando...</td></tr>';
+  Promise.all([
+    supa.rpc('get_all_profiles'),
+    supa.rpc('get_all_progress')
+  ]).then(function(results){
+    var profiles = results[0].data || [];
+    var progress = results[1].data || [];
+
+    allData = profiles.map(function(p){
+      var mods = progress.filter(function(x){ return x.user_id === p.id; });
+      var count = mods.length;
+      var lastDate = mods.length ? mods.sort(function(a,b){ return new Date(b.completed_at)-new Date(a.completed_at); })[0].completed_at : null;
+      return { nombre: p.nombre||'Sin nombre', area: p.area||'—', email: p.email||'—', count: count, lastDate: lastDate, pct: Math.round((count/7)*100) };
+    });
+
+    // Stats
+    document.getElementById('st-total').textContent  = allData.length;
+    document.getElementById('st-active').textContent = allData.filter(function(x){ return x.count>0; }).length;
+    document.getElementById('st-done').textContent   = allData.filter(function(x){ return x.count>=7; }).length;
+    var avg = allData.length ? Math.round(allData.reduce(function(s,x){ return s+x.pct; },0)/allData.length) : 0;
+    document.getElementById('st-avg').textContent    = avg + '%';
+
+    renderTable();
+  });
+}
+
+function renderTable() {
+  var q = document.getElementById('search').value.toLowerCase();
+  var rows = allData.filter(function(r){
+    return !q || r.nombre.toLowerCase().includes(q) || r.area.toLowerCase().includes(q) || r.email.toLowerCase().includes(q);
+  });
+
+  if (!rows.length) {
+    document.getElementById('tabla-body').innerHTML = '<tr><td colspan="7" class="empty">No se encontraron resultados.</td></tr>';
+    return;
+  }
+
+  var html = rows.map(function(r){
+    var estado = r.count >= 7 ? '<span class="badge badge-done">✓ Completado</span>'
+               : r.count > 0  ? '<span class="badge badge-prog">En progreso</span>'
+               :                 '<span class="badge badge-new">Sin iniciar</span>';
+    var fecha = r.lastDate ? new Date(r.lastDate).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+    return '<tr>'
+      + '<td><strong>' + esc(r.nombre) + '</strong></td>'
+      + '<td>' + esc(r.area) + '</td>'
+      + '<td style="color:#aaa;font-size:.82rem">' + esc(r.email) + '</td>'
+      + '<td><div class="prog-cell"><div class="mini-bar"><div class="mini-fill" style="width:' + r.pct + '%"></div></div><span style="color:#76B82A;font-weight:700;font-size:.85rem">' + r.pct + '%</span></div></td>'
+      + '<td style="color:#fff">' + r.count + ' / 7</td>'
+      + '<td>' + estado + '</td>'
+      + '<td style="color:#666;font-size:.82rem">' + fecha + '</td>'
+      + '</tr>';
+  }).join('');
+
+  document.getElementById('tabla-body').innerHTML = html;
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function exportCSV() {
+  var rows = [['Nombre','Area','Correo','Modulos completados','Porcentaje','Estado','Ultimo acceso']];
+  allData.forEach(function(r){
+    var estado = r.count>=7?'Completado':r.count>0?'En progreso':'Sin iniciar';
+    var fecha = r.lastDate ? new Date(r.lastDate).toLocaleDateString('es-CO') : '';
+    rows.push([r.nombre, r.area, r.email, r.count+'/7', r.pct+'%', estado, fecha]);
+  });
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  var blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Progreso_IA_Escuela IA_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+document.getElementById('a-pass').addEventListener('keydown', function(e){ if(e.key==='Enter') adminLogin(); });
+</script>
+</body>
+</html>

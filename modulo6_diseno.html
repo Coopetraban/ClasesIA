@@ -89,7 +89,7 @@
 </style>
 </head>
 <body>
-<div class="logo">Coopetraban · ahorro y crédito</div>
+<div class="logo">Escuela IA · ahorro y crédito</div>
 <h1>🎨 El Estudio Creativo</h1>
 <p class="subtitle">Módulo 6 · Diseño visual con IA — construye prompts para crear materiales visuales profesionales</p>
 
@@ -179,7 +179,7 @@
       <div class="bb-field"><label class="bb-label">¿Para qué evento o campaña?</label><input class="bb-input" id="bb-evento" type="text" placeholder="Ej: Campaña de ahorro navideño, inducción de personal..."></div>
       <div class="bb-field"><label class="bb-label">¿A quién va dirigido?</label><input class="bb-input" id="bb-audiencia" type="text" placeholder="Ej: Alumnos mayores de 40 años, Alumnos nuevos..."></div>
       <div class="bb-field"><label class="bb-label">¿Qué emoción o mensaje quieres transmitir?</label><textarea class="bb-input" id="bb-mensaje" placeholder="Ej: Confianza y seguridad financiera, motivación, celebración..."></textarea></div>
-      <div class="bb-field"><label class="bb-label">Colores y estilo de marca</label><input class="bb-input" id="bb-colores" type="text" placeholder="Ej: verde Coopetraban, minimalista, profesional..."></div>
+      <div class="bb-field"><label class="bb-label">Colores y estilo de marca</label><input class="bb-input" id="bb-colores" type="text" placeholder="Ej: verde Escuela IA, minimalista, profesional..."></div>
       <div class="bb-field"><label class="bb-label">¿Dónde se va a usar?</label>
         <select class="bb-select" id="bb-uso">
           <option value="">Selecciona...</option>
@@ -201,7 +201,7 @@
         "Hazme un flyer para el ahorro"<br>
         → Resultado genérico, hay que iterar mucho
         <strong style="color:#76B82A;display:block;margin:10px 0 6px">Con brief:</strong>
-        "Crea un flyer vertical para una campaña de ahorro navideño de Coopetraban, dirigido a Alumnos adultos. Estilo cálido y festivo, colores verde oscuro y dorado, imagen de familia. Para imprimir en tamaño carta."<br>
+        "Crea un flyer vertical para una campaña de ahorro navideño de Escuela IA, dirigido a Alumnos adultos. Estilo cálido y festivo, colores verde oscuro y dorado, imagen de familia. Para imprimir en tamaño carta."<br>
         → Resultado listo para usar o ajustar mínimamente
       </div>
       <div id="brief-preview" class="brief-preview" style="margin-top:16px"></div>
@@ -213,7 +213,7 @@
 const CHALLENGES = [
   {
     badge:"🖼️ Imagen para campaña",
-    brief:`<strong>Reto:</strong> Necesitan una imagen para promocionar la campaña de ahorro navideño de Coopetraban.<br><br><strong>Requisitos:</strong> Debe transmitir calidez familiar, confianza financiera y espíritu navideño. Se usará en el correo masivo a todos los Alumnos.`,
+    brief:`<strong>Reto:</strong> Necesitan una imagen para promocionar la campaña de ahorro navideño de Escuela IA.<br><br><strong>Requisitos:</strong> Debe transmitir calidez familiar, confianza financiera y espíritu navideño. Se usará en el correo masivo a todos los Alumnos.`,
     hints:["familia o personas","navideño o festivo","verde y dorado","horizontal para correo","campaña de ahorro"],
     model:"Ilustración cálida y festiva de una familia ahorrando en época navideña. Estilo ilustración digital moderna, colores verde oscuro, dorado y crema. Formato horizontal para banner de correo electrónico. Atmósfera acogedora y de seguridad financiera. Sin texto en la imagen."
   },
@@ -226,7 +226,7 @@ const CHALLENGES = [
   {
     badge:"📢 Post para redes sociales",
     brief:`<strong>Reto:</strong> Necesitan contenido visual para anunciar la apertura de un nuevo módulo de atención en una sucursal.<br><br><strong>Requisitos:</strong> Debe verse moderno, accesible y generar emoción positiva. Se publicará en las redes oficiales de la cooperativa.`,
-    hints:["sucursal o apertura","moderno y vibrante","verde Coopetraban","cuadrado para redes","celebración y accesibilidad"],
+    hints:["sucursal o apertura","moderno y vibrante","verde Escuela IA","cuadrado para redes","celebración y accesibilidad"],
     model:"Ilustración flat design vibrante de una sucursal moderna con personas entrando felices. Colores verde brillante, blanco y detalles dorados. Formato cuadrado (1:1). Estilo moderno y accesible, líneas limpias. Energía positiva y de bienvenida."
   },
   {
@@ -237,9 +237,9 @@ const CHALLENGES = [
   },
   {
     badge:"📱 Banner de comunicación interna",
-    brief:`<strong>Reto:</strong> Necesitan un banner para el boletín interno mensual de Gestión Humana.<br><br><strong>Requisitos:</strong> Debe verse fresco, institucional y motivador. Se enviará por correo interno a todos los Alumnos de Coopetraban.`,
+    brief:`<strong>Reto:</strong> Necesitan un banner para el boletín interno mensual de Gestión Humana.<br><br><strong>Requisitos:</strong> Debe verse fresco, institucional y motivador. Se enviará por correo interno a todos los Alumnos de Escuela IA.`,
     hints:["equipo de trabajo o personas","fresco e institucional","verde y blanco","banner horizontal","motivación y equipo"],
-    model:"Banner horizontal con diseño limpio y moderno. Ilustración vectorial minimalista de personas en equipo de trabajo con gestos positivos. Paleta verde Coopetraban, blanco y gris claro. Espacio para texto en lado derecho. Estilo corporativo pero cálido y humano."
+    model:"Banner horizontal con diseño limpio y moderno. Ilustración vectorial minimalista de personas en equipo de trabajo con gestos positivos. Paleta verde Escuela IA, blanco y gris claro. Espacio para texto en lado derecho. Estilo corporativo pero cálido y humano."
   },
   {
     badge:"🏆 Reconocimiento especial",
