@@ -60,7 +60,7 @@ tr:hover td{background:rgba(118,184,42,.05)}
     <h2>Panel Administrador</h2>
     <p>Acceso exclusivo para instructores</p>
     <div id="login-err"></div>
-    <input id="a-email" class="inp" type="email" placeholder="Correo administrador">
+    <input id="a-email" class="inp" type="text" placeholder="Usuario administrador">
     <input id="a-pass"  class="inp" type="password" placeholder="Contraseña">
     <button class="btn-main" onclick="adminLogin()">Ingresar</button>
   </div>
@@ -128,7 +128,8 @@ supa.auth.getSession().then(function(r){
 });
 
 function adminLogin() {
-  var email = document.getElementById('a-email').value.trim();
+  var uname = document.getElementById('a-email').value.trim().toLowerCase();
+  var email = uname + '@escuelajia.local';
   var pass  = document.getElementById('a-pass').value;
   var err   = document.getElementById('login-err');
   err.style.display = 'none';
@@ -149,7 +150,7 @@ function checkAdmin(user) {
     }
     document.getElementById('login-wrap').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    document.getElementById('admin-email').textContent = user.email;
+    document.getElementById('admin-email').textContent = user.email.replace('@escuelajia.local','');
     loadData();
   });
 }
@@ -174,7 +175,7 @@ function loadData() {
       var mods = progress.filter(function(x){ return x.user_id === p.id; });
       var count = mods.length;
       var lastDate = mods.length ? mods.sort(function(a,b){ return new Date(b.completed_at)-new Date(a.completed_at); })[0].completed_at : null;
-      return { nombre: p.nombre||'Sin nombre', area: p.area||'—', email: p.email||'—', count: count, lastDate: lastDate, pct: Math.round((count/7)*100) };
+      return { nombre: p.nombre||'Sin nombre', area: p.area||'—', email: (p.email||'—').replace('@escuelajia.local',''), count: count, lastDate: lastDate, pct: Math.round((count/7)*100) };
     });
 
     // Stats

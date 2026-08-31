@@ -141,7 +141,7 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
       <!-- FORM ADMIN -->
       <div id="form-admin" style="display:none">
         <p style="color:#76B82A;font-weight:700;font-size:1rem;margin-bottom:16px">&#128202; Acceso Formador</p>
-        <input id="login-email" type="email" placeholder="Correo electrónico" autocomplete="email" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
+        <input id="login-username" type="text" placeholder="Usuario" autocomplete="username" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
         <input id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:16px;outline:none;box-sizing:border-box">
         <button id="btn-login" onclick="doAdminLogin()" style="width:100%;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:15px;font-size:1rem;font-weight:700;border-radius:50px;cursor:pointer">Ingresar al panel</button>
       </div>
@@ -153,7 +153,7 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
           <button id="tab-reg"   onclick="showTab('reg')"   style="flex:1;padding:10px;background:transparent;border:none;color:#aaa;font-weight:700;font-size:.9rem;cursor:pointer">Registrarse</button>
         </div>
         <div id="panel-login">
-          <input id="user-email" type="email" placeholder="Correo electrónico" autocomplete="email" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
+          <input id="user-username" type="text" placeholder="Usuario" autocomplete="username" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
           <input id="user-pass"  type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:16px;outline:none;box-sizing:border-box">
           <button onclick="doLogin()" style="width:100%;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:15px;font-size:1rem;font-weight:700;border-radius:50px;cursor:pointer">Ingresar al programa</button>
         </div>
@@ -165,7 +165,7 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
             <option>Recursos Humanos</option><option>Sistemas / TI</option>
             <option>Gerencia</option><option>Atención al Alumno</option><option>Otra</option>
           </select>
-          <input id="reg-email" type="email" placeholder="Correo electrónico" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
+          <input id="reg-username" type="text" placeholder="Usuario (ej: andersono)" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box">
           <input id="reg-pass"  type="password" placeholder="Contraseña (mín. 6 caracteres)" style="width:100%;padding:13px 16px;border-radius:12px;border:1px solid #2D9E5F55;background:rgba(13,92,58,.25);color:#fff;font-size:.95rem;margin-bottom:16px;outline:none;box-sizing:border-box">
           <button onclick="doRegister()" style="width:100%;background:linear-gradient(135deg,#76B82A,#2D9E5F);border:none;color:#fff;padding:15px;font-size:1rem;font-weight:700;border-radius:50px;cursor:pointer">Crear cuenta</button>
         </div>
@@ -686,14 +686,15 @@ function authErr(msg) { var e=document.getElementById('auth-error'); e.textConte
 function authOk(msg)  { var e=document.getElementById('auth-ok');    e.textContent=msg; e.style.display='block'; document.getElementById('auth-error').style.display='none'; }
 
 function doAdminLogin() {
-  var email = document.getElementById('login-email').value.trim();
+  var uname = document.getElementById('login-username').value.trim().toLowerCase();
   var pass  = document.getElementById('login-pass').value;
+  var email = uname + '@escuelajia.local';
   var btn   = document.getElementById('btn-login');
-  if (!email || !pass) { authErr('Completa todos los campos.'); return; }
+  if (!uname || !pass) { authErr('Completa todos los campos.'); return; }
   btn.textContent = 'Verificando...'; btn.disabled = true;
   supa.auth.signInWithPassword({email:email, password:pass}).then(function(r){
     btn.textContent = 'Ingresar al panel'; btn.disabled = false;
-    if (r.error) { authErr('Correo o contraseña incorrectos.'); return; }
+    if (r.error) { authErr('Usuario o contraseña incorrectos.'); return; }
     supa.rpc('is_admin').then(function(ra){
       if (ra.error || !ra.data) { authErr('No tienes permisos de instructor.'); supa.auth.signOut(); return; }
       window.location.href = 'admin/';
@@ -702,20 +703,21 @@ function doAdminLogin() {
 }
 
 function doLogin() {
-  var email = document.getElementById('user-email').value.trim();
+  var uname = document.getElementById('user-username').value.trim().toLowerCase();
   var pass  = document.getElementById('user-pass').value;
-  if (!email || !pass) { authErr('Completa todos los campos.'); return; }
+  var email = uname + '@escuelajia.local';
+  if (!uname || !pass) { authErr('Completa todos los campos.'); return; }
   authErr(''); document.getElementById('auth-error').style.display='none';
   supa.auth.signInWithPassword({email:email, password:pass}).then(function(r){
-    if (r.error) { authErr('Correo o contraseña incorrectos.'); }
+    if (r.error) { authErr('Usuario o contraseña incorrectos.'); }
     else {
       currentUser = r.data.user;
-      currentNombre = currentUser.email.split('@')[0];
+      currentNombre = uname;
       // Auto-crear perfil si no existe (usa SECURITY DEFINER para evitar RLS)
       supa.rpc('create_profile', {
         p_id: currentUser.id,
-        p_email: currentUser.email,
-        p_nombre: currentUser.email.split('@')[0],
+        p_email: email,
+        p_nombre: uname,
         p_area: 'Sin definir'
       });
       hidePantallaLogin(); loadProgressFromDB();
@@ -726,31 +728,40 @@ function doLogin() {
 function doRegister() {
   var nombre = document.getElementById('reg-nombre').value.trim();
   var area   = document.getElementById('reg-area').value;
-  var email  = document.getElementById('reg-email').value.trim();
+  var uname  = document.getElementById('reg-username').value.trim().toLowerCase().replace(/\s+/g,'');
   var pass   = document.getElementById('reg-pass').value;
-  if (!nombre || !area || !email || !pass) { authErr('Completa todos los campos.'); return; }
+  var email  = uname + '@escuelajia.local';
+  if (!nombre || !area || !uname || !pass) { authErr('Completa todos los campos.'); return; }
   if (pass.length < 6) { authErr('La contraseña debe tener mínimo 6 caracteres.'); return; }
   document.getElementById('auth-error').style.display='none';
   supa.auth.signUp({email:email, password:pass}).then(function(r){
-    if (r.error) { authErr(r.error.message); return; }
+    if (r.error) {
+      var msg = r.error.message || '';
+      if (msg.toLowerCase().includes('already') || msg.toLowerCase().includes('registered')) {
+        authErr('Ese usuario ya existe. Elige otro nombre de usuario.');
+      } else {
+        authErr(msg);
+      }
+      return;
+    }
     var uid = r.data.user.id;
     supa.rpc('create_profile', {p_id:uid, p_email:email, p_nombre:nombre, p_area:area}).then(function(){
-      authOk('✓ Cuenta creada. Ya puedes ingresar con tu correo y contraseña.');
+      authOk('\u2713 Cuenta creada. Ya puedes ingresar con tu usuario y contrase\u00f1a.');
       showTab('login');
-      document.getElementById('user-email').value = email;
+      document.getElementById('user-username').value = uname;
     });
   });
 }
 
 document.getElementById('login-pass').addEventListener('keydown', function(e){ if(e.key==='Enter') doAdminLogin(); });
-document.getElementById('login-email').addEventListener('keydown', function(e){ if(e.key==='Enter') doAdminLogin(); });
+document.getElementById('login-username').addEventListener('keydown', function(e){ if(e.key==='Enter') doAdminLogin(); });
 
 function hidePantallaLogin() {
   document.getElementById('login-overlay').style.display = 'none';
   // Mostrar bienvenida de inmediato; loadProgressFromDB la reemplazará si hay progreso
   var w = document.getElementById('welcome');
   w.style.display = 'flex'; w.classList.remove('hidden');
-  if (currentUser) document.getElementById('hud-user').textContent = currentUser.email;
+  if (currentUser) document.getElementById('hud-user').textContent = currentUser.email.replace('@escuelajia.local','');
   document.getElementById('role-selector').style.display = 'flex';
   document.getElementById('form-box').style.display = 'none';
 }
@@ -784,7 +795,7 @@ function loadProgressFromDB() {
   if (currentUser) {
     supa.from('profiles').select('nombre').eq('id', currentUser.id).then(function(rp){
       if (rp.data && rp.data.length > 0 && rp.data[0].nombre) currentNombre = rp.data[0].nombre;
-      else currentNombre = currentUser.email.split('@')[0];
+      else currentNombre = currentUser.email.replace('@escuelajia.local','');
     });
   }
   // Leer localStorage como respaldo inmediato
@@ -1194,7 +1205,7 @@ window.addEventListener('message', function(e) {
 
 // ===== CERTIFICADO PDF =====
 function generarCertificado() {
-  var nombre = currentNombre || (currentUser ? currentUser.email.split('@')[0] : 'Participante');
+  var nombre = currentNombre || (currentUser ? currentUser.email.replace('@escuelajia.local','') : 'Participante');
   var hoy = new Date();
   var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   var fecha = hoy.getDate() + ' de ' + meses[hoy.getMonth()] + ' de ' + hoy.getFullYear();
