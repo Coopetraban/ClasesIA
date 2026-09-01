@@ -686,9 +686,9 @@ function authErr(msg) { var e=document.getElementById('auth-error'); e.textConte
 function authOk(msg)  { var e=document.getElementById('auth-ok');    e.textContent=msg; e.style.display='block'; document.getElementById('auth-error').style.display='none'; }
 
 function doAdminLogin() {
-  var uname = document.getElementById('login-username').value.trim().toLowerCase();
+  var uname = document.getElementById('login-username').value.trim();
   var pass  = document.getElementById('login-pass').value;
-  var email = uname + '@escuelajia.local';
+  var email = uname.includes('@') ? uname : uname.toLowerCase() + '@escuelajia.local';
   var btn   = document.getElementById('btn-login');
   if (!uname || !pass) { authErr('Completa todos los campos.'); return; }
   btn.textContent = 'Verificando...'; btn.disabled = true;
@@ -771,9 +771,9 @@ function doLogout() {
     currentUser = null; progress = 0;
     document.getElementById('hud-user').textContent = '';
     // Resetear formularios
-    document.getElementById('login-email').value = '';
+    document.getElementById('login-username').value = '';
     document.getElementById('login-pass').value = '';
-    document.getElementById('user-email') && (document.getElementById('user-email').value = '');
+    document.getElementById('user-username') && (document.getElementById('user-username').value = '');
     document.getElementById('user-pass')  && (document.getElementById('user-pass').value  = '');
     document.getElementById('auth-error').style.display = 'none';
     document.getElementById('auth-ok').style.display = 'none';
