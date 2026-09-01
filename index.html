@@ -686,7 +686,7 @@ function authOk(msg)  { var e=document.getElementById('auth-ok');    e.textConte
 function doAdminLogin() {
   var uname = document.getElementById('login-username').value.trim();
   var pass  = document.getElementById('login-pass').value;
-  var email = uname.includes('@') ? uname : uname.toLowerCase() + '@escuelajia.local';
+  var email = uname.includes('@') ? uname : uname.toLowerCase() + '@escuelaia.local';
   var btn   = document.getElementById('btn-login');
   if (!uname || !pass) { authErr('Completa todos los campos.'); return; }
   btn.textContent = 'Verificando...'; btn.disabled = true;
@@ -695,7 +695,7 @@ function doAdminLogin() {
     if (r.error) { authErr('Usuario o contraseña incorrectos.'); return; }
     supa.rpc('is_admin').then(function(ra){
       if (ra.error || !ra.data) { authErr('No tienes permisos de instructor.'); supa.auth.signOut(); return; }
-      window.location.href = 'admin/';
+      window.location.href = 'admin.html';
     });
   });
 }
@@ -703,7 +703,7 @@ function doAdminLogin() {
 function doLogin() {
   var uname = document.getElementById('user-username').value.trim().toLowerCase();
   var pass  = document.getElementById('user-pass').value;
-  var email = uname + '@escuelajia.local';
+  var email = uname + '@escuelaia.local';
   if (!uname || !pass) { authErr('Completa todos los campos.'); return; }
   authErr(''); document.getElementById('auth-error').style.display='none';
   supa.auth.signInWithPassword({email:email, password:pass}).then(function(r){
@@ -728,7 +728,7 @@ function doRegister() {
   var area   = document.getElementById('reg-area').value;
   var uname  = document.getElementById('reg-username').value.trim().toLowerCase().replace(/\s+/g,'');
   var pass   = document.getElementById('reg-pass').value;
-  var email  = uname + '@escuelajia.local';
+  var email  = uname + '@escuelaia.local';
   if (!nombre || !area || !uname || !pass) { authErr('Completa todos los campos.'); return; }
   if (pass.length < 6) { authErr('La contraseña debe tener mínimo 6 caracteres.'); return; }
   document.getElementById('auth-error').style.display='none';
@@ -759,7 +759,7 @@ function hidePantallaLogin() {
   // Mostrar bienvenida de inmediato; loadProgressFromDB la reemplazará si hay progreso
   var w = document.getElementById('welcome');
   w.style.display = 'flex'; w.classList.remove('hidden');
-  if (currentUser) document.getElementById('hud-user').textContent = currentUser.email.replace('@escuelajia.local','');
+  if (currentUser) document.getElementById('hud-user').textContent = currentUser.email.replace('@escuelaia.local','');
   document.getElementById('role-selector').style.display = 'flex';
   document.getElementById('form-box').style.display = 'none';
 }
@@ -793,7 +793,7 @@ function loadProgressFromDB() {
   if (currentUser) {
     supa.from('profiles').select('nombre').eq('id', currentUser.id).then(function(rp){
       if (rp.data && rp.data.length > 0 && rp.data[0].nombre) currentNombre = rp.data[0].nombre;
-      else currentNombre = currentUser.email.replace('@escuelajia.local','');
+      else currentNombre = currentUser.email.replace('@escuelaia.local','');
     });
   }
   // Leer localStorage como respaldo inmediato
@@ -1203,7 +1203,7 @@ window.addEventListener('message', function(e) {
 
 // ===== CERTIFICADO PDF =====
 function generarCertificado() {
-  var nombre = currentNombre || (currentUser ? currentUser.email.replace('@escuelajia.local','') : 'Participante');
+  var nombre = currentNombre || (currentUser ? currentUser.email.replace('@escuelaia.local','') : 'Participante');
   var hoy = new Date();
   var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   var fecha = hoy.getDate() + ' de ' + meses[hoy.getMonth()] + ' de ' + hoy.getFullYear();
