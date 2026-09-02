@@ -1162,7 +1162,9 @@ function closeGame() {
 }
 
 function completeModule() {
-  if (currentMod !== progress) return;
+  if (currentMod !== progress && !freeMode) return;
+  // En freeMode, avanzar progress si el módulo actual lo supera
+  if (freeMode && currentMod >= progress) progress = currentMod;
   saveProgressToDB(currentMod);
   closeModal();
   var fromPct = PATH_PCTS[progress];
