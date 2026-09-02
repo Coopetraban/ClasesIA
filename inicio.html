@@ -1214,7 +1214,11 @@ document.getElementById("road-svg").addEventListener("click", function(e) {
   var node = e.target.closest(".mod-node");
   if (!node) return;
   var idx = parseInt(node.dataset.idx);
-  if (node.classList.contains("locked") && !freeMode) return;
+  if (node.classList.contains("locked") && !freeMode) {
+    // Si es bloqueo por fecha, mostrar mensaje; si es por progreso, ignorar
+    if (node.classList.contains("date-locked")) { openModule(idx); }
+    return;
+  }
   openModule(idx);
 });
 
