@@ -851,6 +851,20 @@ function saveProgressToDB(moduleIdx) {
     .then(function(r){ if(r.error) console.warn('Supabase save error:', r.error); });
 }
 
+function showToast(msg) {
+  var t = document.getElementById('toast-msg');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast-msg';
+    t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:24px;font-size:.95rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);transition:opacity .4s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.style.opacity = '0'; }, 3000);
+}
+
 function updateProgressBar() {
   var pct = Math.min(100, Math.round((progress / 7) * 100));
   var bar = document.getElementById('prog-bar');
@@ -997,17 +1011,47 @@ function showDriveTransition(idx, onDone) {
   }, 2800);
 }
 
+// ===== FECHAS DE DESBLOQUEO POR MÓDULO =====
+// M0,M1 -> Sep 3 | M2,M3 -> Sep 10 | M4,M5 -> Sep 17 | M6,Eval -> Sep 24
+var UNLOCK_DATES = [
+  new Date(2026,8,3),  // M0
+  new Date(2026,8,3),  // M1
+  new Date(2026,8,10), // M2
+  new Date(2026,8,10), // M3
+  new Date(2026,8,17), // M4
+  new Date(2026,8,17), // M5
+  new Date(2026,8,24), // M6
+  new Date(2026,8,24)  // Evaluación final
+];
+var UNLOCK_LABELS = [
+  'jueves 3 de septiembre','jueves 3 de septiembre',
+  'jueves 10 de septiembre','jueves 10 de septiembre',
+  'jueves 17 de septiembre','jueves 17 de septiembre',
+  'jueves 24 de septiembre','jueves 24 de septiembre'
+];
+function isDateLocked(idx) {
+  var today = new Date(); today.setHours(0,0,0,0);
+  var unlock = UNLOCK_DATES[idx];
+  return unlock && today < unlock;
+}
+
 function updateNodes() {
   var nodes = document.querySelectorAll(".mod-node");
   nodes.forEach(function(n, i) {
-    n.classList.remove("locked", "done");
-    if (i < progress) n.classList.add("done");
+    n.classList.remove("locked", "done", "date-locked");
+    if (i < progress && !isDateLocked(i)) n.classList.add("done");
+    else if (isDateLocked(i) && !freeMode) n.classList.add("locked", "date-locked");
     else if (i > progress && !freeMode) n.classList.add("locked");
   });
   updateProgressBar();
 }
 
 function openModule(idx) {
+  // Bloquear por fecha de clase
+  if (isDateLocked(idx) && !freeMode) {
+    showToast('🔒 Disponible el ' + UNLOCK_LABELS[idx]);
+    return;
+  }
   // Bloquear acceso a módulos no desbloqueados (solo pueden revisitar anteriores)
   if (idx > progress) return;
   currentMod = idx;
