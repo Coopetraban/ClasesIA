@@ -719,12 +719,11 @@ function doLogin() {
         p_area: 'Sin definir'
       });
       hidePantallaLogin(); loadProgressFromDB();
-      // Mostrar btn-free si es formador (admin)
-      supa.from('admins').select('user_id').eq('user_id', r.data.user.id).then(function(ra){
-        if (ra.data && ra.data.length > 0) {
-          document.getElementById('btn-free').style.display = 'inline-block';
-        }
-      });
+      // Mostrar btn-free si es formador
+      var FORMADORES = ['aocampo', 'jvelasquez'];
+      if (FORMADORES.indexOf(uname) >= 0) {
+        document.getElementById('btn-free').style.display = 'inline-block';
+      }
     }
   });
 }
