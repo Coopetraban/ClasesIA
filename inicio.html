@@ -628,6 +628,7 @@ body{font-family:'Segoe UI',sans-serif;background:#06100A;color:#fff;overflow:hi
   <p>Han recorrido toda la ruta de <strong style="color:#76B82A">IA para la Productividad</strong>. Ahora son embajadores de IA en Escuela IA.</p>
   <div style="display:flex;gap:16px;margin-top:2rem;flex-wrap:wrap;justify-content:center">
     <button id="btn-restart" onclick="location.reload()" style="background:rgba(13,92,58,.5);border:1px solid #2D9E5F;color:#76B82A;padding:14px 32px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer">&#128260; Recorrer de nuevo</button>
+    <button id="btn-cert-banner" onclick="generarCertificado()" style="display:none;background:linear-gradient(135deg,#76B82A,#0D5C3A);border:none;color:#fff;padding:14px 32px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer">&#127941; Descargar Certificado</button>
   </div>
 </div>
 
@@ -1252,6 +1253,7 @@ window.addEventListener('message', function(e) {
     if (ov) ov.style.display = 'none';
     // Mostrar botón de certificado
     document.getElementById('btn-cert-wrap').style.display = 'block';
+    var bcb = document.getElementById('btn-cert-banner'); if(bcb) bcb.style.display = 'inline-block';
     // Confetti de celebración
     bigConfetti();
   }
