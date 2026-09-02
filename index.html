@@ -891,7 +891,7 @@ var MODULES = [
   {title:"Módulo 0 · ¿Qué es la Inteligencia Artificial?",meta:"Comprende qué es la IA, cómo funciona y cuáles son sus límites reales",game:"modulo0_semaforo.html",pdf:"Resumen_M0_QueEsIA.html",slides:[
     {h:"Bienvenida al programa",b:'<p>Bienvenidos a <strong style="color:#76B82A">IA para la Productividad</strong>, el programa de capacitación interna de Escuela IA.</p><div class="highlight">🎯 <strong>Objetivo:</strong> Entender qué es la IA, cómo funciona y cómo usarla de forma responsable en nuestro trabajo diario.</div>'},
     {h:"¿Qué es la IA? Desmitificando",b:'<p>La IA no piensa ni siente. Es un sistema entrenado con millones de textos que aprendió a <strong>predecir qué respuesta tiene sentido dar</strong>. No entiende realmente — predice con mucha sofisticación.</p><ul><li>No tiene memoria entre conversaciones: cada vez empieza de cero</li><li>Puede inventarse respuestas que suenan correctas pero no lo son</li><li>No reemplaza el criterio profesional — lo apoya</li></ul>'},
-    {h:"Herramientas de IA que existen hoy",b:'<p>Hay varias herramientas de IA de acceso libre disponibles. Las más conocidas son:</p><ul><li><strong>ChatGPT</strong> (OpenAI) — redacción, análisis, conversación general</li><li><strong>Claude</strong> (Anthropic) — textos largos, documentos, razonamiento</li><li><strong>Gemini</strong> (Google) — integrado con Google Workspace</li><li><strong>Copilot</strong> (Microsoft) — integrado en Word, Excel, Outlook</li></ul><div class="highlight">💡 Lo que aprendas aquí — cómo construir un buen prompt — funciona en <strong>todas</strong> ellas.</div>'},
+    {h:"Herramientas de IA que existen hoy",b:'<p>El ecosistema de IA crece rápido. Estas son las más útiles según lo que necesitas:</p><table style="width:100%;border-collapse:collapse;font-size:.88rem;margin-bottom:14px"><thead><tr style="background:rgba(118,184,42,.15)"><th style="padding:7px 10px;text-align:left;border-bottom:1px solid #2D9E5F44;color:#76B82A">Herramienta</th><th style="padding:7px 10px;text-align:left;border-bottom:1px solid #2D9E5F44;color:#76B82A">¿Para qué sirve?</th></tr></thead><tbody><tr><td style="padding:6px 10px;border-bottom:1px solid #ffffff11"><strong>ChatGPT</strong> (OpenAI)</td><td style="padding:6px 10px;border-bottom:1px solid #ffffff11;color:#ccc">Redacción, análisis, responder preguntas, crear contenido</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #ffffff11"><strong>Claude</strong> (Anthropic)</td><td style="padding:6px 10px;border-bottom:1px solid #ffffff11;color:#ccc">Textos largos, documentos, razonamiento profundo</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #ffffff11"><strong>Gemini</strong> (Google)</td><td style="padding:6px 10px;border-bottom:1px solid #ffffff11;color:#ccc">Integrado con Gmail, Drive y Google Workspace</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #ffffff11"><strong>Copilot</strong> (Microsoft)</td><td style="padding:6px 10px;border-bottom:1px solid #ffffff11;color:#ccc">Integrado en Word, Excel, Outlook y Teams</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #ffffff11"><strong>NotebookLM</strong> (Google)</td><td style="padding:6px 10px;border-bottom:1px solid #ffffff11;color:#ccc">Sube documentos y la IA los analiza, resume y responde preguntas sobre ellos</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #ffffff11"><strong>Suno</strong></td><td style="padding:6px 10px;border-bottom:1px solid #ffffff11;color:#ccc">Crea canciones completas con letra y música a partir de un texto</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #ffffff11"><strong>Canva IA</strong></td><td style="padding:6px 10px;border-bottom:1px solid #ffffff11;color:#ccc">Diseño gráfico con IA: presentaciones, flyers, imágenes en segundos</td></tr><tr><td style="padding:6px 10px"><strong>Runway / Kling</strong></td><td style="padding:6px 10px;color:#ccc">Genera y edita videos con inteligencia artificial</td></tr></tbody></table><div class="highlight">💡 Lo que aprendas aquí — cómo construir un buen prompt — funciona en <strong>todas</strong> ellas.</div>'},
     {h:"¿Qué puede y qué NO debe hacer la IA?",b:'<p><strong style="color:#76B82A">✅ ÚSALA PARA:</strong></p><ul><li>Redactar, resumir y mejorar textos</li><li>Generar borradores de correos, comunicados, informes</li><li>Organizar ideas y crear estructuras</li><li>Explicar conceptos en lenguaje sencillo</li></ul><p style="margin-top:10px"><strong style="color:#e66">❌ NO LA USES PARA:</strong></p><ul><li>Ingresar datos personales o financieros de asociados</li><li>Tomar decisiones de crédito o disciplinarias</li><li>Publicar sin revisar — siempre verifica lo que produce</li></ul>'},
     {h:"Preparación para el juego",b:'<p>Jugaremos <strong style="color:#76B82A">El Semáforo IA</strong>: para cada situación, decide si es verde (OK usar IA), amarillo (con cuidado) o rojo (no usar IA).</p><div class="highlight">🟢 Verde = OK usar IA &nbsp; 🟡 Amarillo = Con precaución &nbsp; 🔴 Rojo = No es apropiado</div>'}
   ]},
@@ -1058,7 +1058,7 @@ function openModule(idx) {
     return;
   }
   // Bloquear acceso a módulos no desbloqueados (solo pueden revisitar anteriores)
-  if (idx > progress) return;
+  if (idx > progress && !freeMode) return;
   currentMod = idx;
   currentSlide = 0;
   slidesVistas = new Set([0]); // la primera slide ya se ve al abrir
@@ -1082,9 +1082,8 @@ function openModule(idx) {
   });
   buildDots(mod.slides.length);
   var btnC = document.getElementById("btn-complete");
-  if (idx === progress) {
+  if (idx === progress || freeMode) {
     btnC.style.display = "block";
-    // Solo habilitar si el módulo tiene 1 sola slide (o ninguna), si no se requiere ver todas
     var totalSlides = mod.slides ? mod.slides.length : 0;
     btnC.disabled = totalSlides > 1;
     btnC.style.opacity = totalSlides > 1 ? '0.4' : '1';
@@ -1117,7 +1116,7 @@ function changeSlide(dir) {
 }
 
 function checkSlideCompletion() {
-  if (currentMod !== progress) return;
+  if (currentMod !== progress && !freeMode) return;
   var total = MODULES[currentMod].slides ? MODULES[currentMod].slides.length : 0;
   var todasVistas = slidesVistas.size >= total;
   var btnC = document.getElementById("btn-complete");
@@ -1157,7 +1156,9 @@ function openGame() {
 function closeGame() {
   document.getElementById('game-overlay').style.display = 'none';
   document.getElementById('game-frame').src = '';
-  openModule(currentMod);
+  // Reabrir modal sin resetear slides vistas
+  document.getElementById('modal-bg').style.display = 'flex';
+  checkSlideCompletion();
 }
 
 function completeModule() {
